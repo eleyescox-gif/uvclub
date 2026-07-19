@@ -385,11 +385,42 @@
   50% { transform: scale(1.25) rotate(15deg); opacity: 1; }
 }
 
-.statIcon {
+.statIconBadge {
   position: absolute;
-  top: 1.15rem;
-  left: 1.25rem;
-  color: rgba(255, 255, 255, 0.35);
+  top: 1rem;
+  left: 1.15rem;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+}
+
+.statIconBadge:hover {
+  transform: scale(1.1);
+}
+
+.statIconOne {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(5, 150, 105, 0.35) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  color: #34d399;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
+}
+
+.statIconTwo {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.22) 0%, rgba(6, 182, 212, 0.35) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.45);
+  color: #60a5fa;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.25);
+}
+
+.statIconThree {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.22) 0%, rgba(217, 119, 6, 0.35) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  color: #fbbf24;
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.25);
 }
 
 .statVal {

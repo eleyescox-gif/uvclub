@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { User, Folder, Trophy } from "lucide-react";
+import { Users, FolderKanban, Award } from "lucide-react";
 import styles from "@/app/page.module.css";
 
 // Helper to convert standard digits to Bengali numerals
@@ -23,7 +23,7 @@ export function StatsCounter({
   membersCount: number; 
   projectsCount: number; 
   successYears: number; 
- }) {
+}) {
   const [members, setMembers] = useState(0);
   const [projects, setProjects] = useState(0);
   const [years, setYears] = useState(0);
@@ -59,8 +59,8 @@ export function StatsCounter({
       {/* Card 1 - Members */}
       <div className={styles.statCardWrapper}>
         <div className={styles.glassCardOne}>
-          <div className={styles.statIcon}>
-            <User size={18} />
+          <div className={`${styles.statIconBadge} ${styles.statIconOne}`}>
+            <Users size={20} strokeWidth={2.2} />
           </div>
           <span className={styles.statVal}>
             {toBn(formatWithLeadingZero(members))} জন
@@ -74,8 +74,8 @@ export function StatsCounter({
       {/* Card 2 - Projects */}
       <div className={styles.statCardWrapper}>
         <div className={styles.glassCardTwo}>
-          <div className={styles.statIcon}>
-            <Folder size={18} />
+          <div className={`${styles.statIconBadge} ${styles.statIconTwo}`}>
+            <FolderKanban size={20} strokeWidth={2.2} />
           </div>
           <span className={styles.statVal}>
             {toBn(formatWithLeadingZero(projects))} টি
@@ -89,8 +89,8 @@ export function StatsCounter({
       {/* Card 3 - Years */}
       <div className={styles.statCardWrapper}>
         <div className={styles.glassCardThree}>
-          <div className={styles.statIcon}>
-            <Trophy size={18} />
+          <div className={`${styles.statIconBadge} ${styles.statIconThree}`}>
+            <Award size={20} strokeWidth={2.2} />
           </div>
           <span className={styles.statVal}>
             {toBn(formatWithLeadingZero(years))} বছর
