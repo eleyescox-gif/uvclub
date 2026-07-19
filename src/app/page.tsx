@@ -6,21 +6,25 @@ import { StatsCounter } from "@/components/home/StatsCounter";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  // Query dynamic club settings (Name & Logo) set by Admin
-  let settings = null;
-  if (prisma.clubSettings) {
-    settings = await (prisma.clubSettings as any).findUnique({
-      where: { id: "singleton" }
-    });
-  }
-  const clubSettings = settings || { name: "United Vision Club", logo: null };
+  // Query dynamic club settings & metrics with defensive fallbacks
+  let clubSettings = { name: "United Vision Club", logo: null };
+  let totalMembers = 0;
+  let totalProjectsCount = 0;
 
-  // Query actual dashboard metrics from DB
-  const totalMembers = await prisma.user.count({ 
-    where: { activeStatus: true, isDeleted: false } 
-  });
-  
-  const totalProjectsCount = await prisma.project.count();
+  try {
+    if (prisma.clubSettings) {
+      const settings = await (prisma.clubSettings as any).findUnique({
+        where: { id: "singleton" }
+      });
+      if (settings) clubSettings = settings;
+    }
+    totalMembers = await prisma.user.count({ 
+      where: { activeStatus: true, isDeleted: false } 
+    });
+    totalProjectsCount = await prisma.project.count();
+  } catch (err) {
+    console.error("Home: Could not fetch metrics from DB:", err);
+  }
 
   // Calculate dynamic success years (founded in 2025)
   const foundingYear = 2025;
