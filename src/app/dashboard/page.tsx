@@ -153,7 +153,7 @@ export default async function DashboardPage() {
       {/* Header Area */}
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Dashboard</h1>
+          <h1 className={styles.title}>ড্যাশবোর্ড</h1>
           <p className={styles.subtitle}>ইউনাইটেড ভিশন ক্লাব ড্যাশবোর্ডে আপনাকে স্বাগতম।</p>
         </div>
       </div>
@@ -239,8 +239,8 @@ export default async function DashboardPage() {
           {/* Active Poll Area */}
           <div className={styles.card}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-              <h3 className={styles.cardTitle} style={{ margin: 0 }}>{latestPoll?.status === 'OPEN' ? 'Active Poll' : 'Recent Poll'}</h3>
-              <Link href="/dashboard/voting" className={styles.badgeBtn}>View All</Link>
+              <h3 className={styles.cardTitle} style={{ margin: 0 }}>{latestPoll?.status === 'OPEN' ? 'চলমান সিদ্ধান্ত ও ভোট' : 'সাম্প্রতিক সিদ্ধান্ত'}</h3>
+              <Link href="/dashboard/voting" className={styles.badgeBtn}>সব দেখুন</Link>
             </div>
             
             {latestPoll ? (
@@ -248,7 +248,7 @@ export default async function DashboardPage() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', marginBottom: '0.5rem' }}>
                   <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--foreground)' }}>{latestPoll.title}</h4>
                   <span style={{ fontSize: '0.65rem', padding: '0.2rem 0.5rem', borderRadius: '9999px', background: latestPoll.status === 'OPEN' ? 'rgba(59,130,246,0.08)' : 'rgba(16,185,129,0.08)', color: latestPoll.status === 'OPEN' ? '#3b82f6' : 'var(--success)', fontWeight: 700, whiteSpace: 'nowrap' }}>
-                    {latestPoll.status === 'OPEN' ? 'চলমান (Open)' : 'সম্পন্ন (Closed)'}
+                    {latestPoll.status === 'OPEN' ? 'চলমান' : 'সম্পন্ন'}
                   </span>
                 </div>
                 
@@ -266,7 +266,7 @@ export default async function DashboardPage() {
                       <Award size={16} /> অভিনন্দন! 
                     </h3>
                     <p style={{ fontSize: '0.75rem', color: '#9a3412' }}>
-                      এই পোলে সর্বাধিক vote পেয়ে বিজয়ী হয়েছেন:
+                      এই পোলে সর্বাধিক ভোট পেয়ে বিজয়ী হয়েছেন:
                     </p>
                     <p style={{ fontSize: '1.05rem', fontWeight: 800, color: '#c2410c', marginTop: '0.25rem' }}>
                       {winner.text}
@@ -286,7 +286,7 @@ export default async function DashboardPage() {
             ) : (
               <div style={{ padding: '2rem 0', textAlign: 'center', color: '#9ca3af' }}>
                 <CheckCircle2 size={32} style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
-                <p style={{ fontSize: '0.875rem' }}>No active polls at the moment.</p>
+                <p style={{ fontSize: '0.875rem' }}>বর্তমানে কোনো সক্রিয় ভোট নেই।</p>
               </div>
             )}
           </div>
@@ -294,7 +294,7 @@ export default async function DashboardPage() {
           {/* Quick Services */}
           <div className={styles.card}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-              <h3 className={styles.cardTitle} style={{ margin: 0 }}>Member Services</h3>
+              <h3 className={styles.cardTitle} style={{ margin: 0 }}>মেম্বার সেবাসমূহ</h3>
             </div>
             
             <div className={styles.serviceList}>
@@ -303,10 +303,10 @@ export default async function DashboardPage() {
                   <FileText size={18} />
                 </div>
                 <div className={styles.serviceInfo}>
-                  <h4>Transactions & Receipts</h4>
-                  <p>Check your payment history</p>
+                  <h4>পেমেন্ট ও রশিদ বিবরণী</h4>
+                  <p>আপনার সব জমা ও রশিদের তালিকা দেখুন</p>
                 </div>
-                <div className={styles.statusPill}>Active</div>
+                <div className={styles.statusPill}>সক্রিয়</div>
               </Link>
               
               <Link href="/dashboard/projects" className={styles.serviceItem}>
@@ -314,10 +314,10 @@ export default async function DashboardPage() {
                   <Briefcase size={18} />
                 </div>
                 <div className={styles.serviceInfo}>
-                  <h4>Club Projects</h4>
-                  <p>View running investments</p>
+                  <h4>ক্লাবের প্রজেক্টসমূহ</h4>
+                  <p>চলমান বিনিয়োগের তথ্য দেখুন</p>
                 </div>
-                <div className={styles.statusPillWarning}>View</div>
+                <div className={styles.statusPillWarning}>দেখুন</div>
               </Link>
 
               <Link href="/dashboard/voting" className={styles.serviceItem}>
@@ -325,10 +325,10 @@ export default async function DashboardPage() {
                   <CheckCircle2 size={18} />
                 </div>
                 <div className={styles.serviceInfo}>
-                  <h4>Voting & Polls</h4>
-                  <p>Make your voice heard</p>
+                  <h4>ভোট ও সিদ্ধান্ত প্যানেল</h4>
+                  <p>সিদ্ধান্তে আপনার মতামত দিন</p>
                 </div>
-                <div className={styles.statusPillDanger}>Polls</div>
+                <div className={styles.statusPillDanger}>ভোট</div>
               </Link>
             </div>
           </div>
@@ -338,7 +338,7 @@ export default async function DashboardPage() {
         <div className={styles.colMiddle}>
           {/* Fund Collection Card */}
           <div className={styles.card}>
-            <h3 className={styles.cardTitle} style={{ marginBottom: '1.25rem' }}>চাঁদা আদায় অগ্রগতি (Fund Collection)</h3>
+            <h3 className={styles.cardTitle} style={{ marginBottom: '1.25rem' }}>চাঁদা আদায় অগ্রগতি</h3>
             <div className={styles.progressCircleArea}>
               <div className={styles.donutChart} style={{
                 background: `conic-gradient(var(--primary) ${collectionProgress * 3.6}deg, #f1f5f9 0deg)`,
@@ -366,8 +366,8 @@ export default async function DashboardPage() {
                 </div>
               </div>
               <div className={styles.legendArea}>
-                <span className={styles.legendItem}><span className={styles.dot} style={{backgroundColor: 'var(--primary)'}}></span> আদায় হয়েছে (Paid)</span>
-                <span className={styles.legendItem}><span className={styles.dot} style={{backgroundColor: '#e2e8f0', border: '1px solid #cbd5e1'}}></span> বকেয়া (Pending)</span>
+                <span className={styles.legendItem}><span className={styles.dot} style={{backgroundColor: 'var(--primary)'}}></span> আদায় হয়েছে</span>
+                <span className={styles.legendItem}><span className={styles.dot} style={{backgroundColor: '#e2e8f0', border: '1px solid #cbd5e1'}}></span> বকেয়া</span>
               </div>
             </div>
           </div>
@@ -439,9 +439,9 @@ export default async function DashboardPage() {
           <div className={styles.card}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
               <h3 className={styles.cardTitle} style={{ margin: 0 }}>
-                নোটিশ বোর্ড (Notices)
+                নোটিশ বোর্ড
               </h3>
-              <Link href="/dashboard/notices" className={styles.badgeBtn}>View All</Link>
+              <Link href="/dashboard/notices" className={styles.badgeBtn}>সব দেখুন</Link>
             </div>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -474,28 +474,31 @@ export default async function DashboardPage() {
           {/* Recent Activity Card */}
           <div className={styles.card}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-              <h3 className={styles.cardTitle} style={{ margin: 0 }}>Recent Activity</h3>
-              <Link href="/dashboard/finance" className={styles.badgeBtn}>+ View</Link>
+              <h3 className={styles.cardTitle} style={{ margin: 0 }}>সাম্প্রতিক কার্যক্রম</h3>
+              <Link href="/dashboard/finance" className={styles.badgeBtn}>সব দেখুন</Link>
             </div>
             
             <div className={styles.recentList}>
               {user?.transactions && user.transactions.length > 0 ? (
-                user.transactions.map((tx: any) => (
-                  <div key={tx.id} className={styles.recentItem}>
-                    <div className={styles.recentIconWrapper} data-type={tx.type}>
-                      <Activity size={16} />
+                user.transactions.map((tx: any) => {
+                  const txName = tx.type === 'DEPOSIT' ? 'চাঁদা জমা' : tx.type === 'WITHDRAWAL' ? 'উত্তোলন' : tx.type === 'PROFIT_POSTING' ? 'লভ্যাংশ' : 'জরিমানা';
+                  return (
+                    <div key={tx.id} className={styles.recentItem}>
+                      <div className={styles.recentIconWrapper} data-type={tx.type}>
+                        <Activity size={16} />
+                      </div>
+                      <div className={styles.recentInfo}>
+                        <h4>{tx.txName || txName}</h4>
+                        <p>তারিখ: {new Date(tx.date).toLocaleDateString('bn-BD')}</p>
+                      </div>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 700, color: tx.type === 'DEPOSIT' || tx.type === 'PROFIT_POSTING' ? 'var(--success)' : 'var(--danger)' }}>
+                        {tx.type === 'DEPOSIT' || tx.type === 'PROFIT_POSTING' ? '+' : '-'} ৳{tx.amount}
+                      </span>
                     </div>
-                    <div className={styles.recentInfo}>
-                      <h4>{tx.type}</h4>
-                      <p>Date: {new Date(tx.date).toLocaleDateString()}</p>
-                    </div>
-                    <span style={{ fontSize: '0.8rem', fontWeight: 700, color: tx.type === 'DEPOSIT' || tx.type === 'PROFIT_POSTING' ? 'var(--success)' : 'var(--danger)' }}>
-                      {tx.type === 'DEPOSIT' || tx.type === 'PROFIT_POSTING' ? '+' : '-'} ৳{tx.amount}
-                    </span>
-                  </div>
-                ))
+                  );
+                })
               ) : (
-                <div style={{ textAlign: 'center', color: '#6b7280', padding: '2rem 0', fontSize: '0.85rem' }}>No activity found</div>
+                <div style={{ textAlign: 'center', color: '#6b7280', padding: '2rem 0', fontSize: '0.85rem' }}>কোনো সাম্প্রতিক কার্যক্রম পাওয়া যায়নি</div>
               )}
             </div>
           </div>
