@@ -1,0 +1,365 @@
+/* ═══════════════════════════════════════════════════════
+   PROFESSIONAL MONEY RECEIPT  —  7.5 in × 5 in
+   United Vision Club
+═══════════════════════════════════════════════════════ */
+
+/* ── Page container (screen) ── */
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #e8f4fd 0%, #f0fdf4 100%);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'Noto Sans Bengali', 'Kalpurush', 'Segoe UI', system-ui, sans-serif;
+}
+
+/* ── Action Bar ── */
+.actionBar {
+  width: 100%;
+  max-width: 7.5in;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.btnBack {
+  background: white;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1.1rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.82rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+  transition: all 0.15s;
+}
+.btnBack:hover { background: #f8fafc; }
+
+.btnPrint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1.25rem;
+  background: linear-gradient(135deg, #1b4332, #2d6a4f);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.82rem;
+  box-shadow: 0 2px 8px rgba(27,67,50,0.3);
+  transition: all 0.15s;
+}
+.btnPrint:hover { background: linear-gradient(135deg, #0f2d1e, #1b4332); }
+
+/* ═══════════════════════════════════════
+   RECEIPT PAPER
+═══════════════════════════════════════ */
+.receiptPaper {
+  background: #ffffff;
+  width: 7.5in;
+  min-height: auto; /* Dynamic height on screen to avoid empty white space at bottom */
+  box-shadow: 0 12px 40px rgba(0,0,0,0.10);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  border: 2px solid #1b4332;
+  padding-bottom: 0px; /* remove bottom padding */
+  margin-top: 2rem; /* space outside receipt border at the top */
+}
+
+/* ── Watermark: floats over the TABLE area (lower 60% of receipt) ── */
+.watermarkWrapper {
+  position: absolute;
+  top: 58%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.05;
+  pointer-events: none;
+  z-index: 0;
+}
+.watermarkImage {
+  width: 2.3in;
+  height: 2.3in;
+  object-fit: contain;
+}
+
+/* ── HEADER BAND (plain white) ── */
+.headerBand {
+  background: #ffffff;
+  border-bottom: 2px solid #1b4332;
+  padding: 0.55rem 0.65rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+/* Logo + Name side by side */
+.logoName {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.logoImg {
+  width: 62px;
+  height: 62px;
+  object-fit: contain;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  padding: 3px;
+  flex-shrink: 0;
+}
+
+.nameBlock {
+  display: flex;
+  flex-direction: column;
+}
+
+.clubName {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #1b4332;
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+
+.clubAddress {
+  font-size: 0.78rem;
+  color: #475569;
+  margin: 0.15rem 0 0;
+  font-weight: 600;
+}
+
+/* Member ID badge (top-right) */
+.memberIdBadge {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 0.3rem 0.7rem;
+  text-align: center;
+  flex-shrink: 0;
+}
+.memberIdLabel {
+  display: block;
+  font-size: 0.64rem;
+  color: #64748b;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.memberIdVal {
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #1b4332;
+}
+
+/* ── TITLE STRIP ── */
+.titleStrip {
+  background: #ffffff;
+  text-align: center;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid #e2e8f0;
+  position: relative;
+  z-index: 1;
+}
+
+.titleText {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #1b4332;
+  letter-spacing: 0.06em;
+}
+
+/* ── INFO ROW ── */
+.infoRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.42rem 0.65rem;
+  font-size: 0.82rem;
+  color: #1e293b;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  position: relative;
+  z-index: 1;
+}
+.infoRow strong {
+  color: #1b4332;
+  margin-right: 0.25rem;
+}
+
+/* ── TABLE WRAPPER ── */
+.tableWrapper {
+  position: relative;
+  padding: 0.45rem 0.55rem 0.5rem;
+  z-index: 1;
+}
+
+/* ── MAIN TABLE ── */
+.mainTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.th {
+  background: linear-gradient(135deg, #1e40af, #2563eb);
+  color: #ffffff;
+  padding: 0.42rem 0.5rem;
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-align: center;
+  border: 1px solid #1e40af;
+}
+
+.mainTable tbody tr {
+  background: #ffffff !important;
+}
+
+.tdC {
+  border: 1px solid #a7c4b5;
+  padding: 0.42rem 0.5rem;
+  font-size: 0.82rem;
+  text-align: center;
+  vertical-align: middle;
+  color: #0f172a;
+}
+
+.tdL {
+  border: 1px solid #a7c4b5;
+  padding: 0.42rem 0.65rem;
+  font-size: 0.82rem;
+  text-align: left;
+  vertical-align: middle;
+  color: #0f172a;
+}
+
+/* ── PAID STAMP — center of table ── */
+.paidStamp {
+  position: absolute;
+  /* Vertically centered over the tbody rows area */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-10deg);
+  pointer-events: none;
+  opacity: 0.88;
+  z-index: 10;
+}
+
+/* ── FOOTER ── */
+.footer {
+  text-align: center;
+  font-size: 0.72rem;
+  color: #1e293b;
+  padding: 0.45rem 1rem;
+  background: #ffffff;
+  border-top: 1px solid #cbd5e1;
+  position: relative;
+  z-index: 1;
+}
+
+/* ═══════════════════════════════════════
+   PRINT
+═══════════════════════════════════════ */
+@media print {
+  .container {
+    background: white !important;
+    padding: 0 !important;
+    min-height: auto !important;
+  }
+  .actionBar { display: none !important; }
+  .receiptPaper {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    width: 7.5in !important;
+    min-height: auto !important;
+    height: auto !important;
+    margin: 0.4in 0 0 0 !important; /* space outside receipt border at the top on print */
+    page-break-inside: avoid;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .headerBand {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .titleStrip, .footer {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .th {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+@page {
+  size: 7.5in auto landscape;
+  margin: 0;
+}
+
+/* ── Mobile responsiveness for screen ── */
+@media screen and (max-width: 767px) {
+  .actionBar {
+    padding: 0 0.5rem;
+  }
+  .receiptPaper {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: auto !important;
+    border-radius: 6px !important;
+    border-width: 1px !important;
+  }
+  .clubName {
+    font-size: 1.15rem !important;
+  }
+  .clubAddress {
+    font-size: 0.7rem !important;
+  }
+  .logoImg {
+    width: 50px !important;
+    height: 50px !important;
+  }
+  .memberIdBadge {
+    padding: 0.2rem 0.5rem !important;
+  }
+  .memberIdVal {
+    font-size: 0.9rem !important;
+  }
+  .titleText {
+    font-size: 0.9rem !important;
+  }
+  .infoRow {
+    font-size: 0.72rem !important;
+    padding: 0.4rem 0.5rem !important;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.75rem;
+  }
+  .infoRow > span {
+    white-space: nowrap;
+  }
+  .tableWrapper {
+    padding: 0.35rem 0.4rem !important;
+  }
+  .th, .tdC, .tdL {
+    font-size: 0.72rem !important;
+    padding: 0.35rem 0.4rem !important;
+  }
+  .paidStamp img {
+    width: 85px !important;
+    height: 85px !important;
+  }
+  .footer {
+    font-size: 0.65rem !important;
+    padding: 0.4rem 0.5rem !important;
+  }
+}

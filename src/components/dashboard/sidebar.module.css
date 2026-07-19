@@ -1,0 +1,171 @@
+.sidebar {
+  width: 260px;
+  height: 100vh;
+  background-color: var(--card);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 100;
+  padding: 1.75rem 1.25rem;
+  overflow-y: auto;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.profileSection {
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.profileLink {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  text-align: center;
+  width: 100%;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  border: 2px solid white;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.profileDetails {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 0.15rem;
+}
+
+.menuHeader {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #9ca3af;
+  margin-bottom: 0.75rem;
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding-left: 0.5rem;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.activeIndicator {
+  position: absolute;
+  left: 0;
+  top: 25%;
+  width: 3px;
+  height: 50%;
+  background-color: var(--primary);
+  border-radius: 0 4px 4px 0;
+}
+
+.logoutBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.5rem;
+  color: #ef4444;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+.navText {
+  display: inline;
+}
+
+.logoutText {
+  display: inline;
+}
+
+/* Responsive collapse on mobile */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 70px;
+    padding: 1.5rem 0.4rem;
+    align-items: center;
+  }
+
+  .profileSection {
+    margin-bottom: 1.5rem;
+  }
+
+  .avatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .profileDetails {
+    display: none;
+  }
+
+  .menuHeader {
+    display: none;
+  }
+
+  .navLink {
+    justify-content: center;
+    padding: 0.65rem;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+  }
+
+  .logoutBtn {
+    justify-content: center;
+    padding: 0.65rem;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+  }
+
+  .navText {
+    display: none;
+  }
+
+  .logoutText {
+    display: none;
+  }
+
+  .activeIndicator {
+    left: 2px;
+  }
+}

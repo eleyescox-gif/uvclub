@@ -1,0 +1,192 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id               String            @id @default(uuid())
+  name             String
+  nameBn           String?
+  nameEn           String?
+  fatherName       String?
+  motherName       String?
+  address          String?
+  mobile           String            @unique
+  nid              String?           @unique
+  dob              DateTime?
+  profilePicture   String?
+  nomineeName      String?
+  nomineeDob       DateTime?
+  nomineeAge       String?
+  nomineeNid       String?
+  nomineeMobile    String?
+  nomineeRelation  String?
+  nomineeRatio     Int?              @default(100)
+  role             String            @default("MEMBER") // PRESIDENT, ADMIN, SECRETARY, CASHIER, MEMBER
+  joinDate         DateTime          @default(now())
+  activeStatus     Boolean           @default(true)
+  balance          Float             @default(0.0)
+  password         String
+  invoices         Invoice[]
+  transactions     Transaction[]
+  votes            Vote[]
+  exitRequests     ExitRequest[]
+  committeeRole    Committee?
+  isDeleted        Boolean           @default(false)
+  deletedAt        DateTime?
+  candidates       PollOption[]      @relation("CandidateRelation")
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+}
+
+model Invoice {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  amount    Float    @default(1000.0)
+  month     Int
+  year      Int
+  lateFee   Float    @default(0.0)
+  status    String   @default("PENDING") // PENDING, PAID
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Transaction {
+  id          String   @id @default(uuid())
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String
+  type        String   // DEPOSIT, WITHDRAWAL, PENALTY, PROFIT_POSTING, LOSS_POSTING
+  amount      Float
+  date        DateTime @default(now())
+  proofImage  String?
+  status      String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  approvedBy  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Project {
+  id               String   @id @default(uuid())
+  title            String
+  description      String
+  investmentAmount Float
+  status           String   @default("PROPOSED") // PROPOSED, ACTIVE, COMPLETED
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model VotingEvent {
+  id          String       @id @default(uuid())
+  title       String
+  description String
+  type        String       // MEMBER_EXIT, PROJECT_APPROVAL, AMENDMENT, GENERAL
+  targetId    String?      // Could be project ID or member ID depending on type
+  status      String       @default("OPEN") // OPEN, CLOSED, PASSED, FAILED
+  threshold   Float        @default(75.0)
+  deadline    DateTime?
+  createdBy   String
+  options     PollOption[]
+  votes       Vote[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model PollOption {
+  id            String      @id @default(uuid())
+  text          String
+  candidateId   String?
+  candidate     User?       @relation("CandidateRelation", fields: [candidateId], references: [id])
+  votingEvent   VotingEvent @relation(fields: [votingEventId], references: [id], onDelete: Cascade)
+  votingEventId String
+  votes         Vote[]
+  createdAt     DateTime    @default(now())
+}
+
+model Vote {
+  id            String      @id @default(uuid())
+  user          User        @relation(fields: [userId], references: [id])
+  userId        String
+  votingEvent   VotingEvent @relation(fields: [votingEventId], references: [id], onDelete: Cascade)
+  votingEventId String
+  pollOption    PollOption  @relation(fields: [pollOptionId], references: [id], onDelete: Cascade)
+  pollOptionId  String
+  createdAt     DateTime    @default(now())
+
+  @@unique([userId, votingEventId])
+}
+
+model Committee {
+  id          String   @id @default(uuid())
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String   @unique
+  designation String
+  termStart   DateTime
+  termEnd     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model BankReconciliation {
+  id              String   @id @default(uuid())
+  transactionType String   // BANK_CHARGE, BANK_INTEREST, WITHDRAWAL
+  amount          Float
+  date            DateTime @default(now())
+  description     String
+  createdAt       DateTime @default(now())
+}
+
+model ExitRequest {
+  id          String   @id @default(uuid())
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String
+  reason      String
+  status      String   @default("PENDING") // PENDING, POLL_CREATED, APPROVED, REJECTED
+  requestedBy String   // Secretary's ID
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Notice {
+  id          String   @id @default(uuid())
+  title       String
+  content     String
+  createdBy   String   // Secretary's ID
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ClubSettings {
+  id                   String   @id @default("singleton")
+  name                 String   @default("United Vision")
+  logo                 String?
+  paidLogo             String?
+  watermarkLogo        String?
+  address              String?
+  paymentGatewayActive Boolean  @default(false)
+  bkashNumber          String?
+  nagadNumber          String?
+  bankDetails          String?
+  bkashUsername        String?
+  bkashPassword        String?
+  bkashAppKey          String?
+  bkashAppSecret       String?
+  nagadMerchantId      String?
+  nagadAppKey          String?
+  updatedBy            String?
+  updatedAt            DateTime @updatedAt
+}
+
+model DataClearRequest {
+  id          String   @id @default(uuid())
+  requestedBy String   // President's User ID
+  status      String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

@@ -1,0 +1,202 @@
+.container {
+  min-height: 100vh;
+  background-color: #f3f4f6;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.actionBar {
+  width: 100%;
+  max-width: 64rem;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.btnBack {
+  background-color: white;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.btnPrint {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.reportPaper {
+  background-color: white;
+  width: 100%;
+  max-width: 64rem;
+  padding: 3rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+}
+
+.reportHeader {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  width: 100%;
+}
+
+.clubName {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.reportTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.reportMeta {
+  color: #6b7280;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 auto 3rem auto;
+}
+
+.table th, .table td {
+  border: 1px solid #d1d5db;
+  padding: 0.75rem 1rem;
+  text-align: center;
+}
+
+.table th {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+}
+
+.table td:nth-child(2) {
+  text-align: left;
+}
+
+.table td:last-child {
+  text-align: right;
+}
+
+.table tbody tr:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+.signatures {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4rem;
+  padding: 0 2rem;
+}
+
+.sigBox {
+  width: 200px;
+  text-align: center;
+}
+
+.sigLine {
+  border-top: 1px solid #9ca3af;
+  margin-bottom: 0.5rem;
+}
+
+.sigBox p {
+  color: #4b5563;
+  font-size: 0.875rem;
+}
+
+@media print {
+  .container {
+    padding: 0;
+    background-color: white;
+    display: block;
+  }
+  .actionBar {
+    display: none !important;
+  }
+  .reportPaper {
+    box-shadow: none;
+    border: none;
+    padding: 0;
+    max-width: 100%;
+    width: 100%;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .reportHeader {
+    text-align: center !important;
+    width: 100% !important;
+  }
+  .table {
+    width: 100% !important;
+    margin: 0 auto 2rem auto !important;
+  }
+  .table th, .table td {
+    font-size: 11.5px !important;
+    padding: 7px 5px !important;
+    border: 1px solid #374151 !important;
+  }
+  .signatures {
+    display: flex !important;
+    justify-content: space-between !important;
+    margin-top: 3rem !important;
+  }
+  @page {
+    size: A4 portrait;
+    margin: 0.5in;
+  }
+  /* Center watermark on printed pages */
+  .watermarkWrapper {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    opacity: 0.05 !important;
+    z-index: 0 !important;
+    pointer-events: none !important;
+    display: block !important;
+  }
+  .watermarkImage {
+    width: 320px !important;
+    height: 320px !important;
+    object-fit: contain !important;
+  }
+}
+
+/* Screen watermark styles */
+.watermarkWrapper {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.06;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.watermarkImage {
+  width: 300px;
+  height: 300px;
+  object-fit: contain;
+}

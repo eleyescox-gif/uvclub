@@ -1,0 +1,37 @@
+.layoutContainer {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--background);
+}
+
+.mainContent {
+  flex: 1;
+  margin-left: 260px; /* Offset for fixed sidebar */
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  max-width: calc(100vw - 260px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cardWrapper {
+  background-color: #FAFAFA;
+  border-radius: 1.5rem;
+  flex: 1;
+  padding: 1rem 2rem;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 768px) {
+  .mainContent {
+    margin-left: 70px; /* Offset for collapsed sidebar */
+    max-width: calc(100vw - 70px);
+    padding: 0.5rem;
+  }
+  
+  .cardWrapper {
+    padding: 1rem;
+    border-radius: 1rem;
+  }
+}
