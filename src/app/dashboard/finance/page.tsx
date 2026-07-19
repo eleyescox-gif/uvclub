@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import Link from "next/link";
 import styles from "./finance-member.module.css";
-import { FileText, Clock, CreditCard, HelpCircle } from "lucide-react";
+import { FileText, Clock, AlertCircle } from "lucide-react";
 import OnlinePaymentCard from "./OnlinePaymentCard";
 
 const monthsBn = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"];
@@ -37,17 +37,33 @@ export default async function MemberFinancePage() {
   const gatewayActive = settings?.paymentGatewayActive || false;
 
   return (
-    <div className={styles.container} style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem 1rem' }}>
-      <header className={styles.header} style={{ marginBottom: '2rem' }}>
-        <h1 className={styles.title} style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--foreground)' }}>অর্থ ও পেমেন্ট বিবরণী</h1>
-        <p className={styles.subtitle} style={{ color: '#6b7280', fontSize: '0.9rem' }}>আপনার বকেয়া চাঁদা পরিশোধ এবং লেনদেন ইতিহাস</p>
+    <div className={styles.container} style={{ maxWidth: '800px', margin: '0 auto', padding: '1.5rem 0.85rem' }}>
+      <header className={styles.header} style={{ marginBottom: '1.75rem' }}>
+        <h1 className={styles.title} style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--foreground)' }}>অর্থ ও পেমেন্ট বিবরণী</h1>
+        <p className={styles.subtitle} style={{ color: '#6b7280', fontSize: '0.85rem' }}>আপনার বকেয়া চাঁদা পরিশোধ এবং লেনদেন ইতিহাস</p>
       </header>
 
       {/* A. Pending Invoices Card */}
-      <div className="glass" style={{ padding: '1.75rem', borderRadius: '1.25rem', marginBottom: '2.5rem', border: '1px solid var(--border)' }}>
-        <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.4rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '0.75rem' }}>
-          <CreditCard size={20} /> বকেয়া চাঁদার তালিকা (Pending Bills)
-        </h2>
+      <div className="glass" style={{ padding: '1.5rem 1.25rem', borderRadius: '1.25rem', marginBottom: '2rem', border: '1px solid var(--border)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '0.75rem' }}>
+          <div style={{
+            width: '36px',
+            height: '36px',
+            borderRadius: '10px',
+            backgroundColor: 'rgba(239, 68, 68, 0.12)',
+            color: '#ef4444',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            border: '1px solid rgba(239, 68, 68, 0.25)',
+            boxShadow: '0 2px 8px rgba(239, 68, 68, 0.12)'
+          }}>
+            <AlertCircle size={20} />
+          </div>
+          <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--foreground)', margin: 0 }}>
+            বকেয়া চাঁদার তালিকা
+          </h2>
+        </div>
 
         {pendingInvoices.length > 0 ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -96,7 +112,7 @@ export default async function MemberFinancePage() {
 
       {/* B. Transactions History Card */}
       <div className={`glass ${styles.card}`}>
-        <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--foreground)', marginBottom: '1.25rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+        <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--foreground)', marginBottom: '1.25rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
           <FileText size={20} color="var(--primary)" /> আমার পেমেন্ট ও লেনদেনের ইতিহাস
         </h2>
 
