@@ -35,9 +35,12 @@ export default function TopNav({ user, activeNoticesCount = 0, clubSettings, not
         const res = await getSmsBalance();
         if (res.success) {
           setSmsBalance(String(res.balance));
+        } else {
+          // Silently hide balance if API is unreachable (e.g. 403 from cloud hosting)
+          setSmsBalance(null);
         }
       } catch (err) {
-        console.error("Failed to fetch TopNav SMS balance:", err);
+        setSmsBalance(null);
       } finally {
         setLoadingBalance(false);
       }
