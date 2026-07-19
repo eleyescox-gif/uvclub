@@ -83,27 +83,40 @@ export async function getSmsBalance() {
   }
 
   try {
-    const res = await fetch(`https://bulksmsdhaka.net/api/getBalance?apikey=${API_KEY}`, {
+    const url = `https://bulksmsdhaka.net/api/getBalance?apikey=${API_KEY}`;
+    const res = await fetch(url, {
       method: "GET",
       cache: "no-store",
+      headers: {
+        "Accept": "application/json"
+      }
     });
 
+    const resText = await res.text();
+    console.log(`SMS balance raw response (Status ${res.status}):`, resText);
+
     if (!res.ok) {
-      const errText = await res.text().catch(() => "");
-      console.error(`SMS API getBalance error: Status ${res.status}, Response: ${errText}`);
-      return { success: false, error: `SMS API Connection Error (HTTP ${res.status})` };
+      return { success: false, error: `SMS API HTTP Error ${res.status}` };
     }
 
-    const data = lowercaseKeys(await res.json());
+    let data: any;
+    try {
+      data = lowercaseKeys(JSON.parse(resText));
+    } catch (e) {
+      return { success: false, error: `Invalid JSON response from SMS Gateway` };
+    }
+
     if (data.status === "error" || data.status === "failed" || data.response_code === 401) {
       return { success: false, error: data.message || "এপিআই অ্যাক্সেস রিজেক্টেড" };
     }
+    
     return { 
       success: true, 
       balance: data.balance || data.credit || data.credit_balance || data.balance_amount || "০.০০"
     };
   } catch (error: any) {
-    return { success: false, error: error.message || "Failed to retrieve balance" };
+    console.error("SMS getSmsBalance caught exception:", error);
+    return { success: false, error: `কানেকশন ফেল্ড: ${error.message || 'Network error'}` };
   }
 }
 
