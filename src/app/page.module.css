@@ -302,6 +302,7 @@
   flex: 1;
   min-width: 220px;
   max-width: 280px;
+  margin-top: 1.5rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -319,7 +320,7 @@
   border-radius: 20px;
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  padding: 2.25rem 1.5rem 1.75rem;
+  padding: 2.25rem 1.5rem 1.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -339,7 +340,7 @@
   border-radius: 20px;
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  padding: 2.25rem 1.5rem 1.75rem;
+  padding: 2.25rem 1.5rem 1.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -359,7 +360,7 @@
   border-radius: 20px;
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  padding: 2.25rem 1.5rem 1.75rem;
+  padding: 2.25rem 1.5rem 1.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -387,19 +388,21 @@
 
 .statIconBadge {
   position: absolute;
-  top: 1rem;
-  left: 1.15rem;
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+  z-index: 10;
 }
 
 .statIconBadge:hover {
-  transform: scale(1.1);
+  transform: translateX(-50%) scale(1.12);
 }
 
 .statIconOne {
