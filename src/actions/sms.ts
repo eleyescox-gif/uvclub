@@ -17,7 +17,7 @@ async function callBulkSmsDhaka(callerID: string, number: string, message: strin
  * Returns null as SMS is disabled.
  */
 export async function getSmsBalance() {
-  return { success: false, error: "SMS integration has been disabled." };
+  return { success: false, balance: "0.00", error: "SMS integration has been disabled." };
 }
 
 /**

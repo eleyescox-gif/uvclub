@@ -203,16 +203,6 @@ export default async function DashboardPage() {
         {/* Right Side: Progress & Stats */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', flex: 1, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
           
-          {/* Progress Bar */}
-          <div style={{ flex: 1, minWidth: '200px', maxWidth: '300px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.8rem', fontWeight: 700 }}>
-              <span style={{ color: '#4b5563' }}>পরিশোধিত</span>
-              <span style={{ color: '#4b5563' }}>{currentMonthPaidCount} / {totalMembers} ({currentMonthProgress}%)</span>
-            </div>
-            <div style={{ width: '100%', height: '8px', backgroundColor: '#f1f5f9', borderRadius: '99px', overflow: 'hidden' }}>
-              <div style={{ width: `${currentMonthProgress}%`, height: '100%', backgroundColor: 'var(--success)', borderRadius: '99px', transition: 'width 1s ease-in-out' }}></div>
-            </div>
-          </div>
 
           {/* Stat Boxes */}
           <div style={{ display: 'flex', gap: '0.75rem' }}>

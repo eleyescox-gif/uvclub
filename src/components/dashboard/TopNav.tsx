@@ -18,9 +18,10 @@ interface TopNavProps {
   activeNoticesCount?: number;
   clubSettings?: { name: string; logo: string | null; address: string | null };
   notices?: Notice[];
+  collectionStats?: { paid: number; total: number };
 }
 
-export default function TopNav({ user, activeNoticesCount = 0, clubSettings, notices = [] }: TopNavProps) {
+export default function TopNav({ user, activeNoticesCount = 0, clubSettings, notices = [], collectionStats }: TopNavProps) {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -69,7 +70,28 @@ export default function TopNav({ user, activeNoticesCount = 0, clubSettings, not
       </div>
 
       {/* Notification Area */}
-      <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '1.5rem', position: 'relative' }}>
+      <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '0.75rem', position: 'relative' }}>
+        {/* Compact Monthly Collection Badge (Left of Notification Bell) */}
+        {collectionStats && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            backgroundColor: '#ffffff',
+            border: '1px solid var(--border)',
+            padding: '0.4rem 0.75rem',
+            borderRadius: '99px',
+            fontSize: '0.75rem',
+            fontWeight: 700,
+            color: 'var(--foreground)',
+            boxShadow: 'var(--shadow-sm)',
+            whiteSpace: 'nowrap'
+          }}>
+            <span style={{ color: '#6b7280', fontWeight: 600 }}>চাঁদা:</span>
+            <span style={{ color: 'var(--primary)', fontWeight: 800 }}>{collectionStats.paid}/{collectionStats.total}</span>
+          </div>
+        )}
+
         <div style={{ display: 'flex', gap: '1rem' }} ref={dropdownRef}>
           <div 
             onClick={() => setShowDropdown(!showDropdown)}

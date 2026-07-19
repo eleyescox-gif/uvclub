@@ -62,6 +62,16 @@ export default async function DashboardLayout({
   }
   const clubSettings = settings || { name: "United Vision", logo: null, address: "Dhaka, Bangladesh" };
 
+  // Calculate current month collection stats for TopNav compact badge
+  const today = new Date();
+  const currentMonth = today.getMonth() + 1;
+  const currentYear = today.getFullYear();
+  const totalMembersCount = await prisma.user.count({ where: { activeStatus: true, isDeleted: false } });
+  const paidInvoicesCount = await prisma.invoice.count({
+    where: { month: currentMonth, year: currentYear, status: 'PAID' }
+  });
+  const collectionStats = { paid: paidInvoicesCount, total: totalMembersCount };
+
   return (
     <div className="layout-container">
       {/* Sidebar - fixed width */}
@@ -70,7 +80,7 @@ export default async function DashboardLayout({
       {/* Main Content Area */}
       <main className="main-content">
         <div className="card-wrapper">
-          <TopNav user={session.user} activeNoticesCount={formattedNotices.length} clubSettings={clubSettings} notices={formattedNotices} />
+          <TopNav user={session.user} activeNoticesCount={formattedNotices.length} clubSettings={clubSettings} notices={formattedNotices} collectionStats={collectionStats} />
           <div style={{ flex: 1 }}>
             {children}
           </div>
