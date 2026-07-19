@@ -9,10 +9,10 @@ export default async function LoginPage() {
   // Query dynamic club settings (Name & Logo) set by Admin
   let clubSettings = { name: "United Vision Club", logo: null };
   try {
-    if (prisma.clubSettings) {
-      const settings = await (prisma.clubSettings as any).findUnique({
+    if (prisma && (prisma as any).clubSettings) {
+      const settings = await (prisma as any).clubSettings.findUnique({
         where: { id: "singleton" }
-      });
+      }).catch(() => null);
       if (settings) {
         clubSettings = settings;
       }

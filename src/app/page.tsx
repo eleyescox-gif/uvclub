@@ -12,18 +12,28 @@ export default async function Home() {
   let totalProjectsCount = 0;
 
   try {
-    if (prisma.clubSettings) {
-      const settings = await (prisma.clubSettings as any).findUnique({
+    if (prisma && (prisma as any).clubSettings) {
+      const settings = await (prisma as any).clubSettings.findUnique({
         where: { id: "singleton" }
-      });
+      }).catch(() => null);
       if (settings) clubSettings = settings;
     }
+  } catch (err) {
+    console.error("Home: clubSettings error:", err);
+  }
+
+  try {
     totalMembers = await prisma.user.count({ 
       where: { activeStatus: true, isDeleted: false } 
-    });
-    totalProjectsCount = await prisma.project.count();
+    }).catch(() => 0);
   } catch (err) {
-    console.error("Home: Could not fetch metrics from DB:", err);
+    console.error("Home: totalMembers error:", err);
+  }
+
+  try {
+    totalProjectsCount = await prisma.project.count().catch(() => 0);
+  } catch (err) {
+    console.error("Home: totalProjectsCount error:", err);
   }
 
   // Calculate dynamic success years (founded in 2025)
