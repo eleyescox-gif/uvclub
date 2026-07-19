@@ -3,6 +3,8 @@ import styles from "./page.module.css";
 import prisma from "@/lib/prisma";
 import { StatsCounter } from "@/components/home/StatsCounter";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   // Query dynamic club settings (Name & Logo) set by Admin
   let settings = null;

@@ -3,6 +3,8 @@ import prisma from "@/lib/prisma";
 import styles from "./login.module.css";
 import LoginForm from "./LoginForm";
 
+export const dynamic = "force-dynamic";
+
 export default async function LoginPage() {
   // Query dynamic club settings (Name & Logo) set by Admin
   let settings = null;
