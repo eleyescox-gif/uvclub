@@ -244,8 +244,30 @@
   .mainGrid { grid-template-columns: 1fr; }
 }
 
-@media (max-width: 600px) {
-  .statsGrid { grid-template-columns: 1fr; }
+@media (max-width: 768px) {
+  .statsGrid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+  .mainGrid { grid-template-columns: 1fr; gap: 0.75rem; }
+  .header { margin-bottom: 0.75rem; }
+  .title { font-size: 1.15rem; }
+  .statCard, .statCardTeal, .statCardIndigo, .statCardAmber, .statCardRose, .statCardPremium {
+    padding: 1rem;
+    min-height: 110px;
+  }
+  .statValueBig, .statValueDark { font-size: 1.3rem; }
+  .card { padding: 0.85rem; }
+  .cardDarkGreen { padding: 0.85rem; }
+  .statCardPremiumValue { font-size: 1.75rem; }
+}
+
+@media (max-width: 480px) {
+  .statsGrid { grid-template-columns: 1fr; gap: 0.4rem; }
+  .title { font-size: 1rem; }
+  .statCard, .statCardTeal, .statCardIndigo, .statCardAmber, .statCardRose, .statCardPremium {
+    padding: 0.85rem;
+    min-height: 90px;
+  }
+  .statValueBig, .statValueDark { font-size: 1.1rem; }
+  .statCardPremiumValue { font-size: 1.5rem; }
 }
 
 .colLeft, .colMiddle, .colRight {

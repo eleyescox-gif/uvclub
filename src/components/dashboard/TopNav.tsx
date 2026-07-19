@@ -68,13 +68,16 @@ export default function TopNav({ user, activeNoticesCount = 0, clubSettings, not
     <header style={{
       display: 'flex',
       alignItems: 'center',
-      padding: '0.5rem 1.5rem',
+      padding: '0.5rem 0.75rem',
       backgroundColor: 'transparent',
       marginBottom: '0',
-      position: 'relative'
+      position: 'relative',
+      flexWrap: 'wrap',
+      gap: '0.5rem',
+      minWidth: 0,
     }}>
-      {/* Empty div for flex spacing */}
-      <div style={{ flex: 1 }}></div>
+      {/* Spacer for hamburger button on mobile */}
+      <div style={{ flex: 1, minWidth: '40px' }}></div>
 
       {/* Centered Logo and H1 */}
       <div style={{ 
@@ -83,12 +86,14 @@ export default function TopNav({ user, activeNoticesCount = 0, clubSettings, not
         transform: 'translateX(-50%)',
         display: 'flex', 
         alignItems: 'center', 
-        gap: '0.75rem' 
+        gap: '0.5rem',
+        maxWidth: 'calc(100vw - 160px)',
+        overflow: 'hidden',
       }}>
-        <div style={{ width: '48px', height: '48px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', backgroundColor: '#fff', padding: '2px', border: '1px solid var(--border)' }}>
+        <div style={{ width: '36px', height: '36px', minWidth: '36px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', backgroundColor: '#fff', padding: '2px', border: '1px solid var(--border)' }}>
           <img src={clubSettings?.logo || "/logo.jpg"} alt={clubSettings?.name || "Logo"} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
         </div>
-        <h1 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#1a365d', margin: 0, letterSpacing: '-0.5px' }}>{clubSettings?.name || "United Vision"}</h1>
+        <h1 style={{ fontSize: 'clamp(0.9rem, 3vw, 1.8rem)', fontWeight: 900, color: '#1a365d', margin: 0, letterSpacing: '-0.5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{clubSettings?.name || "United Vision"}</h1>
       </div>
 
       {/* Notification Area */}
