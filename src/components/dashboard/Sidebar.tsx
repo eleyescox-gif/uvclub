@@ -15,7 +15,6 @@ import {
   FileText,
   ShieldCheck,
   Megaphone,
-  MessageSquare,
   Menu,
   X
 } from "lucide-react";
@@ -25,7 +24,7 @@ import styles from "./sidebar.module.css";
 const roleTitles: Record<string, string> = {
   PRESIDENT: "সভাপতি",
   SECRETARY: "সাধারণ সম্পাদক",
-  CASHIER: "ক্যাশিয়ার",
+  CASHIER: "ক্যাশিয়ার",
   ADMIN: "অ্যাডমিন",
   MEMBER: "সাধারণ সদস্য",
 };
@@ -64,50 +63,50 @@ export default function Sidebar({ role, user }: SidebarProps) {
   }, [isOpen]);
 
   const menuItems = [
-    { name: "Dashboard", href: "/dashboard", icon: <LayoutDashboard size={18} /> },
-    { name: "Finance", href: "/dashboard/finance", icon: <Wallet size={18} /> },
-    { name: "Voting", href: "/dashboard/voting", icon: <Vote size={18} /> },
-    { name: "Projects", href: "/dashboard/projects", icon: <Briefcase size={18} /> },
-    { name: "Members", href: "/dashboard/members", icon: <Users size={18} /> },
-    { name: "Notices", href: "/dashboard/notices", icon: <Megaphone size={18} /> },
-    { name: "Report", href: "/dashboard/report", icon: <FileText size={18} /> },
+    { name: "Dashboard", href: "/dashboard", icon: <LayoutDashboard size={18} />, color: "#10b981", bg: "rgba(16, 185, 129, 0.12)" },
+    { name: "Finance", href: "/dashboard/finance", icon: <Wallet size={18} />, color: "#f59e0b", bg: "rgba(245, 158, 11, 0.12)" },
+    { name: "Voting", href: "/dashboard/voting", icon: <Vote size={18} />, color: "#6366f1", bg: "rgba(99, 102, 241, 0.12)" },
+    { name: "Projects", href: "/dashboard/projects", icon: <Briefcase size={18} />, color: "#06b6d4", bg: "rgba(6, 182, 212, 0.12)" },
+    { name: "Members", href: "/dashboard/members", icon: <Users size={18} />, color: "#3b82f6", bg: "rgba(59, 130, 246, 0.12)" },
+    { name: "Notices", href: "/dashboard/notices", icon: <Megaphone size={18} />, color: "#f43f5e", bg: "rgba(244, 63, 94, 0.12)" },
+    { name: "Report", href: "/dashboard/report", icon: <FileText size={18} />, color: "#8b5cf6", bg: "rgba(139, 92, 246, 0.12)" },
   ];
 
   const adminItems = [];
   if (role === "ADMIN" || role === "PRESIDENT") {
-    adminItems.push({ name: "Member Requests", href: "/dashboard/admin/members/pending", icon: <UserPlus size={18} /> });
+    adminItems.push({ name: "Member Requests", href: "/dashboard/admin/members/pending", icon: <UserPlus size={18} />, color: "#ea580c", bg: "rgba(234, 88, 12, 0.12)" });
   }
   
   if (role === "ADMIN" || role === "SECRETARY" || role === "PRESIDENT") {
-    adminItems.push({ name: "Member Manage", href: "/dashboard/admin/members/manage", icon: <Users size={18} /> });
+    adminItems.push({ name: "Member Manage", href: "/dashboard/admin/members/manage", icon: <Users size={18} />, color: "#2563eb", bg: "rgba(37, 99, 235, 0.12)" });
   }
   
   if (role === "ADMIN" || role === "PRESIDENT") {
-    adminItems.push({ name: "Committee Manage", href: "/dashboard/admin/committee", icon: <ShieldCheck size={18} /> });
+    adminItems.push({ name: "Committee Manage", href: "/dashboard/admin/committee", icon: <ShieldCheck size={18} />, color: "#7c3aed", bg: "rgba(124, 58, 237, 0.12)" });
   }
 
   if (role === "ADMIN" || role === "SECRETARY" || role === "PRESIDENT") {
-    adminItems.push({ name: "Member Entry", href: "/dashboard/admin/members/add", icon: <UserPlus size={18} /> });
+    adminItems.push({ name: "Member Entry", href: "/dashboard/admin/members/add", icon: <UserPlus size={18} />, color: "#059669", bg: "rgba(5, 150, 105, 0.12)" });
   }
   
   if (role === "ADMIN" || role === "CASHIER") {
-    adminItems.push({ name: "Admin Finance", href: "/dashboard/admin/finance", icon: <Wallet size={18} /> });
+    adminItems.push({ name: "Admin Finance", href: "/dashboard/admin/finance", icon: <Wallet size={18} />, color: "#d97706", bg: "rgba(217, 119, 6, 0.12)" });
   }
   
   if (role === "ADMIN" || role === "PRESIDENT" || role === "SECRETARY") {
-    adminItems.push({ name: "Admin Projects", href: "/dashboard/admin/projects", icon: <Briefcase size={18} /> });
+    adminItems.push({ name: "Admin Projects", href: "/dashboard/admin/projects", icon: <Briefcase size={18} />, color: "#0891b2", bg: "rgba(8, 145, 178, 0.12)" });
   }
   
   if (role === "ADMIN" || role === "PRESIDENT" || role === "SECRETARY" || role === "CASHIER") {
-    adminItems.push({ name: "Reports (রিপোর্ট)", href: "/dashboard/admin/reports", icon: <FileText size={18} /> });
+    adminItems.push({ name: "Reports (রিপোর্ট)", href: "/dashboard/admin/reports", icon: <FileText size={18} />, color: "#e11d48", bg: "rgba(225, 29, 72, 0.12)" });
   }
 
   if (role === "SECRETARY" || role === "ADMIN") {
-    adminItems.push({ name: "Data Clear Requests", href: "/dashboard/admin/data-clear", icon: <ShieldCheck size={18} /> });
+    adminItems.push({ name: "Data Clear Requests", href: "/dashboard/admin/data-clear", icon: <ShieldCheck size={18} />, color: "#dc2626", bg: "rgba(220, 38, 38, 0.12)" });
   }
 
   const generalItems = [
-    { name: "Settings", href: "/dashboard/settings", icon: <Settings size={18} /> },
+    { name: "Settings", href: "/dashboard/settings", icon: <Settings size={18} />, color: "#64748b", bg: "rgba(100, 116, 139, 0.12)" },
   ];
 
   return (
@@ -155,23 +154,36 @@ export default function Sidebar({ role, user }: SidebarProps) {
         </div>
 
         {/* Navigation Sections */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem', flex: 1 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', flex: 1 }}>
           
           {/* Menu Section */}
           <div>
             <span className={styles.menuHeader}>Menu</span>
-            <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+            <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
               {menuItems.map((item) => {
                 const isActive = pathname === item.href;
                 return (
                   <Link key={item.href} href={item.href} className={styles.navLink} onClick={() => setIsOpen(false)} style={{
                     backgroundColor: isActive ? 'var(--primary-light)' : 'transparent',
-                    color: isActive ? 'var(--primary)' : '#6b7280',
-                    fontWeight: isActive ? 700 : 500,
+                    color: isActive ? 'var(--primary)' : '#4b5563',
+                    fontWeight: isActive ? 700 : 600,
                     fontSize: '0.875rem',
                   }}>
                     {isActive && <div className={styles.activeIndicator} />}
-                    {item.icon}
+                    <div style={{
+                      width: '28px',
+                      height: '28px',
+                      borderRadius: '8px',
+                      backgroundColor: item.bg,
+                      color: item.color,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                      boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                    }}>
+                      {item.icon}
+                    </div>
                     <span className={styles.navText}>{item.name}</span>
                   </Link>
                 )
@@ -183,18 +195,31 @@ export default function Sidebar({ role, user }: SidebarProps) {
           {adminItems.length > 0 && (
             <div>
               <span className={styles.menuHeader}>Admin Control</span>
-              <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                 {adminItems.map((item) => {
                   const isActive = pathname.startsWith(item.href);
                   return (
                     <Link key={item.href} href={item.href} className={styles.navLink} onClick={() => setIsOpen(false)} style={{
                       backgroundColor: isActive ? 'var(--primary-light)' : 'transparent',
-                      color: isActive ? 'var(--primary)' : '#6b7280',
-                      fontWeight: isActive ? 700 : 500,
+                      color: isActive ? 'var(--primary)' : '#4b5563',
+                      fontWeight: isActive ? 700 : 600,
                       fontSize: '0.875rem',
                     }}>
                       {isActive && <div className={styles.activeIndicator} />}
-                      {item.icon}
+                      <div style={{
+                        width: '28px',
+                        height: '28px',
+                        borderRadius: '8px',
+                        backgroundColor: item.bg,
+                        color: item.color,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                        boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                      }}>
+                        {item.icon}
+                      </div>
                       <span className={styles.navText}>{item.name}</span>
                     </Link>
                   )
@@ -206,17 +231,30 @@ export default function Sidebar({ role, user }: SidebarProps) {
 
         {/* Footer Section */}
         <div style={{ marginTop: 'auto', borderTop: '1px solid var(--border)', paddingTop: '1.25rem' }}>
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
             {generalItems.map((item) => {
               const isActive = pathname === item.href;
               return (
                 <Link key={item.href} href={item.href} className={styles.navLink} onClick={() => setIsOpen(false)} style={{
                   backgroundColor: isActive ? 'var(--primary-light)' : 'transparent',
-                  color: isActive ? 'var(--primary)' : '#6b7280',
-                  fontWeight: isActive ? 700 : 500,
+                  color: isActive ? 'var(--primary)' : '#4b5563',
+                  fontWeight: isActive ? 700 : 600,
                   fontSize: '0.875rem',
                 }}>
-                  {item.icon}
+                  <div style={{
+                    width: '28px',
+                    height: '28px',
+                    borderRadius: '8px',
+                    backgroundColor: item.bg,
+                    color: item.color,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                  }}>
+                    {item.icon}
+                  </div>
                   <span className={styles.navText}>{item.name}</span>
                 </Link>
               );
@@ -225,7 +263,19 @@ export default function Sidebar({ role, user }: SidebarProps) {
               onClick={() => signOut({ callbackUrl: "/login" })}
               className={styles.logoutBtn}
             >
-              <LogOut size={18} />
+              <div style={{
+                width: '28px',
+                height: '28px',
+                borderRadius: '8px',
+                backgroundColor: 'rgba(239, 68, 68, 0.12)',
+                color: '#ef4444',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0
+              }}>
+                <LogOut size={18} />
+              </div>
               <span className={styles.logoutText}>Logout</span>
             </button>
           </nav>
