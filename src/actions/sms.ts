@@ -37,7 +37,10 @@ async function callBulkSmsDhaka(callerID: string, number: string, message: strin
 
     const res = await fetch(`${baseUrl}?${params.toString()}`, {
       method: "GET",
-      cache: "no-store"
+      cache: "no-store",
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+      }
     });
 
     if (!res.ok) {
@@ -88,7 +91,8 @@ export async function getSmsBalance() {
       method: "GET",
       cache: "no-store",
       headers: {
-        "Accept": "application/json"
+        "Accept": "application/json",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
       }
     });
 
