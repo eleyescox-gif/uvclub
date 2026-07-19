@@ -18,7 +18,7 @@ interface TopNavProps {
   activeNoticesCount?: number;
   clubSettings?: { name: string; logo: string | null; address: string | null };
   notices?: Notice[];
-  collectionStats?: { paid: number; total: number };
+  collectionStats?: { paid: number; due: number };
 }
 
 export default function TopNav({ user, activeNoticesCount = 0, clubSettings, notices = [], collectionStats }: TopNavProps) {
@@ -71,24 +71,42 @@ export default function TopNav({ user, activeNoticesCount = 0, clubSettings, not
 
       {/* Notification Area */}
       <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '0.75rem', position: 'relative' }}>
-        {/* Compact Monthly Collection Badge (Left of Notification Bell) */}
+        {/* Paid & Due Pills (Left of Notification Bell) */}
         {collectionStats && (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.35rem',
-            backgroundColor: '#ffffff',
-            border: '1px solid var(--border)',
-            padding: '0.4rem 0.75rem',
-            borderRadius: '99px',
-            fontSize: '0.75rem',
-            fontWeight: 700,
-            color: 'var(--foreground)',
-            boxShadow: 'var(--shadow-sm)',
-            whiteSpace: 'nowrap'
-          }}>
-            <span style={{ color: '#6b7280', fontWeight: 600 }}>চাঁদা:</span>
-            <span style={{ color: 'var(--primary)', fontWeight: 800 }}>{collectionStats.paid}/{collectionStats.total}</span>
+          <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+            <div style={{
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              border: '1px solid rgba(16, 185, 129, 0.25)',
+              borderRadius: '10px',
+              padding: '0.3rem 0.65rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              color: '#15803d',
+              boxShadow: 'var(--shadow-sm)'
+            }}>
+              <span style={{ fontSize: '0.9rem', fontWeight: 800 }}>{collectionStats.paid}</span>
+              <span>পরিশোধ</span>
+            </div>
+            
+            <div style={{
+              backgroundColor: 'rgba(239, 68, 68, 0.1)',
+              border: '1px solid rgba(239, 68, 68, 0.25)',
+              borderRadius: '10px',
+              padding: '0.3rem 0.65rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              color: '#b91c1c',
+              boxShadow: 'var(--shadow-sm)'
+            }}>
+              <span style={{ fontSize: '0.9rem', fontWeight: 800 }}>{collectionStats.due}</span>
+              <span>বকেয়া</span>
+            </div>
           </div>
         )}
 

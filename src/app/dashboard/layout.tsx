@@ -71,7 +71,8 @@ export default async function DashboardLayout({
     const paidInvoicesCount = await prisma.invoice.count({
       where: { month: currentMonth, year: currentYear, status: 'PAID' }
     });
-    collectionStats = { paid: paidInvoicesCount, total: totalMembersCount };
+    const dueInvoicesCount = Math.max(0, totalMembersCount - paidInvoicesCount);
+    collectionStats = { paid: paidInvoicesCount, due: dueInvoicesCount };
   } catch (err) {
     console.error("DashboardLayout: Could not fetch initial layout data from DB:", err);
   }
