@@ -106,10 +106,6 @@ export default function Sidebar({ role, user }: SidebarProps) {
     adminItems.push({ name: "Data Clear Requests", href: "/dashboard/admin/data-clear", icon: <ShieldCheck size={18} /> });
   }
 
-  if (role === "ADMIN" || role === "PRESIDENT" || role === "SECRETARY") {
-    adminItems.push({ name: "SMS Panel", href: "/dashboard/admin/sms", icon: <MessageSquare size={18} /> });
-  }
-
   const generalItems = [
     { name: "Settings", href: "/dashboard/settings", icon: <Settings size={18} /> },
   ];

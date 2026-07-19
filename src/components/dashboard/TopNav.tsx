@@ -1,9 +1,8 @@
 "use client";
 
-import { Search, Bell, X, Calendar, User, RefreshCw } from "lucide-react";
+import { Search, Bell, X, Calendar, User } from "lucide-react";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
-import { getSmsBalance } from "@/actions/sms";
 
 interface Notice {
   id: string;
@@ -25,33 +24,6 @@ export default function TopNav({ user, activeNoticesCount = 0, clubSettings, not
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const [smsBalance, setSmsBalance] = useState<string | null>(null);
-  const [loadingBalance, setLoadingBalance] = useState(false);
-
-  const fetchSmsBalance = async () => {
-    if (user?.role === "ADMIN" || user?.role === "PRESIDENT" || user?.role === "SECRETARY") {
-      setLoadingBalance(true);
-      try {
-        const res = await getSmsBalance();
-        if (res.success) {
-          setSmsBalance(String(res.balance));
-        } else {
-          // Silently hide balance if API is unreachable (e.g. 403 from cloud hosting)
-          setSmsBalance(null);
-        }
-      } catch (err) {
-        setSmsBalance(null);
-      } finally {
-        setLoadingBalance(false);
-      }
-    }
-  };
-
-  useEffect(() => {
-    fetchSmsBalance();
-  }, [user]);
-
-  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -98,53 +70,6 @@ export default function TopNav({ user, activeNoticesCount = 0, clubSettings, not
 
       {/* Notification Area */}
       <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '1.5rem', position: 'relative' }}>
-        
-        {/* SMS API Balance display next to notification Bell */}
-        {smsBalance !== null && (
-          <div style={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: 'flex-end', 
-            paddingRight: '1rem', 
-            borderRight: '1px solid var(--border)',
-            marginRight: '0.25rem',
-            lineHeight: 1.2
-          }}>
-            <span style={{ fontSize: '0.68rem', color: '#6b7280', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.02em' }}>
-              SMS এপিআই ব্যালেন্স
-            </span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.15rem' }}>
-              <span style={{ fontSize: '1.15rem', fontWeight: 800, color: '#15803d' }}>
-                ৳ {smsBalance}
-              </span>
-              <button 
-                onClick={fetchSmsBalance}
-                disabled={loadingBalance}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: '#9ca3af',
-                  padding: 0,
-                  display: 'flex',
-                  alignItems: 'center'
-                }}
-                title="ব্যালেন্স রিফ্রেশ করুন"
-              >
-                <RefreshCw 
-                  size={13} 
-                  style={{ 
-                    animation: loadingBalance ? 'spin 1s linear infinite' : 'none',
-                    transition: 'color 0.2s'
-                  }} 
-                  onMouseEnter={e => e.currentTarget.style.color = 'var(--primary)'}
-                  onMouseLeave={e => e.currentTarget.style.color = '#9ca3af'}
-                />
-              </button>
-            </div>
-          </div>
-        )}
-
         <div style={{ display: 'flex', gap: '1rem' }} ref={dropdownRef}>
           <div 
             onClick={() => setShowDropdown(!showDropdown)}
