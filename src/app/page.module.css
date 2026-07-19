@@ -597,3 +597,27 @@
   font-weight: 500;
   letter-spacing: 0.03em;
 }
+
+@media (max-width: 640px) {
+  .header {
+    padding: 0.85rem 4%;
+    gap: 0.5rem;
+  }
+  .logo {
+    gap: 0.5rem;
+    max-width: calc(100% - 110px);
+  }
+  .logoTitle {
+    font-size: 1.05rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .navLogin {
+    font-size: 0.825rem;
+    padding: 0.45rem 1.1rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  }
+}

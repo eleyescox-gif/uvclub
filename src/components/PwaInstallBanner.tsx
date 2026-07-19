@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { Download, X, Smartphone, CheckCircle2 } from "lucide-react";
 
 export default function PwaInstallBanner() {
+  const pathname = usePathname();
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showBanner, setShowBanner] = useState(false);
   const [isIos, setIsIos] = useState(false);
@@ -87,7 +89,7 @@ export default function PwaInstallBanner() {
     localStorage.setItem("uvc_pwa_banner_dismissed", Date.now().toString());
   };
 
-  if (!showBanner || isStandalone) return null;
+  if (!showBanner || isStandalone || pathname !== "/") return null;
 
   return (
     <div
