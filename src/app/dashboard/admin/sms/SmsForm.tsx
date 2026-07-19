@@ -67,11 +67,11 @@ export default function SmsForm({
   const handleRefreshBalance = async () => {
     setRefreshingBalance(true);
     setApiError(null);
-    const res = await getSmsBalance();
-    if (res.success) {
+    const res: any = await getSmsBalance();
+    if (res && res.success && res.balance) {
       setBalance(res.balance);
     } else {
-      setApiError(res.error || "ব্যালেন্স লোড করতে ব্যর্থ");
+      setApiError(res?.error || "ব্যালেন্স লোড করতে ব্যর্থ");
     }
     setRefreshingBalance(false);
   };
