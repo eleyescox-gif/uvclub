@@ -89,7 +89,9 @@ export async function getSmsBalance() {
     });
 
     if (!res.ok) {
-      throw new Error("Failed to fetch balance from SMS API");
+      const errText = await res.text().catch(() => "");
+      console.error(`SMS API getBalance error: Status ${res.status}, Response: ${errText}`);
+      return { success: false, error: `SMS API Connection Error (HTTP ${res.status})` };
     }
 
     const data = lowercaseKeys(await res.json());
