@@ -23,10 +23,11 @@ export async function getSmsBalance(): Promise<{ success: boolean; balance: stri
 /**
  * Disabled send SMS handler.
  */
-export async function sendSms(formData: FormData) {
+export async function sendSms(formData: FormData): Promise<{ success: boolean; summary?: string; error?: string; errors?: string[] }> {
   return {
     success: true,
     summary: "SMS সার্ভিসটি বন্ধ রাখা হয়েছে। কোনো বার্তা পাঠানো হয়নি।",
+    error: undefined,
     errors: undefined
   };
 }
@@ -34,7 +35,7 @@ export async function sendSms(formData: FormData) {
 /**
  * Mocked receipt SMS handler.
  */
-export async function sendReceiptSms(userId: string, receiptId: string, amount: number) {
+export async function sendReceiptSms(userId: string, receiptId: string, amount: number): Promise<{ success: boolean; mocked?: boolean; error?: string }> {
   console.log(`[SMS DISABLED] Mocked receipt SMS for User: ${userId}, Amount: ${amount}`);
   return { success: true, mocked: true };
 }
@@ -42,7 +43,7 @@ export async function sendReceiptSms(userId: string, receiptId: string, amount: 
 /**
  * Pin recovery flow. Generates new PIN, updates database, and shows PIN directly to the user since SMS is disabled.
  */
-export async function recoverUserPin(mobile: string) {
+export async function recoverUserPin(mobile: string): Promise<{ success?: boolean; message?: string; error?: string }> {
   if (!mobile) {
     return { error: "অনুগ্রহ করে মোবাইল নম্বরটি দিন।" };
   }

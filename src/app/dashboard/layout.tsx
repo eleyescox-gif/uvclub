@@ -20,7 +20,7 @@ export default async function DashboardLayout({
 
   let formattedNotices: any[] = [];
   let clubSettings = { name: "United Vision", logo: null, address: "Dhaka, Bangladesh" };
-  let collectionStats = { paid: 0, total: 0 };
+  let collectionStats = { paid: 0, due: 0 };
 
   try {
     const activeNotices = await prisma.notice.findMany({
