@@ -65,6 +65,7 @@ export default function Sidebar({ role, user }: SidebarProps) {
   const menuItems = [
     { name: "Dashboard", href: "/dashboard", icon: <LayoutDashboard size={18} />, color: "#10b981", bg: "rgba(16, 185, 129, 0.12)" },
     { name: "Finance & Statement", href: "/dashboard/finance", icon: <Wallet size={18} />, color: "#f59e0b", bg: "rgba(245, 158, 11, 0.12)" },
+    { name: "Applications", href: "/dashboard/applications", icon: <FileText size={18} />, color: "#8b5cf6", bg: "rgba(139, 92, 246, 0.12)" },
     { name: "Voting", href: "/dashboard/voting", icon: <Vote size={18} />, color: "#6366f1", bg: "rgba(99, 102, 241, 0.12)" },
     { name: "Projects", href: "/dashboard/projects", icon: <Briefcase size={18} />, color: "#06b6d4", bg: "rgba(6, 182, 212, 0.12)" },
     { name: "Members", href: "/dashboard/members", icon: <Users size={18} />, color: "#3b82f6", bg: "rgba(59, 130, 246, 0.12)" },

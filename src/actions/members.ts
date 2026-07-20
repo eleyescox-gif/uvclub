@@ -404,3 +404,45 @@ export async function rejectExitRequest(requestId: string) {
     return { error: error.message || "Failed to reject request" };
   }
 }
+
+export async function requestExit(reason: string) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) throw new Error("Unauthenticated");
+
+  const userId = (session.user as any).id;
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) throw new Error("User not found");
+
+  // Create voting event for 75% member exit approval
+  const votingEvent = await prisma.votingEvent.create({
+    data: {
+      title: `সদস্যপদ বাতিলের আবেদন: ${user.nameBn || user.name}`,
+      description: `সদস্য ${user.nameBn || user.name} (${user.mobile}) সদস্যপদ বাতিলের আবেদন করেছেন। কারণ: ${reason}`,
+      type: "MEMBER_EXIT",
+      targetId: userId,
+      status: "OPEN",
+      threshold: 75.0,
+      createdBy: userId,
+      options: {
+        create: [
+          { text: "হ্যাঁ (বাতিল সমর্থন করি)" },
+          { text: "না (বাতিল বিরোধিতা করি)" }
+        ]
+      }
+    }
+  });
+
+  await prisma.exitRequest.create({
+    data: {
+      userId,
+      reason,
+      status: "POLL_CREATED",
+      votingEventId: votingEvent.id,
+      requestedBy: userId
+    }
+  });
+
+  revalidatePath("/dashboard/applications");
+  revalidatePath("/dashboard/voting");
+  return { success: true };
+}

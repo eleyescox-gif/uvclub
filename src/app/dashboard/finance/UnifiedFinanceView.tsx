@@ -55,40 +55,7 @@ const roleTitles: Record<string, string> = {
 };
 
 export default function UnifiedFinanceView({ user, pendingInvoices, transactions, gatewayActive }: UnifiedFinanceViewProps) {
-  const [activeTab, setActiveTab] = useState<"bills" | "statement" | "request" | "ledger">("bills");
-
-  // Date range state for Report application
-  const today = new Date();
-  const todayStr = today.toISOString().split("T")[0];
-  const jan1stStr = `${today.getFullYear()}-01-01`;
-
-  const [dateFrom, setDateFrom] = useState(jan1stStr);
-  const [dateTo, setDateTo] = useState(todayStr);
-  const [reportType, setReportType] = useState("single-member-ledger");
-  const [note, setNote] = useState("");
-  
-  const [submitting, setSubmitting] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState("");
-  const [submitError, setSubmitError] = useState("");
-  
-  const [myRequests, setMyRequests] = useState<any[]>([]);
-
-  // Fetch Member's previous Report Requests
-  const fetchMyRequests = async () => {
-    try {
-      const res = await fetch("/api/report-requests");
-      const data = await res.json();
-      if (data.requests) {
-        setMyRequests(data.requests);
-      }
-    } catch (e) {
-      console.error("Fetch report requests error:", e);
-    }
-  };
-
-  useEffect(() => {
-    fetchMyRequests();
-  }, []);
+  const [activeTab, setActiveTab] = useState<"bills" | "statement" | "ledger">("bills");
 
   // Helper date formatting
   const formatDateBn = (dateInput: Date | string) => {
@@ -123,44 +90,6 @@ export default function UnifiedFinanceView({ user, pendingInvoices, transactions
     return { totalDeposit: deposit, totalWithdrawal: withdrawal, totalProfit: profit, totalLoss: loss, currentBalance: balance };
   }, [transactions]);
 
-  // Handle Report Application Submission
-  const handleSubmitReportRequest = async () => {
-    setSubmitSuccess("");
-    setSubmitError("");
-
-    if (!dateFrom || !dateTo) {
-      setSubmitError("দয়া করে শুরুর ও শেষ তারিখ নির্বাচন করুন।");
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      const res = await fetch("/api/report-requests", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          reportType,
-          dateFrom,
-          dateTo,
-          note
-        })
-      });
-
-      const data = await res.json();
-      if (!res.ok || data.error) {
-        setSubmitError(data.error || "আবেদন জমা দিতে সমস্যা হয়েছে");
-      } else {
-        setSubmitSuccess("আপনার রিপোর্ট আবেদনটি সাধারণ সম্পাদকের নিকট সফলভাবে জমা হয়েছে!");
-        setNote("");
-        fetchMyRequests();
-      }
-    } catch (e) {
-      setSubmitError("নেটওয়ার্ক ত্রুটি, পুনরায় চেষ্টা করুন");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
   return (
     <div style={{ maxWidth: "850px", margin: "0 auto", padding: "1.25rem 0.5rem 3rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
       
@@ -170,7 +99,7 @@ export default function UnifiedFinanceView({ user, pendingInvoices, transactions
           অর্থ ও স্টেটমেন্ট প্যানেল
         </h1>
         <p style={{ color: "#6b7280", fontSize: "0.85rem", margin: "0.25rem 0 0" }}>
-          বকেয়া চাঁদা পরিশোধ, লেনদেন বিবরণী এবং রিপোর্ট সংক্রান্ত সেবা
+          বকেয়া চাঁদা পরিশোধ, স্মার্ট লেনদেন বিবরণী এবং বিস্তারিত লেজার রেজিস্টার
         </p>
       </header>
 
@@ -229,29 +158,6 @@ export default function UnifiedFinanceView({ user, pendingInvoices, transactions
           }}
         >
           <Receipt size={16} /> লেনদেন বিবরণী
-        </button>
-
-        <button
-          onClick={() => setActiveTab("request")}
-          style={{
-            flex: "1 1 auto",
-            padding: "0.65rem 0.75rem",
-            fontSize: "0.8rem",
-            fontWeight: 800,
-            borderRadius: "0.85rem",
-            border: "none",
-            backgroundColor: activeTab === "request" ? "#7c3aed" : "transparent",
-            color: activeTab === "request" ? "#ffffff" : "#4b5563",
-            cursor: "pointer",
-            transition: "all 0.2s ease",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "0.35rem",
-            whiteSpace: "nowrap"
-          }}
-        >
-          <FileText size={16} /> রিপোর্ট আবেদন
         </button>
 
         <button
@@ -498,246 +404,7 @@ export default function UnifiedFinanceView({ user, pendingInvoices, transactions
         </div>
       )}
 
-      {/* ==================== TAB 3: REPORT REQUEST ==================== */}
-      {activeTab === "request" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-          <div style={{
-            backgroundColor: "white",
-            borderRadius: "1.5rem",
-            padding: "1.75rem 1.5rem",
-            border: "1px solid var(--border)",
-            boxShadow: "var(--shadow-md)",
-            display: "flex",
-            flexDirection: "column",
-            gap: "1.25rem"
-          }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.85rem" }}>
-              <div style={{
-                width: "48px",
-                height: "48px",
-                borderRadius: "1rem",
-                backgroundColor: "rgba(124, 58, 237, 0.1)",
-                color: "#7c3aed",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0
-              }}>
-                <FileText size={26} />
-              </div>
-              <div>
-                <h3 style={{ fontSize: "1.2rem", fontWeight: 800, margin: 0, color: "var(--foreground)" }}>
-                  অফিশিয়াল রিপোর্ট আবেদন
-                </h3>
-                <p style={{ fontSize: "0.825rem", color: "#6b7280", margin: "2px 0 0" }}>
-                  আপনার আবেদনের পর সাধারণ সম্পাদক অনুমোদন করে রিপোর্ট প্রস্তুত করে দেবেন।
-                </p>
-              </div>
-            </div>
-
-            {submitSuccess && (
-              <div style={{ padding: "0.85rem 1rem", borderRadius: "0.75rem", backgroundColor: "#dcfce7", border: "1px solid #86efac", color: "#15803d", fontSize: "0.875rem", fontWeight: 600 }}>
-                ✓ {submitSuccess}
-              </div>
-            )}
-
-            {submitError && (
-              <div style={{ padding: "0.85rem 1rem", borderRadius: "0.75rem", backgroundColor: "#fee2e2", border: "1px solid #fca5a5", color: "#b91c1c", fontSize: "0.875rem", fontWeight: 600 }}>
-                ✕ {submitError}
-              </div>
-            )}
-
-            <hr style={{ border: "none", borderTop: "1px dashed var(--border)" }} />
-
-            {/* Report Type & Date Range */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-              <div>
-                <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#374151", marginBottom: "0.35rem", display: "block" }}>
-                  রিপোর্টের ধরণ
-                </label>
-                <select
-                  value={reportType}
-                  onChange={(e) => setReportType(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "0.65rem 0.85rem",
-                    borderRadius: "0.75rem",
-                    border: "1px solid #cbd5e1",
-                    fontSize: "0.875rem",
-                    fontWeight: 600,
-                    outline: "none"
-                  }}
-                >
-                  <option value="single-member-ledger">একক সদস্যের লেনদেন বিবরণী (লেজার)</option>
-                  <option value="paid-subscriptions">চাঁদা জমা ও পরিশোধিত স্টেটমেন্ট</option>
-                  <option value="due-subscriptions">বকেয়া চাঁদার তালিকা</option>
-                </select>
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.85rem" }}>
-                <div>
-                  <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#374151", marginBottom: "0.35rem", display: "block" }}>
-                    শুরুর তারিখ
-                  </label>
-                  <input
-                    type="date"
-                    value={dateFrom}
-                    onChange={(e) => setDateFrom(e.target.value)}
-                    style={{
-                      width: "100%",
-                      padding: "0.65rem 0.85rem",
-                      borderRadius: "0.75rem",
-                      border: "1px solid #cbd5e1",
-                      fontSize: "0.875rem",
-                      color: "var(--foreground)",
-                      outline: "none"
-                    }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#374151", marginBottom: "0.35rem", display: "block" }}>
-                    শেষ তারিখ
-                  </label>
-                  <input
-                    type="date"
-                    value={dateTo}
-                    onChange={(e) => setDateTo(e.target.value)}
-                    style={{
-                      width: "100%",
-                      padding: "0.65rem 0.85rem",
-                      borderRadius: "0.75rem",
-                      border: "1px solid #cbd5e1",
-                      fontSize: "0.875rem",
-                      color: "var(--foreground)",
-                      outline: "none"
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Quick Date Presets */}
-              <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-                <button
-                  type="button"
-                  onClick={() => { setDateFrom(`${today.getFullYear()}-01-01`); setDateTo(todayStr); }}
-                  style={{ backgroundColor: "#f1f5f9", border: "none", padding: "0.35rem 0.75rem", borderRadius: "0.5rem", fontSize: "0.75rem", fontWeight: 600, color: "#475569", cursor: "pointer" }}
-                >
-                  চলতি বছর
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const d = new Date();
-                    d.setMonth(d.getMonth() - 3);
-                    setDateFrom(d.toISOString().split("T")[0]);
-                    setDateTo(todayStr);
-                  }}
-                  style={{ backgroundColor: "#f1f5f9", border: "none", padding: "0.35rem 0.75rem", borderRadius: "0.5rem", fontSize: "0.75rem", fontWeight: 600, color: "#475569", cursor: "pointer" }}
-                >
-                  গত ৩ মাস
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const d = new Date();
-                    d.setFullYear(d.getFullYear() - 1);
-                    setDateFrom(d.toISOString().split("T")[0]);
-                    setDateTo(todayStr);
-                  }}
-                  style={{ backgroundColor: "#f1f5f9", border: "none", padding: "0.35rem 0.75rem", borderRadius: "0.5rem", fontSize: "0.75rem", fontWeight: 600, color: "#475569", cursor: "pointer" }}
-                >
-                  গত ১ বছর
-                </button>
-              </div>
-
-              <div>
-                <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#374151", marginBottom: "0.35rem", display: "block" }}>
-                  বিশেষ নোট বা মন্তব্য (ঐচ্ছিক)
-                </label>
-                <input
-                  type="text"
-                  placeholder="যেমন: ব্যাংক স্টেটমেন্ট ভেরিফিকেশনের জন্য প্রয়োজন"
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "0.65rem 0.85rem",
-                    borderRadius: "0.75rem",
-                    border: "1px solid #cbd5e1",
-                    fontSize: "0.875rem",
-                    outline: "none"
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Action Button */}
-            <button
-              onClick={handleSubmitReportRequest}
-              disabled={submitting}
-              style={{
-                backgroundColor: "var(--primary)",
-                color: "#ffffff",
-                border: "none",
-                borderRadius: "0.85rem",
-                padding: "0.85rem 1.25rem",
-                fontSize: "0.95rem",
-                fontWeight: 800,
-                cursor: submitting ? "not-allowed" : "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "0.5rem",
-                marginTop: "0.5rem",
-                boxShadow: "0 4px 15px rgba(15, 103, 61, 0.35)",
-                opacity: submitting ? 0.7 : 1
-              }}
-            >
-              <Send size={18} /> {submitting ? "জমা হচ্ছে..." : "আবেদন জমা দিন"}
-            </button>
-          </div>
-
-          {/* Submitted Requests List Status */}
-          <div style={{ backgroundColor: "white", borderRadius: "1.25rem", padding: "1.25rem", border: "1px solid var(--border)" }}>
-            <h4 style={{ fontSize: "0.95rem", fontWeight: 800, margin: "0 0 1rem 0", color: "var(--foreground)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <Clock size={18} color="var(--primary)" /> আপনার আবেদনের স্ট্যাটাস
-            </h4>
-
-            {myRequests.length === 0 ? (
-              <p style={{ fontSize: "0.8rem", color: "#6b7280", margin: 0, textAlign: "center", padding: "1rem 0" }}>
-                এখনো কোনো রিপোর্ট আবেদন করা হয়নি।
-              </p>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.65rem" }}>
-                {myRequests.map((req) => {
-                  const statusBg = req.status === "APPROVED" ? "#dcfce7" : req.status === "REJECTED" ? "#fee2e2" : "#fef3c7";
-                  const statusText = req.status === "APPROVED" ? "#15803d" : req.status === "REJECTED" ? "#b91c1c" : "#d97706";
-                  const statusLabel = req.status === "APPROVED" ? "অনুমোদিত ও প্রস্তুত" : req.status === "REJECTED" ? "বাতিল" : "পেন্ডিং (সাধারণ সম্পাদক)";
-
-                  return (
-                    <div key={req.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.75rem 0.85rem", borderRadius: "0.75rem", border: "1px solid #f1f5f9", backgroundColor: "#fafafa" }}>
-                      <div>
-                        <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--foreground)", display: "block" }}>
-                          {req.reportType === "single-member-ledger" ? "একক সদস্যের লেজার" : "চাঁদা রিপোর্ট"}
-                        </span>
-                        <span style={{ fontSize: "0.725rem", color: "#6b7280" }}>
-                          মেয়াদ: {formatDateBn(req.dateFrom)} - {formatDateBn(req.dateTo)}
-                        </span>
-                      </div>
-                      <span style={{ padding: "0.25rem 0.65rem", borderRadius: "9999px", fontSize: "0.7rem", fontWeight: 700, backgroundColor: statusBg, color: statusText }}>
-                        {statusLabel}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ==================== TAB 4: FULL PRINTABLE MEMBER LEDGER ==================== */}
+      {/* ==================== TAB 3: FULL PRINTABLE MEMBER LEDGER ==================== */}
       {activeTab === "ledger" && (
         <div style={{ backgroundColor: "white", padding: "1.5rem", borderRadius: "1.25rem", border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
