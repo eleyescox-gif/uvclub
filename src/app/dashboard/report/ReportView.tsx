@@ -127,26 +127,6 @@ export default function ReportView({ user, transactions, receiptTransactions }: 
         setSubmitSuccess("আপনার রিপোর্ট আবেদনটি সাধারণ সম্পাদকের নিকট সফলভাবে জমা হয়েছে!");
         setNote("");
         fetchMyRequests();
-
-        // Also prepare direct WhatsApp text to Secretary
-        const fromText = formatDateBn(whatsappDateFrom);
-        const toText = formatDateBn(whatsappDateTo);
-        const typeText = reportType === "single-member-ledger" ? "একক সদস্যের লেনদেন বিবরণী" : "চাঁদা জমা ও বকেয়া রিপোর্ট";
-
-        const message = `ইউনাইটেড ভিশন ক্লাব - রিপোর্ট আবেদন:
-----------------------------------------
-মেম্বার নাম: ${user.nameBn || user.name}
-মোবাইল: ${user.mobile}
-পদবী: ${roleTitles[user.role] || "সদস্য"}
-রিপোর্টের ধরণ: ${typeText}
-আবেদনের মেয়াদ: ${fromText} থেকে ${toText}
-
-সম্মানিত সাধারণ সম্পাদক, দয়া করে আমার অ্যাকাউন্টের অফিশিয়াল রিপোর্ট প্রস্তুত করে অনুমোদন প্রদান করুন।`;
-
-        const encodedMsg = encodeURIComponent(message);
-        setTimeout(() => {
-          window.open(`https://api.whatsapp.com/send?text=${encodedMsg}`, "_blank");
-        }, 1000);
       }
     } catch (e) {
       setSubmitError("নেটওয়ার্ক ত্রুটি, পুনরায় চেষ্টা করুন");
@@ -409,21 +389,21 @@ export default function ReportView({ user, transactions, receiptTransactions }: 
                 width: "50px",
                 height: "50px",
                 borderRadius: "1rem",
-                backgroundColor: "rgba(22, 163, 74, 0.1)",
-                color: "#16a34a",
+                backgroundColor: "rgba(16, 185, 129, 0.1)",
+                color: "#10b981",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 flexShrink: 0
               }}>
-                <MessageCircle size={28} />
+                <FileText size={28} />
               </div>
               <div>
                 <h3 style={{ fontSize: "1.2rem", fontWeight: 800, margin: 0, color: "var(--foreground)" }}>
                   রিপোর্ট আবেদন (সাধারণ সম্পাদক প্যানেল)
                 </h3>
                 <p style={{ fontSize: "0.825rem", color: "#6b7280", margin: "2px 0 0" }}>
-                  আপনার আবেদনের পর সাধারণ সম্পাদক অনুমোদন করে হোয়াটসঅ্যাপে রিপোর্ট পাঠাবেন।
+                  আপনার আবেদনের পর সাধারণ সম্পাদক অনুমোদন করে রিপোর্ট প্রস্তুত করে দেবেন।
                 </p>
               </div>
             </div>
@@ -570,7 +550,7 @@ export default function ReportView({ user, transactions, receiptTransactions }: 
               onClick={handleSubmitReportRequest}
               disabled={submitting}
               style={{
-                backgroundColor: "#16a34a",
+                backgroundColor: "var(--primary)",
                 color: "#ffffff",
                 border: "none",
                 borderRadius: "0.85rem",
@@ -583,11 +563,11 @@ export default function ReportView({ user, transactions, receiptTransactions }: 
                 justifyContent: "center",
                 gap: "0.5rem",
                 marginTop: "0.5rem",
-                boxShadow: "0 4px 15px rgba(22, 163, 74, 0.35)",
+                boxShadow: "0 4px 15px rgba(15, 103, 61, 0.35)",
                 opacity: submitting ? 0.7 : 1
               }}
             >
-              <Send size={18} /> {submitting ? "জমা হচ্ছে..." : "আবেদন জমা দিন ও হোয়াটসঅ্যাপ খুলুন"}
+              <Send size={18} /> {submitting ? "জমা হচ্ছে..." : "আবেদন জমা দিন"}
             </button>
           </div>
 

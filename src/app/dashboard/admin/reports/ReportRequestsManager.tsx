@@ -239,26 +239,6 @@ export default function ReportRequestsManager() {
                       </button>
                     </>
                   )}
-
-                  <button
-                    onClick={() => handleOpenWhatsApp(r)}
-                    style={{
-                      backgroundColor: "#25D366",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "0.5rem",
-                      padding: "0.45rem 0.85rem",
-                      fontSize: "0.775rem",
-                      fontWeight: 800,
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "0.35rem",
-                      marginLeft: "auto"
-                    }}
-                  >
-                    <Send size={14} /> হোয়াটসঅ্যাপে রিপোর্ট জানান
-                  </button>
                 </div>
               </div>
             );
