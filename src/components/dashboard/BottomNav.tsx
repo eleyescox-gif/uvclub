@@ -77,7 +77,6 @@ export default function BottomNav({ role, user }: BottomNavProps) {
         borderTop: "1px solid rgba(0, 0, 0, 0.08)",
         boxShadow: "0 -4px 20px rgba(0, 0, 0, 0.08)",
         zIndex: 9990,
-        display: "flex",
         alignItems: "center",
         justifyContent: "space-around",
         padding: "0 0.5rem calc(env(safe-area-inset-bottom) + 0.2rem)",

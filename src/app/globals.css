@@ -154,9 +154,9 @@ body {
   flex-direction: column;
 }
 
-/* Mobile Bottom Navigation */
+/* Mobile Bottom Navigation - STRICTLY HIDDEN ON DESKTOP / PC */
 .mobile-bottom-nav {
-  display: none;
+  display: none !important;
 }
 
 @media (max-width: 768px) {
