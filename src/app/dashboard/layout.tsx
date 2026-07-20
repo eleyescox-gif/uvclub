@@ -5,6 +5,7 @@ import Sidebar from "@/components/dashboard/Sidebar";
 import TopNav from "@/components/dashboard/TopNav";
 import BottomNav from "@/components/dashboard/BottomNav";
 import prisma from "@/lib/prisma";
+import { getClubInfo } from "@/lib/clubInfo";
 
 export default async function DashboardLayout({
   children,
@@ -20,8 +21,11 @@ export default async function DashboardLayout({
   const role = (session.user as any).role || "MEMBER";
 
   let formattedNotices: any[] = [];
-  let clubSettings = { name: "United Vision", logo: null, address: "Dhaka, Bangladesh" };
   let collectionStats = { paid: 0, due: 0 };
+
+  // Use getClubInfo() for dynamic admin-uploaded logo across dashboard
+  const clubInfoData = await getClubInfo();
+  let clubSettings = { name: clubInfoData.name, logo: clubInfoData.logo, address: clubInfoData.address };
 
   try {
     const today = new Date();
@@ -29,22 +33,17 @@ export default async function DashboardLayout({
     const currentYear = today.getFullYear();
 
     // Parallelized DB queries for ultra-fast response
-    const [activeNotices, settings, totalMembersCount, paidInvoicesCount] = await Promise.all([
+    const [activeNotices, totalMembersCount, paidInvoicesCount] = await Promise.all([
       prisma.notice.findMany({
         where: { isActive: true },
         orderBy: { createdAt: 'desc' },
         take: 5
       }).catch(() => []),
-      (prisma && (prisma as any).clubSettings) ? (prisma as any).clubSettings.findUnique({
-        where: { id: "singleton" }
-      }).catch(() => null) : Promise.resolve(null),
       prisma.user.count({ where: { activeStatus: true, isDeleted: false } }).catch(() => 0),
       prisma.invoice.count({
         where: { month: currentMonth, year: currentYear, status: 'PAID' }
       }).catch(() => 0)
     ]);
-
-    if (settings) clubSettings = settings;
 
     const noticeCreatorIds = activeNotices.map(n => n.createdBy);
     const noticeCreators = noticeCreatorIds.length > 0 

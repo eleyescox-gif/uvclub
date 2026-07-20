@@ -1,25 +1,13 @@
 import Link from "next/link";
-import prisma from "@/lib/prisma";
 import styles from "./login.module.css";
 import LoginForm from "./LoginForm";
+import { getClubInfo } from "@/lib/clubInfo";
 
 export const dynamic = "force-dynamic";
 
 export default async function LoginPage() {
-  // Query dynamic club settings (Name & Logo) set by Admin
-  let clubSettings = { name: "United Vision Club", logo: null };
-  try {
-    if (prisma && (prisma as any).clubSettings) {
-      const settings = await (prisma as any).clubSettings.findUnique({
-        where: { id: "singleton" }
-      }).catch(() => null);
-      if (settings) {
-        clubSettings = settings;
-      }
-    }
-  } catch (err) {
-    console.error("LoginPage: Could not fetch clubSettings from DB:", err);
-  }
+  const clubInfo = await getClubInfo();
+  const clubSettings = { name: clubInfo.name, logo: clubInfo.logo };
 
   return (
     <div className={styles.container}>

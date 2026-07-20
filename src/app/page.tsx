@@ -2,25 +2,21 @@ import Link from "next/link";
 import styles from "./page.module.css";
 import prisma from "@/lib/prisma";
 import { StatsCounter } from "@/components/home/StatsCounter";
+import { getClubInfo } from "@/lib/clubInfo";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  // Query dynamic club settings & metrics with defensive fallbacks
-  let clubSettings = { name: "United Vision Club", logo: null };
+  // Use getClubInfo() for consistent logo and club info across all pages
+  const clubInfo = await getClubInfo();
   let totalMembers = 0;
   let totalProjectsCount = 0;
 
-  try {
-    if (prisma && (prisma as any).clubSettings) {
-      const settings = await (prisma as any).clubSettings.findUnique({
-        where: { id: "singleton" }
-      }).catch(() => null);
-      if (settings) clubSettings = settings;
-    }
-  } catch (err) {
-    console.error("Home: clubSettings error:", err);
-  }
+  // Keep clubSettings alias for backward compat with template
+  const clubSettings = {
+    name: clubInfo.name,
+    logo: clubInfo.logo,
+  };
 
   try {
     totalMembers = await prisma.user.count({ 
