@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import Link from "next/link";
-import { ArrowLeft, AlertCircle } from "lucide-react";
+import { ArrowLeft, AlertCircle, Printer } from "lucide-react";
 import ResetPasswordModal from "./ResetPasswordModal";
 import DeleteMemberButton from "./DeleteMemberButton";
 import SuspendMemberButton from "./SuspendMemberButton";
@@ -89,14 +89,16 @@ export default async function ManageMembersPage() {
           <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--foreground)', margin: 0 }}>মেম্বার ব্যবস্থাপনা</h1>
           <p style={{ color: '#6b7280', fontSize: '0.875rem', margin: '2px 0 0' }}>সদস্যদের হিসাব স্থগিত, পদত্যাগ অনুমোদন ও পাসওয়ার্ড ম্যানেজমেন্ট</p>
         </div>
-        <div style={{ display: 'flex', gap: '1rem', marginLeft: 'auto' }}>
-          <Link href="/dashboard/admin/members/print-list" style={{ color: '#0284c7', display: 'flex', alignItems: 'center', gap: '0.25rem', textDecoration: 'none', fontWeight: 600, fontSize: '0.875rem' }}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-            প্রিন্ট তালিকা
+        <div style={{ display: 'flex', gap: '0.75rem', marginLeft: 'auto', flexWrap: 'wrap', alignItems: 'center' }}>
+          <Link href="/dashboard/admin/members/print-form" target="_blank" style={{ color: '#059669', display: 'flex', alignItems: 'center', gap: '0.25rem', textDecoration: 'none', fontWeight: 600, fontSize: '0.85rem', padding: '0.35rem 0.65rem', borderRadius: '0.5rem', backgroundColor: 'rgba(5, 150, 105, 0.1)', border: '1px solid rgba(5, 150, 105, 0.25)' }}>
+            <Printer size={15} /> ফাঁকা ফরম প্রিন্ট
+          </Link>
+          <Link href="/dashboard/admin/members/print-list" target="_blank" style={{ color: '#0284c7', display: 'flex', alignItems: 'center', gap: '0.25rem', textDecoration: 'none', fontWeight: 600, fontSize: '0.85rem', padding: '0.35rem 0.65rem', borderRadius: '0.5rem', backgroundColor: 'rgba(2, 132, 199, 0.1)', border: '1px solid rgba(2, 132, 199, 0.25)' }}>
+            <Printer size={15} /> প্রিন্ট তালিকা
           </Link>
           {(role === "ADMIN" || role === "PRESIDENT") && (
-            <Link href="/dashboard/admin/members/trash" className="btn btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', color: '#ef4444', borderColor: '#ef4444' }}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            <Link href="/dashboard/admin/members/trash" className="btn btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', textDecoration: 'none', color: '#ef4444', borderColor: '#ef4444', padding: '0.35rem 0.65rem', fontSize: '0.85rem' }}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
               ট্র্যাশ
             </Link>
           )}
@@ -157,6 +159,7 @@ export default async function ManageMembersPage() {
                       {/* 1. View / Print Form Icon Button */}
                       <Link 
                         href={`/dashboard/admin/members/${user.id}/print-form`}
+                        target="_blank"
                         style={{
                           width: "32px",
                           height: "32px",
