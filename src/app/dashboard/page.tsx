@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
-import { ArrowUpRight, Clock, Plus, Download, Activity, CheckCircle, Briefcase, FileText, CheckCircle2, Award, Wallet, Landmark, Users, CheckSquare, RefreshCw } from "lucide-react";
+import { ArrowUpRight, Clock, Plus, Download, Activity, CheckCircle, Briefcase, FileText, CheckCircle2, Award, Wallet, Landmark, Users, CheckSquare, RefreshCw, Vote, Megaphone, User, FileCheck } from "lucide-react";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
 import styles from "./dashboard.module.css";
@@ -149,6 +149,25 @@ export default async function DashboardPage() {
   const netSurplus = totalIncome - totalExpense;
   const personalBalance = user?.balance || 0;
 
+  const quickServices = [
+    { name: "চাঁদা জমা", href: "/dashboard/finance", icon: <Wallet size={24} />, color: "#059669", bg: "linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)", border: "#a7f3d0" },
+    { name: "বিবরণী", href: "/dashboard/finance", icon: <FileText size={24} />, color: "#d97706", bg: "linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)", border: "#fde68a" },
+    { name: "ভোট প্যানেল", href: "/dashboard/voting", icon: <Vote size={24} />, color: "#4f46e5", bg: "linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%)", border: "#c7d2fe" },
+    { name: "নোটিশ", href: "/dashboard/notices", icon: <Megaphone size={24} />, color: "#e11d48", bg: "linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%)", border: "#fecdd3" },
+    { name: "প্রজেক্ট", href: "/dashboard/projects", icon: <Briefcase size={24} />, color: "#0891b2", bg: "linear-gradient(135deg, #ecfeff 0%, #cffafe 100%)", border: "#a5f3fc" },
+    { name: "সদস্যবৃন্দ", href: "/dashboard/members", icon: <Users size={24} />, color: "#2563eb", bg: "linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)", border: "#bfdbfe" },
+    { name: "আবেদন", href: "/dashboard/applications", icon: <FileCheck size={24} />, color: "#7c3aed", bg: "linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)", border: "#ddd6fe" },
+    { name: "প্রোফাইল", href: "/dashboard/profile", icon: <User size={24} />, color: "#475569", bg: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)", border: "#e2e8f0" },
+  ];
+
+  if (role === "ADMIN" || role === "CASHIER") {
+    quickServices.push({ name: "চাঁদা এন্ট্রি", href: "/dashboard/admin/finance", icon: <Plus size={24} />, color: "#047857", bg: "linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)", border: "#6ee7b7" });
+  }
+  if (role === "ADMIN" || role === "PRESIDENT" || role === "SECRETARY") {
+    quickServices.push({ name: "অনুমোদন", href: "/dashboard/admin/members/pending", icon: <CheckCircle2 size={24} />, color: "#ea580c", bg: "linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%)", border: "#fdba74" });
+    quickServices.push({ name: "রিপোর্ট", href: "/dashboard/admin/reports", icon: <Activity size={24} />, color: "#dc2626", bg: "linear-gradient(135deg, #ffe4e6 0%, #fecdd3 100%)", border: "#f87171" });
+  }
+
   return (
     <div className={styles.container}>
       {/* Header Area */}
@@ -282,6 +301,85 @@ export default async function DashboardPage() {
             </div>
           </div>
         </Link>
+      </div>
+
+      {/* Mobile App Quick Services Icon Grid (bKash/Nagad Style) */}
+      <div style={{
+        backgroundColor: '#ffffff',
+        borderRadius: '1.25rem',
+        border: '1px solid var(--border)',
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)',
+        padding: '1.25rem 1rem',
+        marginBottom: '1.5rem',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.85rem'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 0.25rem' }}>
+          <h3 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            ⚡ কুইক সেবাসমূহ (Services)
+          </h3>
+          <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>১-ট্যাপ নেভিগেশন</span>
+        </div>
+
+        {/* 4-Column Responsive Icon Grid */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: '1rem 0.5rem',
+          alignItems: 'start',
+          justifyItems: 'center'
+        }}>
+          {quickServices.map((item, index) => (
+            <Link
+              key={index}
+              href={item.href}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '0.45rem',
+                textDecoration: 'none',
+                width: '100%',
+                maxWidth: '78px',
+                transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
+              }}
+            >
+              {/* Circular Icon Bubble */}
+              <div style={{
+                width: '54px',
+                height: '54px',
+                borderRadius: '50%',
+                background: item.bg,
+                border: `1.5px solid ${item.border}`,
+                color: item.color,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: `0 4px 12px ${item.color}20`,
+                transition: 'transform 0.2s ease',
+              }}>
+                {item.icon}
+              </div>
+
+              {/* Short Label */}
+              <span style={{
+                fontSize: '0.72rem',
+                fontWeight: 800,
+                color: '#1e293b',
+                textAlign: 'center',
+                lineHeight: 1.2,
+                wordBreak: 'break-word',
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden'
+              }}>
+                {item.name}
+              </span>
+            </Link>
+          ))}
+        </div>
       </div>
 
       {/* Profit & Loss (লাভ ও লোকসান) Financial Palette Card */}
