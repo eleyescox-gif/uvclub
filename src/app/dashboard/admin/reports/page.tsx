@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import ReportSelector from "./ReportSelector";
+import ReportRequestsManager from "./ReportRequestsManager";
 import { getClubInfo } from "@/lib/clubInfo";
 
 export default async function ReportsPage({ 
@@ -207,6 +208,9 @@ export default async function ReportsPage({
         <h1 style={{ fontSize: '1.85rem', fontWeight: 800, color: 'var(--foreground)' }}>রিপোর্ট জেনারেশন</h1>
         <p style={{ color: '#6b7280', fontSize: '0.9rem' }}>ফিল্টার সেট করুন এবং প্রিন্ট বাটন চেপে প্রফেশনাল এ৪ সাইজের পিডিএফ বা রিপোর্ট প্রিন্ট করুন।</p>
       </div>
+
+      {/* General Secretary Report Requests Manager */}
+      <ReportRequestsManager />
 
       {/* Render selector component with member list for member dropdown */}
       <ReportSelector members={activeMembersList} />

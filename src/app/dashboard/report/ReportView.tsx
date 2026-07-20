@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Printer, Calendar, Receipt, MessageCircle, ArrowUpRight, ArrowDownLeft, FileText, Send, CheckCircle2, ChevronRight } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { Printer, Calendar, Receipt, MessageCircle, ArrowUpRight, ArrowDownLeft, FileText, Send, CheckCircle2, ChevronRight, Clock, Check, X } from "lucide-react";
 import Link from "next/link";
 
 interface ReceiptTx {
@@ -27,25 +27,48 @@ const roleTitles: Record<string, string> = {
 export default function ReportView({ user, transactions, receiptTransactions }: ReportViewProps) {
   const [activeView, setActiveView] = useState<"statement" | "whatsapp" | "ledger">("statement");
 
-  // Date range state for WhatsApp Report application
+  // Date range state for Report application
   const today = new Date();
   const todayStr = today.toISOString().split("T")[0];
   const jan1stStr = `${today.getFullYear()}-01-01`;
 
   const [whatsappDateFrom, setWhatsappDateFrom] = useState(jan1stStr);
   const [whatsappDateTo, setWhatsappDateTo] = useState(todayStr);
+  const [reportType, setReportType] = useState("single-member-ledger");
+  const [note, setNote] = useState("");
+  
+  const [submitting, setSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState("");
+  const [submitError, setSubmitError] = useState("");
+  
+  const [myRequests, setMyRequests] = useState<any[]>([]);
+  const [loadingRequests, setLoadingRequests] = useState(false);
+
+  // Fetch Member's previous Report Requests
+  const fetchMyRequests = async () => {
+    setLoadingRequests(true);
+    try {
+      const res = await fetch("/api/report-requests");
+      const data = await res.json();
+      if (data.requests) {
+        setMyRequests(data.requests);
+      }
+    } catch (e) {
+      console.error("Fetch report requests error:", e);
+    } finally {
+      setLoadingRequests(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMyRequests();
+  }, []);
 
   // Helper date formatting
   const formatDateBn = (dateInput: Date | string) => {
     const d = new Date(dateInput);
     if (isNaN(d.getTime())) return "";
     return d.toLocaleDateString("bn-BD", { day: "numeric", month: "long", year: "numeric" });
-  };
-
-  const formatTimeBn = (dateInput: Date | string) => {
-    const d = new Date(dateInput);
-    if (isNaN(d.getTime())) return "";
-    return d.toLocaleTimeString("bn-BD", { hour: "2-digit", minute: "2-digit" });
   };
 
   // Convert numbers to Bengali
@@ -74,29 +97,68 @@ export default function ReportView({ user, transactions, receiptTransactions }: 
     return { totalDeposit: deposit, totalWithdrawal: withdrawal, totalProfit: profit, totalLoss: loss, currentBalance: balance };
   }, [transactions]);
 
-  // Handle WhatsApp Report Generation & Opening
-  const handleSendWhatsAppReport = () => {
-    const fromText = formatDateBn(whatsappDateFrom);
-    const toText = formatDateBn(whatsappDateTo);
+  // Handle Report Application Submission
+  const handleSubmitReportRequest = async () => {
+    setSubmitSuccess("");
+    setSubmitError("");
 
-    const message = `ইউনাইটেড ভিশন ক্লাব - স্টেটমেন্ট আবেদন:
+    if (!whatsappDateFrom || !whatsappDateTo) {
+      setSubmitError("দয়া করে শুরুর ও শেষ তারিখ নির্বাচন করুন।");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/report-requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          reportType,
+          dateFrom: whatsappDateFrom,
+          dateTo: whatsappDateTo,
+          note
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        setSubmitError(data.error || "আবেদন জমা দিতে সমস্যা হয়েছে");
+      } else {
+        setSubmitSuccess("আপনার রিপোর্ট আবেদনটি সাধারণ সম্পাদকের নিকট সফলভাবে জমা হয়েছে!");
+        setNote("");
+        fetchMyRequests();
+
+        // Also prepare direct WhatsApp text to Secretary
+        const fromText = formatDateBn(whatsappDateFrom);
+        const toText = formatDateBn(whatsappDateTo);
+        const typeText = reportType === "single-member-ledger" ? "একক সদস্যের লেনদেন বিবরণী" : "চাঁদা জমা ও বকেয়া রিপোর্ট";
+
+        const message = `ইউনাইটেড ভিশন ক্লাব - রিপোর্ট আবেদন:
 ----------------------------------------
 মেম্বার নাম: ${user.nameBn || user.name}
 মোবাইল: ${user.mobile}
 পদবী: ${roleTitles[user.role] || "সদস্য"}
+রিপোর্টের ধরণ: ${typeText}
+আবেদনের মেয়াদ: ${fromText} থেকে ${toText}
 
-আবেদনের মেয়াদ: ${fromText} থেকে ${toText}
+সম্মানিত সাধারণ সম্পাদক, দয়া করে আমার অ্যাকাউন্টের অফিশিয়াল রিপোর্ট প্রস্তুত করে অনুমোদন প্রদান করুন।`;
 
-অনুরোধ: প্রিয় সাধারণ সম্পাদক, দয়া করে উল্লেখিত সময়ের মধ্যে আমার অ্যাকাউন্টের সম্পূর্ণ অফিশিয়াল স্টেটমেন্ট/রিপোর্ট প্রস্তুত করে এই হোয়াটসঅ্যাপে পাঠাবেন।`;
-
-    const encodedMsg = encodeURIComponent(message);
-    window.open(`https://api.whatsapp.com/send?text=${encodedMsg}`, "_blank");
+        const encodedMsg = encodeURIComponent(message);
+        setTimeout(() => {
+          window.open(`https://api.whatsapp.com/send?text=${encodedMsg}`, "_blank");
+        }, 1000);
+      }
+    } catch (e) {
+      setSubmitError("নেটওয়ার্ক ত্রুটি, পুনরায় চেষ্টা করুন");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <div style={{ maxWidth: "800px", margin: "0 auto", paddingBottom: "3rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
       
-      {/* Top View Selector Switcher (bKash Statement vs Apply for Report vs Full Ledger) */}
+      {/* Top View Selector Switcher */}
       <div className="no-print" style={{
         backgroundColor: "white",
         borderRadius: "1.25rem",
@@ -177,7 +239,7 @@ export default function ReportView({ user, transactions, receiptTransactions }: 
       {activeView === "statement" && (
         <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
           
-          {/* bKash Balance Summary Card */}
+          {/* Balance Summary Card */}
           <div style={{
             background: "linear-gradient(135deg, #0F673D 0%, #064e2b 100%)",
             color: "#ffffff",
@@ -232,7 +294,7 @@ export default function ReportView({ user, transactions, receiptTransactions }: 
             </span>
           </div>
 
-          {/* bKash App Style Transactions Cards */}
+          {/* Transactions Cards */}
           {transactions.length === 0 ? (
             <div className="glass" style={{ padding: "2.5rem", borderRadius: "1.25rem", textAlign: "center", color: "#6b7280" }}>
               কোনো লেনদেনের তথ্য পাওয়া যায়নি।
@@ -258,11 +320,9 @@ export default function ReportView({ user, transactions, receiptTransactions }: 
                       alignItems: "center",
                       justifyContent: "space-between",
                       gap: "0.75rem",
-                      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
-                      transition: "transform 0.15s ease, boxShadow 0.15s ease"
+                      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)"
                     }}
                   >
-                    {/* Left Icon */}
                     <div style={{
                       width: "44px",
                       height: "44px",
@@ -277,7 +337,6 @@ export default function ReportView({ user, transactions, receiptTransactions }: 
                       {isCredit ? <ArrowUpRight size={22} /> : <ArrowDownLeft size={22} />}
                     </div>
 
-                    {/* Middle Details */}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
                         <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, color: "var(--foreground)" }}>
@@ -297,7 +356,6 @@ export default function ReportView({ user, transactions, receiptTransactions }: 
                       </div>
                     </div>
 
-                    {/* Right Amount */}
                     <div style={{ textAlign: "right", flexShrink: 0 }}>
                       <span style={{
                         fontSize: "1.05rem",
@@ -333,153 +391,246 @@ export default function ReportView({ user, transactions, receiptTransactions }: 
         </div>
       )}
 
-      {/* ==================== VIEW 2: APPLY FOR REPORT VIA WHATSAPP ==================== */}
+      {/* ==================== VIEW 2: APPLY FOR REPORT VIA GENERAL SECRETARY & WHATSAPP ==================== */}
       {activeView === "whatsapp" && (
-        <div style={{
-          backgroundColor: "white",
-          borderRadius: "1.5rem",
-          padding: "1.75rem 1.5rem",
-          border: "1px solid var(--border)",
-          boxShadow: "var(--shadow-md)",
-          display: "flex",
-          flexDirection: "column",
-          gap: "1.25rem"
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.85rem" }}>
-            <div style={{
-              width: "50px",
-              height: "50px",
-              borderRadius: "1rem",
-              backgroundColor: "rgba(22, 163, 74, 0.1)",
-              color: "#16a34a",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0
-            }}>
-              <MessageCircle size={28} />
+        <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+          <div style={{
+            backgroundColor: "white",
+            borderRadius: "1.5rem",
+            padding: "1.75rem 1.5rem",
+            border: "1px solid var(--border)",
+            boxShadow: "var(--shadow-md)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1.25rem"
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.85rem" }}>
+              <div style={{
+                width: "50px",
+                height: "50px",
+                borderRadius: "1rem",
+                backgroundColor: "rgba(22, 163, 74, 0.1)",
+                color: "#16a34a",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0
+              }}>
+                <MessageCircle size={28} />
+              </div>
+              <div>
+                <h3 style={{ fontSize: "1.2rem", fontWeight: 800, margin: 0, color: "var(--foreground)" }}>
+                  রিপোর্ট আবেদন (সাধারণ সম্পাদক প্যানেল)
+                </h3>
+                <p style={{ fontSize: "0.825rem", color: "#6b7280", margin: "2px 0 0" }}>
+                  আপনার আবেদনের পর সাধারণ সম্পাদক অনুমোদন করে হোয়াটসঅ্যাপে রিপোর্ট পাঠাবেন।
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 style={{ fontSize: "1.2rem", fontWeight: 800, margin: 0, color: "var(--foreground)" }}>
-                হোয়াটসঅ্যাপে রিপোর্ট এর আবেদন
-              </h3>
-              <p style={{ fontSize: "0.825rem", color: "#6b7280", margin: "2px 0 0" }}>
-                তারিখ সিলেক্ট করে সাধারণ সম্পাদককে অফিশিয়াল স্টেটমেন্টের জন্য অনুরোধ জানান।
+
+            {submitSuccess && (
+              <div style={{ padding: "0.85rem 1rem", borderRadius: "0.75rem", backgroundColor: "#dcfce7", border: "1px solid #86efac", color: "#15803d", fontSize: "0.875rem", fontWeight: 600 }}>
+                ✓ {submitSuccess}
+              </div>
+            )}
+
+            {submitError && (
+              <div style={{ padding: "0.85rem 1rem", borderRadius: "0.75rem", backgroundColor: "#fee2e2", border: "1px solid #fca5a5", color: "#b91c1c", fontSize: "0.875rem", fontWeight: 600 }}>
+                ✕ {submitError}
+              </div>
+            )}
+
+            <hr style={{ border: "none", borderTop: "1px dashed var(--border)" }} />
+
+            {/* Report Type & Date Range */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+              <div>
+                <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#374151", marginBottom: "0.35rem", display: "block" }}>
+                  রিপোর্টের ধরণ
+                </label>
+                <select
+                  value={reportType}
+                  onChange={(e) => setReportType(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "0.65rem 0.85rem",
+                    borderRadius: "0.75rem",
+                    border: "1px solid #cbd5e1",
+                    fontSize: "0.875rem",
+                    fontWeight: 600,
+                    outline: "none"
+                  }}
+                >
+                  <option value="single-member-ledger">একক সদস্যের লেনদেন বিবরণী (লেজার)</option>
+                  <option value="paid-subscriptions">চাঁদা জমা ও পরিশোধিত স্টেটমেন্ট</option>
+                  <option value="due-subscriptions">বকেয়া চাঁদার তালিকা</option>
+                </select>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.85rem" }}>
+                <div>
+                  <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#374151", marginBottom: "0.35rem", display: "block" }}>
+                    শুরুর তারিখ
+                  </label>
+                  <input
+                    type="date"
+                    value={whatsappDateFrom}
+                    onChange={(e) => setWhatsappDateFrom(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "0.65rem 0.85rem",
+                      borderRadius: "0.75rem",
+                      border: "1px solid #cbd5e1",
+                      fontSize: "0.875rem",
+                      color: "var(--foreground)",
+                      outline: "none"
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#374151", marginBottom: "0.35rem", display: "block" }}>
+                    শেষ তারিখ
+                  </label>
+                  <input
+                    type="date"
+                    value={whatsappDateTo}
+                    onChange={(e) => setWhatsappDateTo(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "0.65rem 0.85rem",
+                      borderRadius: "0.75rem",
+                      border: "1px solid #cbd5e1",
+                      fontSize: "0.875rem",
+                      color: "var(--foreground)",
+                      outline: "none"
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Quick Date Presets */}
+              <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                <button
+                  type="button"
+                  onClick={() => { setWhatsappDateFrom(`${today.getFullYear()}-01-01`); setWhatsappDateTo(todayStr); }}
+                  style={{ backgroundColor: "#f1f5f9", border: "none", padding: "0.35rem 0.75rem", borderRadius: "0.5rem", fontSize: "0.75rem", fontWeight: 600, color: "#475569", cursor: "pointer" }}
+                >
+                  চলতি বছর
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const d = new Date();
+                    d.setMonth(d.getMonth() - 3);
+                    setWhatsappDateFrom(d.toISOString().split("T")[0]);
+                    setWhatsappDateTo(todayStr);
+                  }}
+                  style={{ backgroundColor: "#f1f5f9", border: "none", padding: "0.35rem 0.75rem", borderRadius: "0.5rem", fontSize: "0.75rem", fontWeight: 600, color: "#475569", cursor: "pointer" }}
+                >
+                  গত ৩ মাস
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const d = new Date();
+                    d.setFullYear(d.getFullYear() - 1);
+                    setWhatsappDateFrom(d.toISOString().split("T")[0]);
+                    setWhatsappDateTo(todayStr);
+                  }}
+                  style={{ backgroundColor: "#f1f5f9", border: "none", padding: "0.35rem 0.75rem", borderRadius: "0.5rem", fontSize: "0.75rem", fontWeight: 600, color: "#475569", cursor: "pointer" }}
+                >
+                  গত ১ বছর
+                </button>
+              </div>
+
+              <div>
+                <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#374151", marginBottom: "0.35rem", display: "block" }}>
+                  বিশেষ নোট বা মন্তব্য (ঐচ্ছিক)
+                </label>
+                <input
+                  type="text"
+                  placeholder="যেমন: ব্যাংক স্টেটমেন্ট ভেরিফিকেশনের জন্য প্রয়োজন"
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "0.65rem 0.85rem",
+                    borderRadius: "0.75rem",
+                    border: "1px solid #cbd5e1",
+                    fontSize: "0.875rem",
+                    outline: "none"
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Action Button */}
+            <button
+              onClick={handleSubmitReportRequest}
+              disabled={submitting}
+              style={{
+                backgroundColor: "#16a34a",
+                color: "#ffffff",
+                border: "none",
+                borderRadius: "0.85rem",
+                padding: "0.85rem 1.25rem",
+                fontSize: "0.95rem",
+                fontWeight: 800,
+                cursor: submitting ? "not-allowed" : "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.5rem",
+                marginTop: "0.5rem",
+                boxShadow: "0 4px 15px rgba(22, 163, 74, 0.35)",
+                opacity: submitting ? 0.7 : 1
+              }}
+            >
+              <Send size={18} /> {submitting ? "জমা হচ্ছে..." : "আবেদন জমা দিন ও হোয়াটসঅ্যাপ খুলুন"}
+            </button>
+          </div>
+
+          {/* Submitted Requests List Status */}
+          <div style={{ backgroundColor: "white", borderRadius: "1.25rem", padding: "1.25rem", border: "1px solid var(--border)" }}>
+            <h4 style={{ fontSize: "0.95rem", fontWeight: 800, margin: "0 0 1rem 0", color: "var(--foreground)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <Clock size={18} color="var(--primary)" /> আপনার আবেদনের স্ট্যাটাস
+            </h4>
+
+            {myRequests.length === 0 ? (
+              <p style={{ fontSize: "0.8rem", color: "#6b7280", margin: 0, textAlign: "center", padding: "1rem 0" }}>
+                এখনো কোনো রিপোর্ট আবেদন করা হয়নি।
               </p>
-            </div>
-          </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.65rem" }}>
+                {myRequests.map((req) => {
+                  const statusBg = req.status === "APPROVED" ? "#dcfce7" : req.status === "REJECTED" ? "#fee2e2" : "#fef3c7";
+                  const statusText = req.status === "APPROVED" ? "#15803d" : req.status === "REJECTED" ? "#b91c1c" : "#d97706";
+                  const statusLabel = req.status === "APPROVED" ? "অনুমোদিত ও প্রেরিত" : req.status === "REJECTED" ? "বাতিল" : "পেন্ডিং (সাধারণ সম্পাদক)";
 
-          <hr style={{ border: "none", borderTop: "1px dashed var(--border)" }} />
-
-          {/* Date Picker Range */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.85rem" }}>
-              <div>
-                <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#374151", marginBottom: "0.35rem", display: "block" }}>
-                  শুরুর তারিখ
-                </label>
-                <input
-                  type="date"
-                  value={whatsappDateFrom}
-                  onChange={(e) => setWhatsappDateFrom(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "0.65rem 0.85rem",
-                    borderRadius: "0.75rem",
-                    border: "1px solid #cbd5e1",
-                    fontSize: "0.875rem",
-                    color: "var(--foreground)",
-                    outline: "none"
-                  }}
-                />
+                  return (
+                    <div key={req.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.75rem 0.85rem", borderRadius: "0.75rem", border: "1px solid #f1f5f9", backgroundColor: "#fafafa" }}>
+                      <div>
+                        <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--foreground)", display: "block" }}>
+                          {req.reportType === "single-member-ledger" ? "একক সদস্যের লেজার" : "চাঁদা রিপোর্ট"}
+                        </span>
+                        <span style={{ fontSize: "0.725rem", color: "#6b7280" }}>
+                          মেয়াদ: {formatDateBn(req.dateFrom)} - {formatDateBn(req.dateTo)}
+                        </span>
+                      </div>
+                      <span style={{ padding: "0.25rem 0.65rem", borderRadius: "9999px", fontSize: "0.7rem", fontWeight: 700, backgroundColor: statusBg, color: statusText }}>
+                        {statusLabel}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
-
-              <div>
-                <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#374151", marginBottom: "0.35rem", display: "block" }}>
-                  শেষ তারিখ
-                </label>
-                <input
-                  type="date"
-                  value={whatsappDateTo}
-                  onChange={(e) => setWhatsappDateTo(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "0.65rem 0.85rem",
-                    borderRadius: "0.75rem",
-                    border: "1px solid #cbd5e1",
-                    fontSize: "0.875rem",
-                    color: "var(--foreground)",
-                    outline: "none"
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Quick Date Presets */}
-            <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-              <button
-                type="button"
-                onClick={() => { setWhatsappDateFrom(`${today.getFullYear()}-01-01`); setWhatsappDateTo(todayStr); }}
-                style={{ backgroundColor: "#f1f5f9", border: "none", padding: "0.35rem 0.75rem", borderRadius: "0.5rem", fontSize: "0.75rem", fontWeight: 600, color: "#475569", cursor: "pointer" }}
-              >
-                চলতি বছর
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  const d = new Date();
-                  d.setMonth(d.getMonth() - 3);
-                  setWhatsappDateFrom(d.toISOString().split("T")[0]);
-                  setWhatsappDateTo(todayStr);
-                }}
-                style={{ backgroundColor: "#f1f5f9", border: "none", padding: "0.35rem 0.75rem", borderRadius: "0.5rem", fontSize: "0.75rem", fontWeight: 600, color: "#475569", cursor: "pointer" }}
-              >
-                গত ৩ মাস
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  const d = new Date();
-                  d.setFullYear(d.getFullYear() - 1);
-                  setWhatsappDateFrom(d.toISOString().split("T")[0]);
-                  setWhatsappDateTo(todayStr);
-                }}
-                style={{ backgroundColor: "#f1f5f9", border: "none", padding: "0.35rem 0.75rem", borderRadius: "0.5rem", fontSize: "0.75rem", fontWeight: 600, color: "#475569", cursor: "pointer" }}
-              >
-                গত ১ বছর
-              </button>
-            </div>
+            )}
           </div>
-
-          {/* Action Button */}
-          <button
-            onClick={handleSendWhatsAppReport}
-            style={{
-              backgroundColor: "#25D366",
-              color: "#ffffff",
-              border: "none",
-              borderRadius: "0.85rem",
-              padding: "0.85rem 1.25rem",
-              fontSize: "0.95rem",
-              fontWeight: 800,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "0.5rem",
-              marginTop: "0.5rem",
-              boxShadow: "0 4px 15px rgba(37, 211, 102, 0.35)",
-              transition: "transform 0.15s ease"
-            }}
-            onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.97)")}
-            onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
-          >
-            <Send size={18} /> হোয়াটসঅ্যাপে রিপোর্টে আবেদন পাঠান
-          </button>
         </div>
       )}
 
-      {/* ==================== VIEW 3: FULL LEDGER TABLE (PRINT FRIENDLY) ==================== */}
+      {/* ==================== VIEW 3: FULL LEDGER TABLE ==================== */}
       {activeView === "ledger" && (
         <div style={{ backgroundColor: "white", padding: "1.5rem", borderRadius: "1.25rem", border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
