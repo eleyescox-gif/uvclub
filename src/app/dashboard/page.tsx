@@ -173,7 +173,25 @@ export default async function DashboardPage() {
             <h2 className={styles.statCardPremiumValue}>
               <AnimatedCounter value={personalBalance} prefix="৳ " />
             </h2>
-            <div className={styles.statCardPremiumBadge}>
+            <div style={{
+              display: 'block',
+              width: '100%',
+              textAlign: 'center',
+              padding: '0.45rem 0.75rem',
+              borderRadius: '12px',
+              backgroundColor: 'rgba(255, 255, 255, 0.25)',
+              border: '1.5px solid rgba(255, 255, 255, 0.4)',
+              color: '#ffffff',
+              fontSize: '0.85rem',
+              fontWeight: 800,
+              marginTop: '0.65rem',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+              letterSpacing: '0.02em',
+              zIndex: 2,
+              position: 'relative'
+            }}>
               ব্যক্তিগত সঞ্চয় তহবিল
             </div>
           </div>
@@ -221,51 +239,7 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {/* Card 3: Total Members */}
-        <Link href="/dashboard/members" style={{ textDecoration: 'none', color: 'inherit' }}>
-          <div className={styles.statCardAmber}>
-            <div className={styles.statHeader}>
-              <span style={{ color: '#92400e', fontWeight: 800, fontSize: '0.82rem', letterSpacing: '0.02em', textTransform: 'uppercase' }}>
-                মোট সদস্য
-              </span>
-              <div style={{
-                width: '38px',
-                height: '38px',
-                borderRadius: '50%',
-                backgroundColor: '#d97706',
-                color: '#ffffff',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 4px 10px rgba(217, 119, 6, 0.3)',
-                flexShrink: 0
-              }}>
-                <Users size={19} />
-              </div>
-            </div>
-            <div style={{ marginTop: '0.25rem' }}>
-              <h2 style={{ fontSize: '1.85rem', fontWeight: 900, color: '#78350f', margin: '0 0 0.4rem 0', letterSpacing: '-0.02em' }}>
-                <AnimatedCounter value={totalMembers} />
-              </h2>
-              <div style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.35rem',
-                backgroundColor: 'rgba(217, 119, 6, 0.1)',
-                border: '1px solid rgba(217, 119, 6, 0.2)',
-                color: '#92400e',
-                fontSize: '0.72rem',
-                fontWeight: 700,
-                padding: '0.25rem 0.65rem',
-                borderRadius: '20px'
-              }}>
-                অনুমোদিত সক্রিয় সদস্য
-              </div>
-            </div>
-          </div>
-        </Link>
-
-        {/* Card 4: Pending Polls */}
+        {/* Card 3: Pending Polls */}
         <Link href="/dashboard/voting" style={{ textDecoration: 'none', color: 'inherit' }}>
           <div className={styles.statCardRose}>
             <div className={styles.statHeader}>
@@ -582,9 +556,24 @@ export default async function DashboardPage() {
                   <p style={{ margin: 0, fontSize: '0.65rem', color: '#64748b', fontWeight: 700 }}>আদায়ের হার</p>
                 </div>
               </div>
-              <div className={styles.legendArea}>
-                <span className={styles.legendItem}><span className={styles.dot} style={{backgroundColor: 'var(--primary)'}}></span> আদায় হয়েছে</span>
-                <span className={styles.legendItem}><span className={styles.dot} style={{backgroundColor: '#e2e8f0', border: '1px solid #cbd5e1'}}></span> বকেয়া</span>
+              <div className={styles.legendArea} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', width: '100%', marginTop: '0.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#f0fdf4', padding: '0.45rem 0.75rem', borderRadius: '0.5rem', border: '1px solid #bbf7d0' }}>
+                  <span className={styles.legendItem} style={{ color: '#166534', fontWeight: 700 }}>
+                    <span className={styles.dot} style={{ backgroundColor: 'var(--primary)' }}></span> আদায় হয়েছে
+                  </span>
+                  <span style={{ fontSize: '0.88rem', fontWeight: 900, color: '#15803d', backgroundColor: '#ffffff', padding: '2px 8px', borderRadius: '12px', border: '1px solid #86efac' }}>
+                    {paidInvoicesAllTime} টি
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fef2f2', padding: '0.45rem 0.75rem', borderRadius: '0.5rem', border: '1px solid #fecdd3' }}>
+                  <span className={styles.legendItem} style={{ color: '#991b1b', fontWeight: 700 }}>
+                    <span className={styles.dot} style={{ backgroundColor: '#ef4444' }}></span> বকেয়া
+                  </span>
+                  <span style={{ fontSize: '0.88rem', fontWeight: 900, color: '#b91c1c', backgroundColor: '#ffffff', padding: '2px 8px', borderRadius: '12px', border: '1px solid #fca5a5' }}>
+                    {Math.max(0, totalInvoicesAllTime - paidInvoicesAllTime)} টি
+                  </span>
+                </div>
               </div>
             </div>
           </div>

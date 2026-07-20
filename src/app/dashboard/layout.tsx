@@ -22,6 +22,7 @@ export default async function DashboardLayout({
 
   let formattedNotices: any[] = [];
   let collectionStats = { paid: 0, due: 0 };
+  let totalMembersCount = 0;
 
   // Use getClubInfo() for dynamic admin-uploaded logo across dashboard
   const clubInfoData = await getClubInfo();
@@ -33,7 +34,7 @@ export default async function DashboardLayout({
     const currentYear = today.getFullYear();
 
     // Parallelized DB queries for ultra-fast response
-    const [activeNotices, totalMembersCount, paidInvoicesCount] = await Promise.all([
+    const [activeNotices, memberCount, paidInvoicesCount] = await Promise.all([
       prisma.notice.findMany({
         where: { isActive: true },
         orderBy: { createdAt: 'desc' },
@@ -44,6 +45,8 @@ export default async function DashboardLayout({
         where: { month: currentMonth, year: currentYear, status: 'PAID' }
       }).catch(() => 0)
     ]);
+
+    totalMembersCount = memberCount;
 
     const noticeCreatorIds = activeNotices.map(n => n.createdBy);
     const noticeCreators = noticeCreatorIds.length > 0 
@@ -84,7 +87,7 @@ export default async function DashboardLayout({
   return (
     <div className="layout-container">
       {/* Sidebar - fixed width on desktop */}
-      <Sidebar role={role} user={session.user} />
+      <Sidebar role={role} user={session.user} totalMembersCount={totalMembersCount} />
 
       {/* Main Content Area */}
       <main className="main-content">

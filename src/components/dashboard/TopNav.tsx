@@ -73,52 +73,8 @@ export default function TopNav({ user, activeNoticesCount = 0, clubSettings, not
         <h1 className="topnav-title-text">{clubSettings?.name || "United Vision"}</h1>
       </div>
 
-      {/* Notification & Collection Stats Area */}
-      <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '0.5rem', position: 'relative', zIndex: 2 }}>
-        {/* Paid & Due Pills (Left of Notification Bell) */}
-        {collectionStats && (
-          <div style={{ display: 'flex', gap: '0.3rem', alignItems: 'center' }}>
-            <div 
-              title="পরিশোধিত তালিকা"
-              style={{
-                backgroundColor: 'rgba(16, 185, 129, 0.12)',
-                border: '1px solid rgba(16, 185, 129, 0.3)',
-                borderRadius: '8px',
-                padding: '0.25rem 0.5rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.25rem',
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                color: '#15803d',
-                boxShadow: 'var(--shadow-sm)'
-              }}
-            >
-              <span style={{ fontSize: '0.85rem', fontWeight: 800 }}>{collectionStats.paid}</span>
-              <span className="topnav-stat-text">পরিশোধ</span>
-            </div>
-            
-            <div 
-              title="বকেয়া তালিকা"
-              style={{
-                backgroundColor: 'rgba(239, 68, 68, 0.12)',
-                border: '1px solid rgba(239, 68, 68, 0.3)',
-                borderRadius: '8px',
-                padding: '0.25rem 0.5rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.25rem',
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                color: '#b91c1c',
-                boxShadow: 'var(--shadow-sm)'
-              }}
-            >
-              <span style={{ fontSize: '0.85rem', fontWeight: 800 }}>{collectionStats.due}</span>
-              <span className="topnav-stat-text">বকেয়া</span>
-            </div>
-          </div>
-        )}
+      {/* Right Side Icons Area */}
+      <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '0.6rem', position: 'relative', zIndex: 2 }}>
 
         <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center' }}>
           {/* 1. Notification Bell */}
@@ -255,15 +211,16 @@ export default function TopNav({ user, activeNoticesCount = 0, clubSettings, not
             {/* Profile & Logout Dropdown Popover */}
             {showProfileMenu && (
               <div style={{
-                position: 'absolute',
-                top: '44px',
-                right: '0px',
-                width: '240px',
+                position: 'fixed',
+                top: '56px',
+                right: '0.75rem',
+                width: '250px',
+                maxWidth: 'calc(100vw - 1.5rem)',
                 backgroundColor: '#ffffff',
                 borderRadius: '1rem',
-                boxShadow: '0 12px 36px rgba(0, 0, 0, 0.15)',
+                boxShadow: '0 16px 40px rgba(0, 0, 0, 0.2)',
                 border: '1px solid var(--border)',
-                zIndex: 1050,
+                zIndex: 99999,
                 padding: '0.85rem',
                 display: 'flex',
                 flexDirection: 'column',
