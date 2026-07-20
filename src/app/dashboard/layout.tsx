@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import Sidebar from "@/components/dashboard/Sidebar";
 import TopNav from "@/components/dashboard/TopNav";
+import BottomNav from "@/components/dashboard/BottomNav";
 import prisma from "@/lib/prisma";
 
 export default async function DashboardLayout({
@@ -83,7 +84,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="layout-container">
-      {/* Sidebar - fixed width */}
+      {/* Sidebar - fixed width on desktop */}
       <Sidebar role={role} user={session.user} />
 
       {/* Main Content Area */}
@@ -95,6 +96,9 @@ export default async function DashboardLayout({
           </div>
         </div>
       </main>
+
+      {/* Mobile App Bottom Navigation Bar */}
+      <BottomNav role={role} user={session.user} />
     </div>
   );
 }
