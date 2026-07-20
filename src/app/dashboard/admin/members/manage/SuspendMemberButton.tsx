@@ -38,28 +38,22 @@ export default function SuspendMemberButton({ userId, activeStatus, unpaidMonths
     <button
       onClick={handleToggle}
       disabled={loading}
-      className="btn btn-secondary"
       style={{
-        padding: "0.25rem 0.5rem",
-        fontSize: "0.75rem",
+        width: "32px",
+        height: "32px",
+        borderRadius: "0.5rem",
         display: "inline-flex",
         alignItems: "center",
-        gap: "0.25rem",
+        justifyContent: "center",
+        backgroundColor: activeStatus ? "rgba(239, 68, 68, 0.1)" : "rgba(16, 185, 129, 0.1)",
         color: activeStatus ? "#dc2626" : "#16a34a",
-        borderColor: activeStatus ? "#dc2626" : "#16a34a",
-        fontWeight: 700
+        border: activeStatus ? "1px solid rgba(239, 68, 68, 0.25)" : "1px solid rgba(16, 185, 129, 0.25)",
+        cursor: "pointer",
+        transition: "all 0.2s ease"
       }}
-      title={activeStatus ? "টানা ৪ মাস চাঁদা বকেয়া থাকলে স্থগিত করুন" : "হিসাব পুনরুজ্জীবিত করুন"}
+      title={activeStatus ? "হিসাব স্থগিত করুন (Suspend Account)" : "হিসাব পুনরায় সক্রিয় করুন (Reactivate Account)"}
     >
-      {activeStatus ? (
-        <>
-          <ShieldAlert size={14} /> স্থগিত করুন
-        </>
-      ) : (
-        <>
-          <CheckCircle2 size={14} /> সক্রিয় করুন
-        </>
-      )}
+      {activeStatus ? <ShieldAlert size={16} /> : <CheckCircle2 size={16} />}
     </button>
   );
 }

@@ -152,22 +152,52 @@ export default async function ManageMembersPage() {
                         <span style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', padding: '0.25rem 0.5rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 700 }}>স্থগিত</span>
                       )}
                     </td>
-                    <td style={{ padding: '0.85rem 0.5rem', display: 'flex', justifyContent: 'flex-end', gap: '0.4rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <td style={{ padding: '0.85rem 0.5rem', display: 'flex', justifyContent: 'flex-end', gap: '0.35rem', alignItems: 'center' }}>
                       
-                      {/* President / Admin Suspend Toggle Button */}
+                      {/* 1. View / Print Form Icon Button */}
+                      <Link 
+                        href={`/dashboard/admin/members/${user.id}/print-form`}
+                        style={{
+                          width: "32px",
+                          height: "32px",
+                          borderRadius: "0.5rem",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          backgroundColor: "rgba(2, 132, 199, 0.1)",
+                          color: "#0284c7",
+                          border: "1px solid rgba(2, 132, 199, 0.25)",
+                          textDecoration: "none"
+                        }}
+                        title="সদস্য ফরম দেখুন ও প্রিন্ট করুন (View & Print)"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                      </Link>
+
+                      {/* 2. Edit Member Icon Button */}
+                      <Link 
+                        href={`/dashboard/admin/members/${user.id}/edit`}
+                        style={{
+                          width: "32px",
+                          height: "32px",
+                          borderRadius: "0.5rem",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          backgroundColor: "rgba(245, 158, 11, 0.1)",
+                          color: "#d97706",
+                          border: "1px solid rgba(245, 158, 11, 0.25)",
+                          textDecoration: "none"
+                        }}
+                        title="মেম্বার তথ্য এডিট করুন (Edit Member)"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path><path d="m15 5 4 4"></path></svg>
+                      </Link>
+
+                      {/* 3. President / Admin Suspend Toggle Icon Button */}
                       {(role === "PRESIDENT" || role === "ADMIN") && (
                         <SuspendMemberButton userId={user.id} activeStatus={user.activeStatus} unpaidMonths={unpaidCount} />
                       )}
-
-                      <Link 
-                        href={`/dashboard/admin/members/${user.id}/print-form`}
-                        className="btn btn-secondary"
-                        style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem', textDecoration: 'none' }}
-                        title="ফরম প্রিন্ট করুন"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-                        প্রিন্ট
-                      </Link>
 
                       {/* Exit Approval Modal for President */}
                       {hasExitRequest && exitReq && (role === "ADMIN" || role === "PRESIDENT") && (
@@ -181,6 +211,7 @@ export default async function ManageMembersPage() {
                         />
                       )}
 
+                      {/* 4. Delete Member Icon Button */}
                       {!hasExitRequest && (
                         <DeleteMemberButton userId={user.id} userName={user.name} currentUserRole={role} />
                       )}

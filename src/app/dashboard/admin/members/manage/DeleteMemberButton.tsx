@@ -26,12 +26,22 @@ export default function DeleteMemberButton({ userId, userName, currentUserRole }
     <button 
       onClick={handleDelete}
       disabled={loading}
-      className="btn btn-secondary"
-      style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem', color: 'var(--danger)', borderColor: 'var(--danger)', background: 'transparent', cursor: 'pointer' }}
-      title="সদস্য ডিলিট করুন"
+      style={{
+        width: "32px",
+        height: "32px",
+        borderRadius: "0.5rem",
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "rgba(239, 68, 68, 0.1)",
+        color: "#dc2626",
+        border: "1px solid rgba(239, 68, 68, 0.25)",
+        cursor: "pointer",
+        transition: "all 0.2s ease"
+      }}
+      title="সদস্য তথ্য মুছুন / ডিলিট করুন (Delete Member)"
     >
-      <Trash2 size={14} />
-      {loading ? "..." : "ডিলিট"}
+      <Trash2 size={16} />
     </button>
   );
 }
