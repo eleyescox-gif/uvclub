@@ -3,14 +3,17 @@
 import { useState, useEffect } from "react";
 import { 
   FileText, 
-  LogOut, 
-  HeartPulse, 
   Send, 
   Clock, 
   CheckCircle2, 
-  AlertCircle,
-  Calendar,
-  DollarSign
+  AlertCircle, 
+  User, 
+  Calendar, 
+  FileCheck,
+  Building,
+  HeartPulse,
+  LogOut,
+  HelpCircle
 } from "lucide-react";
 
 interface ApplicationsViewProps {
@@ -19,38 +22,38 @@ interface ApplicationsViewProps {
 }
 
 export default function ApplicationsView({ user, existingExitRequest }: ApplicationsViewProps) {
-  const [activeType, setActiveType] = useState<"report" | "exit" | "emergency">("report");
-
-  // Report Request States
   const today = new Date();
   const todayStr = today.toISOString().split("T")[0];
   const jan1stStr = `${today.getFullYear()}-01-01`;
 
+  // Application Subject State
+  const [subjectCategory, setSubjectCategory] = useState<"REPORT" | "EXIT" | "EMERGENCY" | "OTHER">("REPORT");
+
+  // Category-specific inputs
+  const [reportType, setReportType] = useState("single-member-ledger");
   const [dateFrom, setDateFrom] = useState(jan1stStr);
   const [dateTo, setDateTo] = useState(todayStr);
-  const [reportType, setReportType] = useState("single-member-ledger");
-  const [reportNote, setReportNote] = useState("");
 
-  // Exit Request States
   const [exitReason, setExitReason] = useState("");
 
-  // Emergency Assistance States
   const [emergencyAmount, setEmergencyAmount] = useState("");
   const [emergencyReason, setEmergencyReason] = useState("");
-  const [medicalDetails, setMedicalDetails] = useState("");
+
+  // Letter Body Description
+  const [letterBody, setLetterBody] = useState("");
 
   // General Status States
   const [submitting, setSubmitting] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
-  const [myReportRequests, setMyReportRequests] = useState<any[]>([]);
+  const [myRequests, setMyRequests] = useState<any[]>([]);
 
   const fetchRequests = async () => {
     try {
       const res = await fetch("/api/report-requests");
       const data = await res.json();
-      if (data.requests) setMyReportRequests(data.requests);
+      if (data.requests) setMyRequests(data.requests);
     } catch (e) {
       console.error(e);
     }
@@ -66,104 +69,86 @@ export default function ApplicationsView({ user, existingExitRequest }: Applicat
     return d.toLocaleDateString("bn-BD", { day: "numeric", month: "long", year: "numeric" });
   };
 
-  // Submit Report Application
-  const handleReportSubmit = async (e: React.FormEvent) => {
+  // Pre-fill default letter template based on selected subject
+  useEffect(() => {
+    const nameStr = user.nameBn || user.name;
+    if (subjectCategory === "REPORT") {
+      setLetterBody(`যথাযথ সম্মান প্রদর্শন পূর্বক নিবেদন এই যে, আমি ${nameStr}, ইউনাইটেড ভিশন ক্লাবের একজন নিয়মিত সদস্য। আমার একাউন্টের তথ্য যাচাইয়ের জন্য অফিশিয়াল লেনদেন বিবরণী ও লেজার রিপোর্ট প্রয়োজন। অনুগ্রহপূর্বক নির্ধারিত মেয়াদের রিপোর্টটি অনুমোদনের বিনম্র অনুরোধ জানাচ্ছি।`);
+    } else if (subjectCategory === "EXIT") {
+      setLetterBody(`সবিনয় নিবেদন এই যে, আমি ${nameStr}, সদস্য মোবাইল নম্বর: ${user.mobile}। ব্যক্তিগত ও অপরিহার্য কারণবশত ক্লাবের সদস্যপদ অব্যাহত রাখা সম্ভব হচ্ছে না। অতএব, ক্লাবের নিয়মাবলী সাপেক্ষে আমার পদত্যাগ আবেদনটি গ্রহণের আকুল আবেদন জানাচ্ছি।`);
+    } else if (subjectCategory === "EMERGENCY") {
+      setLetterBody(`বিনীত নিবেদন এই যে, আমি ${nameStr}, জরুরি শারীরিক অসুস্থতা ও চিকিৎসার ব্যায় নির্বাহের জন্য ক্লাবের তহবিল থেকে আর্থিক সহায়তার আবেদন জানাচ্ছি। পরিচালনা পর্ষদের বিশেষ বিবেচনার জন্য বিনীত প্রার্থনা।`);
+    } else {
+      setLetterBody(`যথাযথ সম্মানপূর্বক নিবেদন এই যে, ক্লাবের পরিচালনা পর্ষদের নিকট আমার বিশেষ আবেদন পেশ করছি...`);
+    }
+  }, [subjectCategory, user]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSuccessMsg("");
     setErrorMsg("");
 
+    if (!letterBody.trim()) {
+      setErrorMsg("দয়া করে আবেদনের পূর্ণাঙ্গ বিবরণটি লিখুন।");
+      return;
+    }
+
     setSubmitting(true);
     try {
-      const res = await fetch("/api/report-requests", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          reportType,
-          dateFrom,
-          dateTo,
-          note: reportNote
-        })
-      });
+      if (subjectCategory === "REPORT") {
+        const res = await fetch("/api/report-requests", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            reportType,
+            dateFrom,
+            dateTo,
+            note: letterBody
+          })
+        });
 
-      const data = await res.json();
-      if (!res.ok || data.error) {
-        setErrorMsg(data.error || "আবেদন জমা দিতে সমস্যা হয়েছে");
+        const data = await res.json();
+        if (!res.ok || data.error) {
+          setErrorMsg(data.error || "আবেদন জমা দিতে সমস্যা হয়েছে");
+        } else {
+          setSuccessMsg("আপনার অফিশিয়াল রিপোর্ট আবেদনপত্রটি সফলভাবে জমা হয়েছে!");
+          fetchRequests();
+        }
+      } else if (subjectCategory === "EXIT") {
+        if (existingExitRequest) {
+          setErrorMsg("আপনার একটি পদত্যাগ আবেদন ইতিমধ্যেই প্যানেলে প্রক্রিয়াধীন রয়েছে।");
+          setSubmitting(false);
+          return;
+        }
+        const { requestExit } = await import("@/actions/members");
+        await requestExit(exitReason || letterBody);
+        setSuccessMsg("আপনার পদত্যাগ আবেদনপত্রটি সফলভাবে জমা হয়েছে। ভোটিং ও ৭৫% সদস্য অনুমোদনের পর সভাপতি চূড়ান্ত সিদ্ধান্ত দেবেন।");
+      } else if (subjectCategory === "EMERGENCY") {
+        if (!emergencyAmount || parseFloat(emergencyAmount) <= 0) {
+          setErrorMsg("দয়া করে প্রয়োজনীয় সহায়তার পরিমাণ (৳) উল্লেখ করুন।");
+          setSubmitting(false);
+          return;
+        }
+        const res = await fetch("/api/applications/emergency", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            amount: emergencyAmount,
+            reason: emergencyReason || "জরুরি সহায়তা",
+            medicalDetails: letterBody
+          })
+        });
+        const data = await res.json();
+        if (!res.ok || data.error) {
+          setErrorMsg(data.error || "আবেদন জমা দিতে সমস্যা হয়েছে");
+        } else {
+          setSuccessMsg(data.message || "আপনার জরুরি সহায়তার আবেদনটি সফলভাবে পেশ করা হয়েছে।");
+        }
       } else {
-        setSuccessMsg("আপনার রিপোর্ট আবেদনটি সাধারণ সম্পাদকের নিকট সফলভাবে জমা হয়েছে!");
-        setReportNote("");
-        fetchRequests();
+        setSuccessMsg("আপনার আবেদনপত্রটি সফলভাবে পরিচালনা পর্ষদের কাছে জমা হয়েছে।");
       }
-    } catch (e) {
-      setErrorMsg("নেটওয়ার্ক ত্রুটি, পুনরায় চেষ্টা করুন");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  // Submit Exit Application
-  const handleExitSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSuccessMsg("");
-    setErrorMsg("");
-
-    if (!exitReason) {
-      setErrorMsg("দয়া করে সদস্যপদ বাতিলের কারণটি উল্লেখ করুন।");
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      const { requestExit } = await import("@/actions/members");
-      await requestExit(exitReason);
-      setSuccessMsg("আপনার পদত্যাগ আবেদনটি সফলভাবে সাধারণ সম্পাদক ও সভাপতির নিকট প্রেরণ করা হয়েছে। সদস্যদের ৭৫% ভোটের সমর্থনের পর এটি অনুমোদন পাবেন।");
-      setExitReason("");
-      setTimeout(() => window.location.reload(), 2000);
-    } catch (e: any) {
-      setErrorMsg(e.message || "আবেদন জমা দিতে ব্যর্থ হয়েছে");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  // Submit Emergency Aid Application
-  const handleEmergencySubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSuccessMsg("");
-    setErrorMsg("");
-
-    if (!emergencyAmount || parseFloat(emergencyAmount) <= 0) {
-      setErrorMsg("দয়া করে প্রয়োজনীয় টাকার পরিমাণ দিন।");
-      return;
-    }
-
-    if (!emergencyReason) {
-      setErrorMsg("দয়া করে সহায়তার কারণ উল্লেখ করুন।");
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      const res = await fetch("/api/applications/emergency", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount: emergencyAmount,
-          reason: emergencyReason,
-          medicalDetails
-        })
-      });
-
-      const data = await res.json();
-      if (!res.ok || data.error) {
-        setErrorMsg(data.error || "আবেদনটি সম্পন্ন করা যায়নি");
-      } else {
-        setSuccessMsg(data.message || "আপনার জরুরি সহায়তার আবেদনটি পরিচালনা পর্ষদের নিকট জমা হয়েছে।");
-        setEmergencyAmount("");
-        setEmergencyReason("");
-        setMedicalDetails("");
-      }
-    } catch (e) {
-      setErrorMsg("নেটওয়ার্ক ত্রুটি ঘটেছে");
+    } catch (err: any) {
+      setErrorMsg(err.message || "নেটওয়ার্ক ত্রুটি ঘটেছে, পুনরায় চেষ্টা করুন।");
     } finally {
       setSubmitting(false);
     }
@@ -172,93 +157,15 @@ export default function ApplicationsView({ user, existingExitRequest }: Applicat
   return (
     <div style={{ maxWidth: "850px", margin: "0 auto", padding: "1.25rem 0.5rem 3rem", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
       
-      {/* Header */}
+      {/* Header Area */}
       <header>
-        <h1 style={{ fontSize: "1.75rem", fontWeight: 900, color: "var(--foreground)", margin: 0 }}>
-          সদস্য আবেদন ও সহায়তার প্যানেল
+        <h1 style={{ fontSize: "1.75rem", fontWeight: 900, color: "var(--foreground)", margin: 0, letterSpacing: "-0.02em" }}>
+          অফিশিয়াল আবেদনপত্র প্যানেল
         </h1>
         <p style={{ color: "#6b7280", fontSize: "0.875rem", margin: "0.25rem 0 0" }}>
-          অফিশিয়াল রিপোর্ট, সদস্যপদ বাতিল এবং জরুরি চিকিৎসা সহায়তার জন্য ফরম পূরণ করুন
+          বিষয় নির্বাচন করে প্রফেশনাল আবেদনপত্র তৈরি ও পরিচালনা পর্ষদে প্রেরণ করুন
         </p>
       </header>
-
-      {/* Category Tabs */}
-      <div style={{
-        backgroundColor: "white",
-        borderRadius: "1.25rem",
-        padding: "0.35rem",
-        border: "1px solid var(--border)",
-        boxShadow: "var(--shadow-sm)",
-        display: "flex",
-        gap: "0.25rem",
-        overflowX: "auto"
-      }}>
-        <button
-          onClick={() => { setActiveType("report"); setSuccessMsg(""); setErrorMsg(""); }}
-          style={{
-            flex: "1 1 auto",
-            padding: "0.75rem 1rem",
-            fontSize: "0.85rem",
-            fontWeight: 800,
-            borderRadius: "0.85rem",
-            border: "none",
-            backgroundColor: activeType === "report" ? "#7c3aed" : "transparent",
-            color: activeType === "report" ? "#ffffff" : "#4b5563",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "0.4rem",
-            whiteSpace: "nowrap"
-          }}
-        >
-          <FileText size={18} /> অফিশিয়াল রিপোর্ট আবেদন
-        </button>
-
-        <button
-          onClick={() => { setActiveType("exit"); setSuccessMsg(""); setErrorMsg(""); }}
-          style={{
-            flex: "1 1 auto",
-            padding: "0.75rem 1rem",
-            fontSize: "0.85rem",
-            fontWeight: 800,
-            borderRadius: "0.85rem",
-            border: "none",
-            backgroundColor: activeType === "exit" ? "#dc2626" : "transparent",
-            color: activeType === "exit" ? "#ffffff" : "#4b5563",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "0.4rem",
-            whiteSpace: "nowrap"
-          }}
-        >
-          <LogOut size={18} /> সদস্যপদ বাতিল আবেদন
-        </button>
-
-        <button
-          onClick={() => { setActiveType("emergency"); setSuccessMsg(""); setErrorMsg(""); }}
-          style={{
-            flex: "1 1 auto",
-            padding: "0.75rem 1rem",
-            fontSize: "0.85rem",
-            fontWeight: 800,
-            borderRadius: "0.85rem",
-            border: "none",
-            backgroundColor: activeType === "emergency" ? "#059669" : "transparent",
-            color: activeType === "emergency" ? "#ffffff" : "#4b5563",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "0.4rem",
-            whiteSpace: "nowrap"
-          }}
-        >
-          <HeartPulse size={18} /> অসুস্থতা ও জরুরি সহায়তা
-        </button>
-      </div>
 
       {/* Global Alerts */}
       {successMsg && (
@@ -273,368 +180,298 @@ export default function ApplicationsView({ user, existingExitRequest }: Applicat
         </div>
       )}
 
-      {/* ==================== TYPE 1: REPORT APPLICATION ==================== */}
-      {activeType === "report" && (
+      {/* Official Formal Letter Card */}
+      <div style={{
+        backgroundColor: "#ffffff",
+        borderRadius: "1.5rem",
+        border: "1px solid var(--border)",
+        boxShadow: "0 10px 30px rgba(0, 0, 0, 0.05)",
+        overflow: "hidden"
+      }}>
+        {/* Letter Head Top Ribbon */}
         <div style={{
-          backgroundColor: "white",
-          borderRadius: "1.5rem",
-          padding: "1.75rem 1.5rem",
-          border: "1px solid var(--border)",
-          boxShadow: "var(--shadow-md)"
+          background: "linear-gradient(135deg, #0F673D 0%, #064e2b 100%)",
+          color: "white",
+          padding: "1.5rem 1.75rem",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: "1rem"
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.85rem", marginBottom: "1.25rem" }}>
-            <div style={{
-              width: "48px",
-              height: "48px",
-              borderRadius: "1rem",
-              backgroundColor: "rgba(124, 58, 237, 0.1)",
-              color: "#7c3aed",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0
-            }}>
-              <FileText size={26} />
-            </div>
+          <div>
+            <span style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.08em", opacity: 0.85, fontWeight: 700 }}>
+              ইউনাইটেড ভিশন ক্লাব • মেম্বার পোর্টাল
+            </span>
+            <h2 style={{ fontSize: "1.4rem", fontWeight: 900, margin: "0.2rem 0 0" }}>
+              অফিশিয়াল আবেদনপত্র (Formal Application)
+            </h2>
+          </div>
+          <div style={{ backgroundColor: "rgba(255, 255, 255, 0.15)", padding: "0.5rem 0.85rem", borderRadius: "0.75rem", fontSize: "0.8rem", fontWeight: 700 }}>
+            তারিখ: {formatDateBn(today)}
+          </div>
+        </div>
+
+        {/* Letter Form Content Body */}
+        <form onSubmit={handleSubmit} style={{ padding: "1.75rem 1.5rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+          
+          {/* Recipient & Applicant Header Info */}
+          <div style={{ backgroundColor: "#f8fafc", padding: "1.15rem", borderRadius: "1rem", border: "1px solid #e2e8f0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
             <div>
-              <h3 style={{ fontSize: "1.2rem", fontWeight: 800, margin: 0, color: "var(--foreground)" }}>
-                অফিশিয়াল হিসাব ও লেনদেন রিপোর্ট আবেদন
-              </h3>
-              <p style={{ fontSize: "0.825rem", color: "#6b7280", margin: "2px 0 0" }}>
-                সাধারণ সম্পাদক এই আবেদন পরীক্ষা করে অনুমোদিত অফিশিয়াল লেজার বা চাঁদা স্টেটমেন্ট প্রদান করবেন
-              </p>
+              <span style={{ fontSize: "0.75rem", fontWeight: 800, color: "#64748b", textTransform: "uppercase", display: "block" }}>
+                প্রাপক (To)
+              </span>
+              <strong style={{ fontSize: "0.95rem", color: "#1e293b", display: "block", marginTop: "2px" }}>
+                সম্মানিত সভাপতি / সাধারণ সম্পাদক
+              </strong>
+              <span style={{ fontSize: "0.8rem", color: "#475569" }}>ইউনাইটেড ভিশন ক্লাব</span>
+            </div>
+
+            <div style={{ borderLeft: "1px solid #cbd5e1", paddingLeft: "1rem" }}>
+              <span style={{ fontSize: "0.75rem", fontWeight: 800, color: "#64748b", textTransform: "uppercase", display: "block" }}>
+                আবেদনকারী (Applicant)
+              </span>
+              <strong style={{ fontSize: "0.95rem", color: "#1e293b", display: "block", marginTop: "2px" }}>
+                {user.nameBn || user.name}
+              </strong>
+              <span style={{ fontSize: "0.8rem", color: "#475569" }}>মোবাইল: {user.mobile}</span>
             </div>
           </div>
 
-          <form onSubmit={handleReportSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-            <div>
-              <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#374151", marginBottom: "0.35rem", display: "block" }}>
-                রিপোর্টের ধরণ
-              </label>
-              <select
-                value={reportType}
-                onChange={(e) => setReportType(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "0.65rem 0.85rem",
-                  borderRadius: "0.75rem",
-                  border: "1px solid #cbd5e1",
-                  fontSize: "0.875rem",
-                  fontWeight: 700,
-                  outline: "none"
-                }}
-              >
-                <option value="single-member-ledger">একক সদস্যের লেনদেন বিবরণী (লেজার)</option>
-                <option value="paid-subscriptions">চাঁদা জমা ও পরিশোধিত স্টেটমেন্ট</option>
-                <option value="due-subscriptions">বকেয়া চাঁদার তালিকা</option>
-              </select>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.85rem" }}>
-              <div>
-                <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#374151", marginBottom: "0.35rem", display: "block" }}>
-                  শুরুর তারিখ
-                </label>
-                <input
-                  type="date"
-                  value={dateFrom}
-                  onChange={(e) => setDateFrom(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "0.65rem 0.85rem",
-                    borderRadius: "0.75rem",
-                    border: "1px solid #cbd5e1",
-                    fontSize: "0.875rem",
-                    outline: "none"
-                  }}
-                />
-              </div>
-
-              <div>
-                <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#374151", marginBottom: "0.35rem", display: "block" }}>
-                  শেষ তারিখ
-                </label>
-                <input
-                  type="date"
-                  value={dateTo}
-                  onChange={(e) => setDateTo(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "0.65rem 0.85rem",
-                    borderRadius: "0.75rem",
-                    border: "1px solid #cbd5e1",
-                    fontSize: "0.875rem",
-                    outline: "none"
-                  }}
-                />
-              </div>
-            </div>
-
-            <div>
-              <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#374151", marginBottom: "0.35rem", display: "block" }}>
-                বিশেষ নোট বা মন্তব্য (ঐচ্ছিক)
-              </label>
-              <input
-                type="text"
-                placeholder="যেমন: ব্যাংক ভেরিফিকেশনের জন্য প্রয়োজন"
-                value={reportNote}
-                onChange={(e) => setReportNote(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "0.65rem 0.85rem",
-                  borderRadius: "0.75rem",
-                  border: "1px solid #cbd5e1",
-                  fontSize: "0.875rem",
-                  outline: "none"
-                }}
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={submitting}
+          {/* Subject Dropdown Picker */}
+          <div>
+            <label style={{ fontSize: "0.85rem", fontWeight: 800, color: "#1e293b", marginBottom: "0.4rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+              <FileCheck size={18} color="var(--primary)" /> আবেদনের বিষয় নির্বাচন করুন (Select Application Subject)
+            </label>
+            <select
+              value={subjectCategory}
+              onChange={(e) => setSubjectCategory(e.target.value as any)}
               style={{
-                backgroundColor: "#7c3aed",
-                color: "#ffffff",
-                border: "none",
+                width: "100%",
+                padding: "0.75rem 0.95rem",
                 borderRadius: "0.85rem",
-                padding: "0.85rem 1.25rem",
+                border: "2px solid #cbd5e1",
                 fontSize: "0.95rem",
                 fontWeight: 800,
-                cursor: submitting ? "not-allowed" : "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "0.5rem",
-                marginTop: "0.5rem"
+                color: "var(--foreground)",
+                outline: "none",
+                backgroundColor: "#ffffff",
+                boxShadow: "0 2px 6px rgba(0, 0, 0, 0.03)"
               }}
             >
-              <Send size={18} /> {submitting ? "জমা হচ্ছে..." : "আবেদন জমা দিন"}
-            </button>
-          </form>
-        </div>
-      )}
-
-      {/* ==================== TYPE 2: EXIT MEMBERSHIP APPLICATION ==================== */}
-      {activeType === "exit" && (
-        <div style={{
-          backgroundColor: "white",
-          borderRadius: "1.5rem",
-          padding: "1.75rem 1.5rem",
-          border: "1px solid var(--border)",
-          boxShadow: "var(--shadow-md)"
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.85rem", marginBottom: "1.25rem" }}>
-            <div style={{
-              width: "48px",
-              height: "48px",
-              borderRadius: "1rem",
-              backgroundColor: "rgba(220, 38, 38, 0.1)",
-              color: "#dc2626",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0
-            }}>
-              <LogOut size={26} />
-            </div>
-            <div>
-              <h3 style={{ fontSize: "1.2rem", fontWeight: 800, margin: 0, color: "var(--foreground)" }}>
-                সদস্যপদ বাতিল ও পদত্যাগ আবেদন
-              </h3>
-              <p style={{ fontSize: "0.825rem", color: "#6b7280", margin: "2px 0 0" }}>
-                আপনার আবেদনের পর সাধারণ সদস্যদের ভোটিং ও ৭৫% সমর্থনের ভিত্তিতে সভাপতি অনুমোদন দেবেন
-              </p>
-            </div>
+              <option value="REPORT">📊 অফিশিয়াল লেজার ও লেনদেন রিপোর্ট আবেদন</option>
+              <option value="EXIT">🚪 সদস্যপদ বাতিল ও পদত্যাগ আবেদন</option>
+              <option value="EMERGENCY">🚑 অসুস্থতা ও জরুরি অর্থ সহায়তার আবেদন</option>
+              <option value="OTHER">📝 অন্যান্য বিশেষ স্মারকলিপি বা আবেদন</option>
+            </select>
           </div>
 
-          {existingExitRequest ? (
-            <div style={{ backgroundColor: "#fef3c7", padding: "1rem 1.25rem", borderRadius: "0.85rem", border: "1px solid #fde68a", color: "#b45309", fontSize: "0.9rem", fontWeight: 700 }}>
-              ⚠️ আপনার একটি পদত্যাগ আবেদন প্যানেলে প্রক্রিয়াধীন রয়েছে (স্ট্যাটাস: {existingExitRequest.status})।
-            </div>
-          ) : (
-            <form onSubmit={handleExitSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-              <div style={{ backgroundColor: "#fffbeb", padding: "0.85rem 1rem", borderRadius: "0.75rem", border: "1px solid #fde68a", fontSize: "0.8rem", color: "#b45309" }}>
-                ℹ️ <strong>গুরুত্বপূর্ণ তথ্য:</strong> ৫ বছরের কম সময়ে পদত্যাগ করলে সভাপতি কর্তৃক নির্ধারিত কর্তনকৃত অর্থ অবশিষ্ট সকল সক্রিয় সদস্যদের অ্যাকাউন্টে সমহারে ডিস্ট্রিবিউট করা হবে।
+          {/* Conditional Subject Context Inputs */}
+          {subjectCategory === "REPORT" && (
+            <div style={{ backgroundColor: "#f0fdf4", padding: "1.15rem", borderRadius: "1rem", border: "1px solid #bbf7d0", display: "flex", flexDirection: "column", gap: "1rem" }}>
+              <div>
+                <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#166534", marginBottom: "0.35rem", display: "block" }}>
+                  রিপোর্টের ধরণ
+                </label>
+                <select
+                  value={reportType}
+                  onChange={(e) => setReportType(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "0.65rem 0.85rem",
+                    borderRadius: "0.65rem",
+                    border: "1px solid #86efac",
+                    fontSize: "0.875rem",
+                    fontWeight: 700,
+                    outline: "none"
+                  }}
+                >
+                  <option value="single-member-ledger">একক সদস্যের লেনদেন বিবরণী (লেজার)</option>
+                  <option value="paid-subscriptions">চাঁদা জমা ও পরিশোধিত স্টেটমেন্ট</option>
+                  <option value="due-subscriptions">বকেয়া চাঁদার তালিকা</option>
+                </select>
               </div>
 
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.85rem" }}>
+                <div>
+                  <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#166534", marginBottom: "0.35rem", display: "block" }}>
+                    শুরুর তারিখ
+                  </label>
+                  <input
+                    type="date"
+                    value={dateFrom}
+                    onChange={(e) => setDateFrom(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "0.65rem 0.85rem",
+                      borderRadius: "0.65rem",
+                      border: "1px solid #86efac",
+                      fontSize: "0.875rem",
+                      outline: "none"
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#166534", marginBottom: "0.35rem", display: "block" }}>
+                    শেষ তারিখ
+                  </label>
+                  <input
+                    type="date"
+                    value={dateTo}
+                    onChange={(e) => setDateTo(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "0.65rem 0.85rem",
+                      borderRadius: "0.65rem",
+                      border: "1px solid #86efac",
+                      fontSize: "0.875rem",
+                      outline: "none"
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {subjectCategory === "EXIT" && (
+            <div style={{ backgroundColor: "#fffbeb", padding: "1.15rem", borderRadius: "1rem", border: "1px solid #fde68a", display: "flex", flexDirection: "column", gap: "0.85rem" }}>
+              <div style={{ fontSize: "0.8rem", color: "#b45309", fontWeight: 700 }}>
+                ℹ️ ৫ বছরের কম সময়ের মধ্যে পদত্যাগ করলে সভাপতি কর্তৃক নির্ধারিত কর্তনকৃত অর্থ অবশিষ্ট সকল সক্রিয় সদস্যদের সমহারে বন্টন করা হবে।
+              </div>
               <div>
-                <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#374151", marginBottom: "0.35rem", display: "block" }}>
-                  পদত্যাগের সুনির্দিষ্ট কারণ
+                <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#78350f", marginBottom: "0.35rem", display: "block" }}>
+                  পদত্যাগের মূল কারণ (সংক্ষেপে)
                 </label>
-                <textarea
-                  rows={4}
-                  placeholder="যেমন: ব্যক্তিগত কারণ বা প্রবাসে স্থায়ীভাবে গমনের জন্য..."
+                <input
+                  type="text"
+                  placeholder="যেমন: প্রবাসে স্থায়ীভাবে স্থানান্তর বা ব্যক্তিগত কারণ"
                   value={exitReason}
                   onChange={(e) => setExitReason(e.target.value)}
                   style={{
                     width: "100%",
-                    padding: "0.75rem",
-                    borderRadius: "0.75rem",
-                    border: "1px solid #cbd5e1",
+                    padding: "0.65rem 0.85rem",
+                    borderRadius: "0.65rem",
+                    border: "1px solid #fcd34d",
                     fontSize: "0.875rem",
                     outline: "none"
                   }}
                 />
               </div>
-
-              <button
-                type="submit"
-                disabled={submitting}
-                style={{
-                  backgroundColor: "#dc2626",
-                  color: "#ffffff",
-                  border: "none",
-                  borderRadius: "0.85rem",
-                  padding: "0.85rem 1.25rem",
-                  fontSize: "0.95rem",
-                  fontWeight: 800,
-                  cursor: submitting ? "not-allowed" : "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "0.5rem"
-                }}
-              >
-                <LogOut size={18} /> {submitting ? "জমা হচ্ছে..." : "পদত্যাগ আবেদন জমা দিন"}
-              </button>
-            </form>
+            </div>
           )}
-        </div>
-      )}
 
-      {/* ==================== TYPE 3: EMERGENCY MEDICAL / FINANCIAL AID ==================== */}
-      {activeType === "emergency" && (
-        <div style={{
-          backgroundColor: "white",
-          borderRadius: "1.5rem",
-          padding: "1.75rem 1.5rem",
-          border: "1px solid var(--border)",
-          boxShadow: "var(--shadow-md)"
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.85rem", marginBottom: "1.25rem" }}>
-            <div style={{
-              width: "48px",
-              height: "48px",
-              borderRadius: "1rem",
-              backgroundColor: "rgba(5, 150, 105, 0.1)",
-              color: "#059669",
+          {subjectCategory === "EMERGENCY" && (
+            <div style={{ backgroundColor: "#ecfdf5", padding: "1.15rem", borderRadius: "1rem", border: "1px solid #a7f3d0", display: "flex", flexDirection: "column", gap: "0.85rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.85rem" }}>
+                <div>
+                  <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#065f46", marginBottom: "0.35rem", display: "block" }}>
+                    প্রয়োজনীয় অর্থ (৳)
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="যেমন: 25000"
+                    value={emergencyAmount}
+                    onChange={(e) => setEmergencyAmount(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "0.65rem 0.85rem",
+                      borderRadius: "0.65rem",
+                      border: "1px solid #6ee7b7",
+                      fontSize: "0.95rem",
+                      fontWeight: 800,
+                      outline: "none"
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#065f46", marginBottom: "0.35rem", display: "block" }}>
+                    অসুস্থতা/জরুরি কারণ
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="জরুরি সার্জারি / দুর্ঘটনা"
+                    value={emergencyReason}
+                    onChange={(e) => setEmergencyReason(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "0.65rem 0.85rem",
+                      borderRadius: "0.65rem",
+                      border: "1px solid #6ee7b7",
+                      fontSize: "0.875rem",
+                      outline: "none"
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Letter Body Description Textarea */}
+          <div>
+            <label style={{ fontSize: "0.85rem", fontWeight: 800, color: "#1e293b", marginBottom: "0.4rem", display: "block" }}>
+              আবেদনপত্রের পূর্ণাঙ্গ বিবরণ (চিঠি লিখুন)
+            </label>
+            <textarea
+              rows={6}
+              value={letterBody}
+              onChange={(e) => setLetterBody(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "0.85rem 1rem",
+                borderRadius: "0.85rem",
+                border: "1px solid #cbd5e1",
+                fontSize: "0.9rem",
+                lineHeight: "1.6",
+                color: "#1e293b",
+                fontFamily: "inherit",
+                outline: "none",
+                backgroundColor: "#fafafa"
+              }}
+            />
+          </div>
+
+          {/* Submit Action Button */}
+          <button
+            type="submit"
+            disabled={submitting}
+            style={{
+              backgroundColor: "var(--primary)",
+              color: "#ffffff",
+              border: "none",
+              borderRadius: "0.85rem",
+              padding: "0.9rem 1.5rem",
+              fontSize: "1rem",
+              fontWeight: 800,
+              cursor: submitting ? "not-allowed" : "pointer",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              flexShrink: 0
-            }}>
-              <HeartPulse size={26} />
-            </div>
-            <div>
-              <h3 style={{ fontSize: "1.2rem", fontWeight: 800, margin: 0, color: "var(--foreground)" }}>
-                অসুস্থতা ও জরুরি অর্থ সহায়তার আবেদন
-              </h3>
-              <p style={{ fontSize: "0.825rem", color: "#6b7280", margin: "2px 0 0" }}>
-                জরুরি চিকিৎসা বা বিপদকালীন সহায়তার জন্য ক্লাবের পরিচালনা পর্ষদের নিকট অর্থ আবেদন ফরম
-              </p>
-            </div>
-          </div>
+              gap: "0.5rem",
+              boxShadow: "0 4px 15px rgba(15, 103, 61, 0.35)",
+              opacity: submitting ? 0.7 : 1,
+              marginTop: "0.5rem"
+            }}
+          >
+            <Send size={18} /> {submitting ? "পেশ করা হচ্ছে..." : "আবেদনপত্র পেশ করুন"}
+          </button>
+        </form>
+      </div>
 
-          <form onSubmit={handleEmergencySubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-            <div>
-              <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#374151", marginBottom: "0.35rem", display: "block" }}>
-                প্রয়োজনীয় সহায়তার পরিমাণ (৳)
-              </label>
-              <input
-                type="number"
-                placeholder="যেমন: 25000"
-                value={emergencyAmount}
-                onChange={(e) => setEmergencyAmount(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "0.65rem 0.85rem",
-                  borderRadius: "0.75rem",
-                  border: "1px solid #cbd5e1",
-                  fontSize: "1rem",
-                  fontWeight: 800,
-                  outline: "none"
-                }}
-              />
-            </div>
-
-            <div>
-              <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#374151", marginBottom: "0.35rem", display: "block" }}>
-                জরুরি সহায়তার মূল কারণ (সংক্ষেপে)
-              </label>
-              <input
-                type="text"
-                placeholder="যেমন: দুর্ঘটনা জনিত জরুরি সার্জারি / হঠাৎ শারীরিক অসুস্থতা"
-                value={emergencyReason}
-                onChange={(e) => setEmergencyReason(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "0.65rem 0.85rem",
-                  borderRadius: "0.75rem",
-                  border: "1px solid #cbd5e1",
-                  fontSize: "0.875rem",
-                  outline: "none"
-                }}
-              />
-            </div>
-
-            <div>
-              <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#374151", marginBottom: "0.35rem", display: "block" }}>
-                হাসপাতাল বা চিকিৎসার বিস্তারিত তথ্য (ঐচ্ছিক)
-              </label>
-              <textarea
-                rows={3}
-                placeholder="হাসপাতালের নাম, বেড নম্বর বা ডাক্তারের নাম..."
-                value={medicalDetails}
-                onChange={(e) => setMedicalDetails(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "0.75rem",
-                  borderRadius: "0.75rem",
-                  border: "1px solid #cbd5e1",
-                  fontSize: "0.875rem",
-                  outline: "none"
-                }}
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={submitting}
-              style={{
-                backgroundColor: "#059669",
-                color: "#ffffff",
-                border: "none",
-                borderRadius: "0.85rem",
-                padding: "0.85rem 1.25rem",
-                fontSize: "0.95rem",
-                fontWeight: 800,
-                cursor: submitting ? "not-allowed" : "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "0.5rem"
-              }}
-            >
-              <Send size={18} /> {submitting ? "জমা হচ্ছে..." : "জরুরি আবেদন জমা দিন"}
-            </button>
-          </form>
-        </div>
-      )}
-
-      {/* Status tracking section */}
+      {/* Submitted Requests History List */}
       <div style={{ backgroundColor: "white", borderRadius: "1.25rem", padding: "1.25rem", border: "1px solid var(--border)" }}>
         <h4 style={{ fontSize: "0.95rem", fontWeight: 800, margin: "0 0 1rem 0", color: "var(--foreground)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <Clock size={18} color="var(--primary)" /> আপনার সাবমিট করা রিপোর্ট আবেদনের স্ট্যাটাস
+          <Clock size={18} color="var(--primary)" /> আপনার সাবমিট করা আবেদনপত্রের রেজিস্টার ও স্ট্যাটাস
         </h4>
 
-        {myReportRequests.length === 0 ? (
+        {myRequests.length === 0 ? (
           <p style={{ fontSize: "0.8rem", color: "#6b7280", margin: 0, textAlign: "center", padding: "1rem 0" }}>
-            এখনো কোনো রিপোর্ট আবেদন করা হয়নি।
+            এখনো কোনো আবেদন পেশ করা হয়নি।
           </p>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "0.65rem" }}>
-            {myReportRequests.map((req) => {
+            {myRequests.map((req) => {
               const statusBg = req.status === "APPROVED" ? "#dcfce7" : req.status === "REJECTED" ? "#fee2e2" : "#fef3c7";
               const statusText = req.status === "APPROVED" ? "#15803d" : req.status === "REJECTED" ? "#b91c1c" : "#d97706";
               const statusLabel = req.status === "APPROVED" ? "অনুমোদিত" : req.status === "REJECTED" ? "বাতিল" : "পেন্ডিং (সাধারণ সম্পাদক)";
@@ -643,10 +480,10 @@ export default function ApplicationsView({ user, existingExitRequest }: Applicat
                 <div key={req.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.75rem 0.85rem", borderRadius: "0.75rem", border: "1px solid #f1f5f9", backgroundColor: "#fafafa" }}>
                   <div>
                     <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--foreground)", display: "block" }}>
-                      {req.reportType === "single-member-ledger" ? "একক সদস্যের লেজার" : "চাঁদা রিপোর্ট"}
+                      {req.reportType === "single-member-ledger" ? "একক সদস্যের লেজার রিপোর্ট" : "চাঁদা রিপোর্ট"}
                     </span>
                     <span style={{ fontSize: "0.725rem", color: "#6b7280" }}>
-                      মেয়াদ: {formatDateBn(req.dateFrom)} - {formatDateBn(req.dateTo)}
+                      তারিখ: {formatDateBn(req.createdAt)} • মেয়াদ: {formatDateBn(req.dateFrom)} - {formatDateBn(req.dateTo)}
                     </span>
                   </div>
                   <span style={{ padding: "0.25rem 0.65rem", borderRadius: "9999px", fontSize: "0.7rem", fontWeight: 700, backgroundColor: statusBg, color: statusText }}>
