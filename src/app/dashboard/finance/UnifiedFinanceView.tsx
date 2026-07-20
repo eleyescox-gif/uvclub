@@ -110,18 +110,21 @@ export default function UnifiedFinanceView({ user, pendingInvoices, transactions
       
       {/* Official Print Header (Visible ONLY when printing) */}
       <div className="only-print" style={{ display: "none", textAlign: "center", marginBottom: "1.5rem", borderBottom: "2px solid #000", paddingBottom: "1rem" }}>
-        <h1 style={{ fontSize: "24px", fontWeight: "bold", color: "#0369a1", margin: 0 }}>ইউনাইটেড ভিশন ক্লাব</h1>
-        <p style={{ margin: "2px 0 4px", fontSize: "14px", color: "#334155" }}>বরইতলী, চকরিয়া, কক্সবাজার।</p>
-        <h3 style={{ fontSize: "18px", fontWeight: "bold", margin: "8px 0 4px", textDecoration: "underline" }}>সদস্য অফিশিয়াল লেনদেন বিবরণী</h3>
-        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "12px", fontSize: "14px", fontWeight: "bold" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.75rem", marginBottom: "0.5rem" }}>
+          <img src="/logo.jpg" alt="United Vision Logo" style={{ width: "45px", height: "45px", objectFit: "contain", borderRadius: "6px" }} />
+          <h1 style={{ fontSize: "24px", fontWeight: "bold", color: "#0369a1", margin: 0 }}>ইউনাইটেড ভিশন ক্লাব</h1>
+        </div>
+        <p style={{ margin: "2px 0 4px", fontSize: "14px", color: "#334155" }}>বরইতলী, চকরিয়া, কক্সবাজার। (স্থাপিত: ২০২৬ খ্রি.)</p>
+        <h3 style={{ fontSize: "18px", fontWeight: "bold", margin: "10px 0 6px", textDecoration: "underline" }}>সদস্য অফিশিয়াল লেনদেন বিবরণী</h3>
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "12px", fontSize: "14px", fontWeight: "bold", borderTop: "1px solid #ddd", paddingTop: "8px" }}>
           <span>সদস্যের নাম: {user.nameBn || user.name}</span>
           <span>মোবাইল: {user.mobile}</span>
-          <span>তারিখ: {formatDateBn(today)}</span>
+          <span>প্রিন্ট তারিখ: {formatDateBn(today)}</span>
         </div>
       </div>
 
       {/* Outer Clean Card Container */}
-      <div style={{
+      <div className="finance-statement-container" style={{
         backgroundColor: "#ffffff",
         borderRadius: "1.25rem",
         border: "1px solid var(--border)",
@@ -132,8 +135,8 @@ export default function UnifiedFinanceView({ user, pendingInvoices, transactions
         gap: "1.25rem"
       }}>
 
-        {/* 1. Header Row */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.85rem" }}>
+        {/* 1. Web Header Row (Hidden during print) */}
+        <div className="no-print" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.85rem" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "0.85rem" }}>
             <div style={{
               width: "44px",
@@ -185,7 +188,7 @@ export default function UnifiedFinanceView({ user, pendingInvoices, transactions
 
         {/* 2. Confetti / Unpaid Alert Banner */}
         {pendingInvoices.length === 0 ? (
-          <div style={{
+          <div className="no-print" style={{
             backgroundColor: "#FFF8ED",
             border: "1px solid #FDE68A",
             borderRadius: "0.85rem",
@@ -205,7 +208,7 @@ export default function UnifiedFinanceView({ user, pendingInvoices, transactions
             </span>
           </div>
         ) : (
-          <div style={{
+          <div className="no-print" style={{
             backgroundColor: "#FEF2F2",
             border: "1.5px solid #FCA5A5",
             borderRadius: "0.85rem",
@@ -252,7 +255,7 @@ export default function UnifiedFinanceView({ user, pendingInvoices, transactions
 
         {/* 3. Single Unified Statement Table */}
         <div style={{ overflowX: "auto" }}>
-          <table style={{
+          <table className="statement-print-table" style={{
             width: "100%",
             borderCollapse: "collapse",
             textAlign: "left",
@@ -260,9 +263,10 @@ export default function UnifiedFinanceView({ user, pendingInvoices, transactions
           }}>
             <thead>
               <tr style={{
-                borderBottom: "2px solid #e2e8f0",
-                color: "#1e293b",
-                fontWeight: 900
+                borderBottom: "2px solid #cbd5e1",
+                color: "#0f172a",
+                fontWeight: 900,
+                backgroundColor: "#f8fafc"
               }}>
                 <th style={{ padding: "0.85rem 0.75rem", whiteSpace: "nowrap" }}>তারিখ</th>
                 <th style={{ padding: "0.85rem 0.75rem" }}>বিবরণ</th>
@@ -280,7 +284,7 @@ export default function UnifiedFinanceView({ user, pendingInvoices, transactions
                 </tr>
               ) : (
                 processedTransactions.map((tx) => (
-                  <tr key={tx.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                  <tr key={tx.id} style={{ borderBottom: "1px solid #e2e8f0" }}>
                     {/* Date */}
                     <td style={{ padding: "0.85rem 0.75rem", color: "#334155", fontWeight: 600, whiteSpace: "nowrap" }}>
                       {tx.formattedDate}
@@ -327,9 +331,30 @@ export default function UnifiedFinanceView({ user, pendingInvoices, transactions
           .only-print {
             display: block !important;
           }
-          body {
-            background: white !important;
+          body, html, main, .layout-container, .main-content, .card-wrapper {
+            background: #ffffff !important;
             padding: 0 !important;
+            margin: 0 !important;
+            box-shadow: none !important;
+            border: none !important;
+            border-radius: 0 !important;
+            width: 100% !important;
+          }
+          .finance-statement-container {
+            border: none !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+          }
+          .statement-print-table {
+            border: 1px solid #000 !important;
+            width: 100% !important;
+          }
+          .statement-print-table th, .statement-print-table td {
+            border: 1px solid #64748b !important;
+            padding: 6px 10px !important;
+            color: #000 !important;
           }
         }
       `}} />

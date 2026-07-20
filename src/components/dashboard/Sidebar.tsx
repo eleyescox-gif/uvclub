@@ -113,7 +113,7 @@ export default function Sidebar({ role, user }: SidebarProps) {
     <>
       {/* Hamburger Button (Mobile Only) */}
       <button 
-        className={styles.hamburger} 
+        className={`${styles.hamburger} no-print`} 
         onClick={() => setIsOpen(!isOpen)}
         aria-label={isOpen ? "Close menu" : "Open menu"}
       >
