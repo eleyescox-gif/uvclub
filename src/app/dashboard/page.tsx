@@ -36,67 +36,70 @@ export default async function DashboardPage() {
     }).catch(e => console.error("Auto penalty error:", e));
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: (session.user as any).id },
-    include: {
-      transactions: {
-        take: 4,
-        orderBy: { date: 'desc' }
+  // Parallelized database queries for maximum performance
+  const [
+    user,
+    runningProjects,
+    pendingPolls,
+    totalMembers,
+    totalInvoicesAllTime,
+    paidInvoicesAllTime,
+    latestPoll,
+    latestNotices,
+    approvedTxs
+  ] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: (session.user as any).id },
+      include: {
+        transactions: {
+          take: 4,
+          orderBy: { date: 'desc' }
+        }
       }
-    }
-  });
+    }).catch(() => null),
+    prisma.project.findMany({
+      where: { status: { in: ['ACTIVE', 'PROPOSED'] } },
+      orderBy: { createdAt: 'desc' },
+      take: 3
+    }).catch(() => []),
+    prisma.votingEvent.count({ where: { status: 'OPEN' } }).catch(() => 0),
+    prisma.user.count({ where: { activeStatus: true } }).catch(() => 0),
+    prisma.invoice.count().catch(() => 0),
+    prisma.invoice.count({ where: { status: 'PAID' } }).catch(() => 0),
+    prisma.votingEvent.findFirst({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        options: {
+          include: {
+            _count: { select: { votes: true } },
+            candidate: true
+          }
+        },
+        _count: { select: { votes: true } }
+      }
+    }).catch(() => null),
+    prisma.notice.findMany({
+      where: { isActive: true },
+      orderBy: { createdAt: 'desc' },
+      take: 2
+    }).catch(() => []),
+    prisma.transaction.findMany({
+      where: { status: 'APPROVED' }
+    }).catch(() => [])
+  ]);
 
-  const activeProjects = await prisma.project.count({ where: { status: 'ACTIVE' } });
-  const runningProjects = await prisma.project.findMany({
-    where: { status: { in: ['ACTIVE', 'PROPOSED'] } },
-    orderBy: { createdAt: 'desc' },
-    take: 3
-  });
-  const pendingPolls = await prisma.votingEvent.count({ where: { status: 'OPEN' } });
-  const totalMembers = await prisma.user.count({ where: { activeStatus: true } });
-
-  // Calculate dynamic Club Progress (Paid Invoices vs Total Invoices)
-  const totalInvoicesAllTime = await prisma.invoice.count();
-  const paidInvoicesAllTime = await prisma.invoice.count({ where: { status: 'PAID' } });
   const collectionProgress = totalInvoicesAllTime > 0
     ? Math.round((paidInvoicesAllTime / totalInvoicesAllTime) * 100)
-    : 0; // fallback to 0% if no invoices exist yet
-
-  // Current Month Collection Stats
-  const currentMonthNum = today.getMonth() + 1;
-  const currentYearNum = today.getFullYear();
-  const currentMonthPaidCountRaw = await prisma.invoice.count({
-    where: { month: currentMonthNum, year: currentYearNum, status: 'PAID' }
-  });
-  const currentMonthPaidCount = Math.min(currentMonthPaidCountRaw, totalMembers);
-  const currentMonthDueCount = Math.max(0, totalMembers - currentMonthPaidCount);
-  const currentMonthProgress = totalMembers > 0 ? Math.round((currentMonthPaidCount / totalMembers) * 100) : 0;
-  
-  const monthNamesBn = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"];
-  const currentMonthNameBn = monthNamesBn[today.getMonth()];
-  const isLate = today.getDate() > 10;
-
-  const latestPoll = await prisma.votingEvent.findFirst({
-    orderBy: { createdAt: 'desc' },
-    include: {
-      options: {
-        include: {
-          _count: { select: { votes: true } },
-          candidate: true
-        }
-      },
-      _count: { select: { votes: true } }
-    }
-  });
+    : 0;
 
   let userHasVotedOnActive = false;
   let userVotedOptionId: string | null = null;
   let winner = null;
 
-  if (latestPoll) {
+  if (latestPoll && user) {
     const checkVote = await prisma.vote.findFirst({
-      where: { userId: user!.id, votingEventId: latestPoll.id }
-    });
+      where: { userId: user.id, votingEventId: latestPoll.id }
+    }).catch(() => null);
     userHasVotedOnActive = !!checkVote;
     if (checkVote) {
       userVotedOptionId = checkVote.pollOptionId;
@@ -108,20 +111,13 @@ export default async function DashboardPage() {
   }
 
   const role = (session.user as any).role;
-  const isAdminOrExecutive = role === "PRESIDENT" || role === "CASHIER" || role === "SECRETARY" || role === "ADMIN";
-
-  // Fetch latest active notices and creators
-  const latestNotices = await prisma.notice.findMany({
-    where: { isActive: true },
-    orderBy: { createdAt: 'desc' },
-    take: 2
-  });
-
   const noticeCreatorIds = latestNotices.map(n => n.createdBy);
-  const noticeCreators = await prisma.user.findMany({
-    where: { id: { in: noticeCreatorIds } },
-    select: { id: true, name: true, nameBn: true, role: true }
-  });
+  const noticeCreators = noticeCreatorIds.length > 0 
+    ? await prisma.user.findMany({
+        where: { id: { in: noticeCreatorIds } },
+        select: { id: true, name: true, nameBn: true, role: true }
+      }).catch(() => [])
+    : [];
 
   const noticeCreatorsMap: Record<string, typeof noticeCreators[0]> = {};
   noticeCreators.forEach(c => {
@@ -136,10 +132,6 @@ export default async function DashboardPage() {
     MEMBER: "সাধারণ সদস্য",
   };
 
-  // Calculate dynamic Club Total Balance for dashboard
-  const approvedTxs = await prisma.transaction.findMany({
-    where: { status: 'APPROVED' }
-  });
   let clubBalance = 0;
   approvedTxs.forEach(t => {
     if (t.type === 'DEPOSIT' || t.type === 'PROFIT_POSTING') clubBalance += t.amount;

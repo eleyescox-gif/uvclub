@@ -23,17 +23,35 @@ export default async function DashboardLayout({
   let collectionStats = { paid: 0, due: 0 };
 
   try {
-    const activeNotices = await prisma.notice.findMany({
-      where: { isActive: true },
-      orderBy: { createdAt: 'desc' },
-      take: 5
-    });
+    const today = new Date();
+    const currentMonth = today.getMonth() + 1;
+    const currentYear = today.getFullYear();
+
+    // Parallelized DB queries for ultra-fast response
+    const [activeNotices, settings, totalMembersCount, paidInvoicesCount] = await Promise.all([
+      prisma.notice.findMany({
+        where: { isActive: true },
+        orderBy: { createdAt: 'desc' },
+        take: 5
+      }).catch(() => []),
+      (prisma && (prisma as any).clubSettings) ? (prisma as any).clubSettings.findUnique({
+        where: { id: "singleton" }
+      }).catch(() => null) : Promise.resolve(null),
+      prisma.user.count({ where: { activeStatus: true, isDeleted: false } }).catch(() => 0),
+      prisma.invoice.count({
+        where: { month: currentMonth, year: currentYear, status: 'PAID' }
+      }).catch(() => 0)
+    ]);
+
+    if (settings) clubSettings = settings;
 
     const noticeCreatorIds = activeNotices.map(n => n.createdBy);
-    const noticeCreators = await prisma.user.findMany({
-      where: { id: { in: noticeCreatorIds } },
-      select: { id: true, name: true, nameBn: true, role: true }
-    });
+    const noticeCreators = noticeCreatorIds.length > 0 
+      ? await prisma.user.findMany({
+          where: { id: { in: noticeCreatorIds } },
+          select: { id: true, name: true, nameBn: true, role: true }
+        }).catch(() => [])
+      : [];
 
     const creatorsMap: Record<string, typeof noticeCreators[0]> = {};
     noticeCreators.forEach(c => {
@@ -57,20 +75,6 @@ export default async function DashboardLayout({
       creatorRole: getRoleName(creatorsMap[n.createdBy]?.role || "MEMBER")
     }));
 
-    if (prisma.clubSettings) {
-      const settings = await (prisma.clubSettings as any).findUnique({
-        where: { id: "singleton" }
-      });
-      if (settings) clubSettings = settings;
-    }
-
-    const today = new Date();
-    const currentMonth = today.getMonth() + 1;
-    const currentYear = today.getFullYear();
-    const totalMembersCount = await prisma.user.count({ where: { activeStatus: true, isDeleted: false } });
-    const paidInvoicesCount = await prisma.invoice.count({
-      where: { month: currentMonth, year: currentYear, status: 'PAID' }
-    });
     const dueInvoicesCount = Math.max(0, totalMembersCount - paidInvoicesCount);
     collectionStats = { paid: paidInvoicesCount, due: dueInvoicesCount };
   } catch (err) {
