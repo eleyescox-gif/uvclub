@@ -168,6 +168,7 @@ export default function ReportSelector({ members }: { members: Member[] }) {
             <option value="member-nominees">সদস্য ও নমিনি বিবরণী তালিকা</option>
             <option value="due-subscriptions">বকেয়া চাঁদার তালিকা</option>
             <option value="paid-subscriptions">পরিশোধিত চাঁদার তালিকা</option>
+            <option value="club-financial-statement">🏛️ প্রতিষ্ঠানের সামগ্রিক আয় ও ব্যয় বিবরণী</option>
             <option value="member-transactions">সদস্যদের মোট লেনদেন বিবরণী</option>
             <option value="single-member-ledger">একক সদস্যের লেনদেন বিবরণী</option>
           </select>

@@ -123,7 +123,66 @@ export default async function ReportsPage({
     });
   } 
   
-  // 6. Single Member Ledger (Detailed statement over custom date range)
+  // 6. Club Institutional Financial Statement (Total Income & Expense)
+  else if (type === "club-financial-statement") {
+    reportTitle = "প্রতিষ্ঠানের সামগ্রিক আয় ও ব্যয় বিবরণী";
+    filtersText = `মেয়াদ: ${new Date(dateFrom).toLocaleDateString('bn-BD')} হতে ${new Date(dateTo).toLocaleDateString('bn-BD')}`;
+
+    const [totalSubPaid, approvedExitDeductions, profitPostings, lossPostings, reconLogs] = await Promise.all([
+      prisma.invoice.aggregate({
+        where: { status: "PAID" },
+        _sum: { amount: true, lateFee: true }
+      }).catch(() => ({ _sum: { amount: 0, lateFee: 0 } })),
+      prisma.exitRequest.aggregate({
+        where: { status: "APPROVED" },
+        _sum: { deductionAmount: true }
+      }).catch(() => ({ _sum: { deductionAmount: 0 } })),
+      prisma.transaction.aggregate({
+        where: { type: "PROFIT_POSTING", status: "APPROVED" },
+        _sum: { amount: true }
+      }).catch(() => ({ _sum: { amount: 0 } })),
+      prisma.transaction.aggregate({
+        where: { type: "LOSS_POSTING", status: "APPROVED" },
+        _sum: { amount: true }
+      }).catch(() => ({ _sum: { amount: 0 } })),
+      prisma.bankReconciliation.findMany().catch(() => [])
+    ]);
+
+    const totalSubscriptions = (totalSubPaid._sum.amount || 0) + (totalSubPaid._sum.lateFee || 0);
+    const exitBonusIncome = approvedExitDeductions._sum.deductionAmount || 0;
+    const projectProfits = profitPostings._sum.amount || 0;
+    
+    let bankInterest = 0;
+    let bankCharge = 0;
+    let operationalExpenses = lossPostings._sum.amount || 0;
+    let otherIncome = 0;
+
+    reconLogs.forEach(r => {
+      if (r.transactionType === "BANK_INTEREST") bankInterest += r.amount;
+      else if (r.transactionType === "BANK_CHARGE") bankCharge += r.amount;
+      else if (r.transactionType === "OTHER_INCOME") otherIncome += r.amount;
+      else if (r.transactionType === "OTHER_EXPENSE") operationalExpenses += r.amount;
+    });
+
+    const totalGrossIncome = totalSubscriptions + exitBonusIncome + projectProfits + bankInterest + otherIncome;
+    const totalGrossExpense = bankCharge + operationalExpenses;
+    const netSurplus = totalGrossIncome - totalGrossExpense;
+
+    reportData = {
+      totalSubscriptions,
+      exitBonusIncome,
+      projectProfits,
+      bankInterest,
+      otherIncome,
+      totalGrossIncome,
+      bankCharge,
+      operationalExpenses,
+      totalGrossExpense,
+      netSurplus
+    };
+  }
+
+  // 7. Single Member Ledger (Detailed statement over custom date range)
   else if (type === "single-member-ledger") {
     reportTitle = "একক সদস্যের লেনদেন বিবরণী";
     
@@ -354,6 +413,82 @@ export default async function ReportsPage({
             <p style={{ fontSize: '12px', color: '#475569', fontStyle: 'italic', marginTop: '4px', fontWeight: 600 }}>{filtersText}</p>
           )}
         </div>
+
+        {/* 0. Club Institutional Financial Statement (Total Income & Expense) */}
+        {type === "club-financial-statement" && reportData && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ backgroundColor: '#0f172a', color: '#ffffff' }}>
+                  <th style={{ border: '1px solid #334155', padding: '0.75rem', textAlign: 'left', width: '60%' }}>আয়ের বিবরণ (Income Head)</th>
+                  <th style={{ border: '1px solid #334155', padding: '0.75rem', textAlign: 'right', width: '40%' }}>টাকার পরিমাণ (৳)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style={{ border: '1px solid #cbd5e1', padding: '0.65rem 0.75rem', fontWeight: 600 }}>১. সদস্যদের জমাকৃত মোট চাঁদা (Member Subscriptions)</td>
+                  <td style={{ border: '1px solid #cbd5e1', padding: '0.65rem 0.75rem', textAlign: 'right', fontWeight: 700, color: '#16a34a' }}>৳ {reportData.totalSubscriptions.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                </tr>
+                <tr>
+                  <td style={{ border: '1px solid #cbd5e1', padding: '0.65rem 0.75rem', fontWeight: 600 }}>২. পদত্যাগকৃত সদস্যের কর্তন আয় (Exit Deductions Bonus)</td>
+                  <td style={{ border: '1px solid #cbd5e1', padding: '0.65rem 0.75rem', textAlign: 'right', fontWeight: 700, color: '#16a34a' }}>৳ {reportData.exitBonusIncome.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                </tr>
+                <tr>
+                  <td style={{ border: '1px solid #cbd5e1', padding: '0.65rem 0.75rem', fontWeight: 600 }}>৩. প্রজেক্টসমূহের অর্জিত মোট লভ্যাংশ (Project Profit)</td>
+                  <td style={{ border: '1px solid #cbd5e1', padding: '0.65rem 0.75rem', textAlign: 'right', fontWeight: 700, color: '#16a34a' }}>৳ {reportData.projectProfits.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                </tr>
+                <tr>
+                  <td style={{ border: '1px solid #cbd5e1', padding: '0.65rem 0.75rem', fontWeight: 600 }}>৪. ব্যাংক মুনাফা / ইন্টারেস্ট (Bank Interest)</td>
+                  <td style={{ border: '1px solid #cbd5e1', padding: '0.65rem 0.75rem', textAlign: 'right', fontWeight: 700, color: '#16a34a' }}>৳ {reportData.bankInterest.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                </tr>
+                <tr>
+                  <td style={{ border: '1px solid #cbd5e1', padding: '0.65rem 0.75rem', fontWeight: 600 }}>৫. অন্যান্য বিশেষ আয় (Other Income)</td>
+                  <td style={{ border: '1px solid #cbd5e1', padding: '0.65rem 0.75rem', textAlign: 'right', fontWeight: 700, color: '#16a34a' }}>৳ {reportData.otherIncome.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                </tr>
+                <tr style={{ backgroundColor: '#f0fdf4', fontWeight: 900 }}>
+                  <td style={{ border: '1.5px solid #16a34a', padding: '0.75rem', color: '#166534' }}>সর্বমোট ক্লাব আয় (Total Gross Income)</td>
+                  <td style={{ border: '1.5px solid #16a34a', padding: '0.75rem', textAlign: 'right', color: '#15803d', fontSize: '1.05rem' }}>৳ {reportData.totalGrossIncome.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ backgroundColor: '#7f1d1d', color: '#ffffff' }}>
+                  <th style={{ border: '1px solid #991b1b', padding: '0.75rem', textAlign: 'left', width: '60%' }}>ব্যয়ের বিবরণ (Expense Head)</th>
+                  <th style={{ border: '1px solid #991b1b', padding: '0.75rem', textAlign: 'right', width: '40%' }}>টাকার পরিমাণ (৳)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style={{ border: '1px solid #cbd5e1', padding: '0.65rem 0.75rem', fontWeight: 600 }}>১. ব্যাংক সার্ভিস চার্জ ও কর্তন (Bank Charges)</td>
+                  <td style={{ border: '1px solid #cbd5e1', padding: '0.65rem 0.75rem', textAlign: 'right', fontWeight: 700, color: '#dc2626' }}>৳ {reportData.bankCharge.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                </tr>
+                <tr>
+                  <td style={{ border: '1px solid #cbd5e1', padding: '0.65rem 0.75rem', fontWeight: 600 }}>২. ক্লাব অপারেশনাল খরচ ও ব্যয় (General Expenses)</td>
+                  <td style={{ border: '1px solid #cbd5e1', padding: '0.65rem 0.75rem', textAlign: 'right', fontWeight: 700, color: '#dc2626' }}>৳ {reportData.operationalExpenses.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                </tr>
+                <tr style={{ backgroundColor: '#fef2f2', fontWeight: 900 }}>
+                  <td style={{ border: '1.5px solid #dc2626', padding: '0.75rem', color: '#991b1b' }}>সর্বমোট ক্লাব ব্যয় (Total Gross Expenses)</td>
+                  <td style={{ border: '1.5px solid #dc2626', padding: '0.75rem', textAlign: 'right', color: '#b91c1c', fontSize: '1.05rem' }}>৳ {reportData.totalGrossExpense.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <tbody>
+                <tr style={{ backgroundColor: reportData.netSurplus >= 0 ? '#dcfce7' : '#fee2e2', fontWeight: 900 }}>
+                  <td style={{ border: '2px solid #000', padding: '1rem', color: '#0f172a', fontSize: '1.1rem' }}>
+                    নিট সর্বমোট ক্লাব তহবিল উদ্বৃত্ত / সঞ্চয় (Net Institutional Surplus)
+                  </td>
+                  <td style={{ border: '2px solid #000', padding: '1rem', textAlign: 'right', fontSize: '1.25rem', color: reportData.netSurplus >= 0 ? '#15803d' : '#b91c1c' }}>
+                    ৳ {reportData.netSurplus.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        )}
 
         {/* 1 & 2. Members / Active Members table */}
         {(type === "member-list" || type === "active-members") && (
