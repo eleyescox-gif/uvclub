@@ -55,7 +55,7 @@ const roleTitles: Record<string, string> = {
 };
 
 export default function UnifiedFinanceView({ user, pendingInvoices, transactions, gatewayActive }: UnifiedFinanceViewProps) {
-  const [activeTab, setActiveTab] = useState<"bills" | "statement" | "ledger">("bills");
+  const [activeTab, setActiveTab] = useState<"bills" | "statement" | "ledger">("statement");
 
   // Helper date formatting
   const formatDateBn = (dateInput: Date | string) => {

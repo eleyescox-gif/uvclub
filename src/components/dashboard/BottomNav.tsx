@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { 
   LayoutDashboard, 
   Wallet, 
-  FileText, 
+  Megaphone, 
   Vote, 
   Users, 
   User, 
@@ -42,11 +42,11 @@ export default function BottomNav({ role, user }: BottomNavProps) {
       color: "#f59e0b"
     },
     {
-      name: "আবেদন",
-      nameEn: "Apply",
-      href: "/dashboard/applications",
-      icon: <FileText size={20} />,
-      color: "#8b5cf6"
+      name: "নোটিশ",
+      nameEn: "Notice",
+      href: "/dashboard/notices",
+      icon: <Megaphone size={20} />,
+      color: "#f43f5e"
     },
     {
       name: "ভোট",

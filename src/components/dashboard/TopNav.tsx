@@ -51,25 +51,22 @@ export default function TopNav({ user, activeNoticesCount = 0, clubSettings, not
       {/* Spacer for hamburger button on mobile */}
       <div style={{ flex: '0 0 40px', width: '40px' }}></div>
 
-      {/* Centered Logo and H1 */}
+      {/* Logo and Club Name Title */}
       <div 
         className="topnav-title-container"
         style={{ 
-          position: 'absolute', 
-          left: '50%', 
-          transform: 'translateX(-50%)',
           display: 'flex', 
           alignItems: 'center', 
-          gap: '0.5rem',
-          maxWidth: 'calc(100vw - 200px)',
-          overflow: 'hidden',
-          zIndex: 1
+          gap: '0.4rem',
+          zIndex: 1,
+          marginRight: 'auto',
+          marginLeft: '0.25rem'
         }}
       >
-        <div style={{ width: '34px', height: '34px', minWidth: '34px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', backgroundColor: '#fff', padding: '2px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}>
+        <div style={{ width: '32px', height: '32px', minWidth: '32px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', backgroundColor: '#fff', padding: '2px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}>
           <img src={clubSettings?.logo || "/logo.jpg"} alt={clubSettings?.name || "Logo"} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
         </div>
-        <h1 style={{ fontSize: 'clamp(0.85rem, 2.5vw, 1.6rem)', fontWeight: 900, color: '#1a365d', margin: 0, letterSpacing: '-0.5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{clubSettings?.name || "United Vision"}</h1>
+        <h1 style={{ fontSize: 'clamp(0.85rem, 2.5vw, 1.4rem)', fontWeight: 900, color: '#1a365d', margin: 0, letterSpacing: '-0.5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{clubSettings?.name || "United Vision"}</h1>
       </div>
 
       {/* Notification & Collection Stats Area */}
