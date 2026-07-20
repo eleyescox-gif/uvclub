@@ -162,10 +162,11 @@ export default async function DashboardPage() {
 
       {/* Summary Cards */}
       <div className={styles.statsGrid}>
+        {/* Card 1: My Personal Deposit */}
         <div className={styles.statCardPremium}>
           <div className={styles.statHeader}>
             <span className={styles.statCardPremiumLabel}>
-              <Wallet size={16} /> আমার মোট জমা
+              <Wallet size={18} /> আমার মোট জমা
             </span>
           </div>
           <div>
@@ -178,55 +179,130 @@ export default async function DashboardPage() {
           </div>
         </div>
 
+        {/* Card 2: Club Total Fund */}
         <div className={styles.statCardIndigo}>
           <div className={styles.statHeader}>
-            <span className={styles.statLabelDark} style={{ color: '#4f46e5', fontWeight: 800 }}>ক্লাবের জমা</span>
-            <div className={styles.statIconWrapperG} style={{ color: '#4f46e5', backgroundColor: 'rgba(79, 70, 229, 0.06)', borderColor: 'rgba(79, 70, 229, 0.1)' }}>
-              <Landmark size={18} />
+            <span style={{ color: '#3730a3', fontWeight: 800, fontSize: '0.82rem', letterSpacing: '0.02em', textTransform: 'uppercase' }}>
+              ক্লাবের জমা
+            </span>
+            <div style={{
+              width: '38px',
+              height: '38px',
+              borderRadius: '50%',
+              backgroundColor: '#4f46e5',
+              color: '#ffffff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 4px 10px rgba(79, 70, 229, 0.3)',
+              flexShrink: 0
+            }}>
+              <Landmark size={19} />
             </div>
           </div>
-          <div>
-            <h2 className={styles.statValueDark} style={{ color: '#4f46e5' }}>
+          <div style={{ marginTop: '0.25rem' }}>
+            <h2 style={{ fontSize: '1.85rem', fontWeight: 900, color: '#1e1b4b', margin: '0 0 0.4rem 0', letterSpacing: '-0.02em' }}>
               <AnimatedCounter value={clubBalance} prefix="৳ " />
             </h2>
-            <div className={styles.statBadgeGray} style={{ color: '#4f46e5', fontWeight: 700 }}>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              backgroundColor: 'rgba(79, 70, 229, 0.1)',
+              border: '1px solid rgba(79, 70, 229, 0.2)',
+              color: '#3730a3',
+              fontSize: '0.72rem',
+              fontWeight: 700,
+              padding: '0.25rem 0.65rem',
+              borderRadius: '20px'
+            }}>
               ক্লাবের মোট ফান্ড ব্যালেন্স
             </div>
           </div>
         </div>
 
+        {/* Card 3: Total Members */}
         <Link href="/dashboard/members" style={{ textDecoration: 'none', color: 'inherit' }}>
           <div className={styles.statCardAmber}>
             <div className={styles.statHeader}>
-              <span className={styles.statLabelDark} style={{ color: '#d97706', fontWeight: 800 }}>মোট সদস্য</span>
-              <div className={styles.statIconWrapperG} style={{ color: '#d97706', backgroundColor: 'rgba(217, 119, 6, 0.06)', borderColor: 'rgba(217, 119, 6, 0.1)' }}>
-                <Users size={18} />
+              <span style={{ color: '#92400e', fontWeight: 800, fontSize: '0.82rem', letterSpacing: '0.02em', textTransform: 'uppercase' }}>
+                মোট সদস্য
+              </span>
+              <div style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: '50%',
+                backgroundColor: '#d97706',
+                color: '#ffffff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 4px 10px rgba(217, 119, 6, 0.3)',
+                flexShrink: 0
+              }}>
+                <Users size={19} />
               </div>
             </div>
-            <div>
-              <h2 className={styles.statValueDark} style={{ color: '#d97706' }}>
+            <div style={{ marginTop: '0.25rem' }}>
+              <h2 style={{ fontSize: '1.85rem', fontWeight: 900, color: '#78350f', margin: '0 0 0.4rem 0', letterSpacing: '-0.02em' }}>
                 <AnimatedCounter value={totalMembers} />
               </h2>
-              <div className={styles.statBadgeGray} style={{ color: '#d97706', fontWeight: 700 }}>
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                backgroundColor: 'rgba(217, 119, 6, 0.1)',
+                border: '1px solid rgba(217, 119, 6, 0.2)',
+                color: '#92400e',
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                padding: '0.25rem 0.65rem',
+                borderRadius: '20px'
+              }}>
                 অনুমোদিত সক্রিয় সদস্য
               </div>
             </div>
           </div>
         </Link>
 
+        {/* Card 4: Pending Polls */}
         <Link href="/dashboard/voting" style={{ textDecoration: 'none', color: 'inherit' }}>
           <div className={styles.statCardRose}>
             <div className={styles.statHeader}>
-              <span className={styles.statLabelDark} style={{ color: '#e11d48', fontWeight: 800 }}>পেন্ডিং ভোট</span>
-              <div className={styles.statIconWrapperG} style={{ color: '#e11d48', backgroundColor: 'rgba(225, 29, 72, 0.06)', borderColor: 'rgba(225, 29, 72, 0.1)' }}>
-                <CheckSquare size={18} />
+              <span style={{ color: '#9f1239', fontWeight: 800, fontSize: '0.82rem', letterSpacing: '0.02em', textTransform: 'uppercase' }}>
+                পেন্ডিং ভোট
+              </span>
+              <div style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: '50%',
+                backgroundColor: '#e11d48',
+                color: '#ffffff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 4px 10px rgba(225, 29, 72, 0.3)',
+                flexShrink: 0
+              }}>
+                <CheckSquare size={19} />
               </div>
             </div>
-            <div>
-              <h2 className={styles.statValueDark} style={{ color: '#e11d48' }}>
+            <div style={{ marginTop: '0.25rem' }}>
+              <h2 style={{ fontSize: '1.85rem', fontWeight: 900, color: '#881337', margin: '0 0 0.4rem 0', letterSpacing: '-0.02em' }}>
                 <AnimatedCounter value={pendingPolls} />
               </h2>
-              <div className={styles.statBadgeGray} style={{ color: '#e11d48', fontWeight: 700 }}>
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                backgroundColor: 'rgba(225, 29, 72, 0.1)',
+                border: '1px solid rgba(225, 29, 72, 0.2)',
+                color: '#9f1239',
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                padding: '0.25rem 0.65rem',
+                borderRadius: '20px'
+              }}>
                 আপনার সিদ্ধান্ত প্রয়োজন
               </div>
             </div>
