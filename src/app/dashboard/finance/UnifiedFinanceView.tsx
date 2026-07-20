@@ -4,10 +4,9 @@ import { useMemo } from "react";
 import { 
   CheckCircle2, 
   AlertCircle, 
-  ShieldCheck, 
-  Trophy, 
-  CreditCard,
-  Printer
+  Printer,
+  Sparkles,
+  Receipt
 } from "lucide-react";
 import Link from "next/link";
 import OnlinePaymentCard from "./OnlinePaymentCard";
@@ -42,7 +41,8 @@ const monthsBn = ["জানুয়ারি", "ফেব্রুয়ারি", 
 const monthsShortEn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 export default function UnifiedFinanceView({ user, pendingInvoices, transactions, gatewayActive }: UnifiedFinanceViewProps) {
-  
+  const today = new Date();
+
   // Format Date to "12 Oct 2023" style
   const formatDateEnShort = (dateInput: Date | string) => {
     const d = new Date(dateInput);
@@ -53,15 +53,16 @@ export default function UnifiedFinanceView({ user, pendingInvoices, transactions
     return `${day} ${month} ${year}`;
   };
 
-  // Convert numbers to Bengali if needed
+  const formatDateBn = (dateInput: Date | string) => {
+    const d = new Date(dateInput);
+    if (isNaN(d.getTime())) return "";
+    return d.toLocaleDateString("bn-BD", { day: "numeric", month: "long", year: "numeric" });
+  };
+
+  // Convert numbers to Bengali
   const toBn = (num: number | string) => {
     const bnNums = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
     return String(num).replace(/[0-9]/g, (digit) => bnNums[parseInt(digit)]);
-  };
-
-  // Format currency: ৳ 1,500.00
-  const formatMoney = (amount: number) => {
-    return `৳ ${amount.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
   // Calculate Running Deposit Balance for each transaction (Chronological ascending)
@@ -79,7 +80,6 @@ export default function UnifiedFinanceView({ user, pendingInvoices, transactions
         runningTotal -= t.amount;
       }
 
-      // Determine Description & Month Name
       const txDate = new Date(t.createdAt || t.date);
       const monthNameBn = monthsBn[txDate.getMonth()];
       
@@ -108,6 +108,18 @@ export default function UnifiedFinanceView({ user, pendingInvoices, transactions
   return (
     <div style={{ maxWidth: "950px", margin: "0 auto", padding: "1.25rem 0.5rem 3rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
       
+      {/* Official Print Header (Visible ONLY when printing) */}
+      <div className="only-print" style={{ display: "none", textAlign: "center", marginBottom: "1.5rem", borderBottom: "2px solid #000", paddingBottom: "1rem" }}>
+        <h1 style={{ fontSize: "24px", fontWeight: "bold", color: "#0369a1", margin: 0 }}>ইউনাইটেড ভিশন ক্লাব</h1>
+        <p style={{ margin: "2px 0 4px", fontSize: "14px", color: "#334155" }}>বরইতলী, চকরিয়া, কক্সবাজার।</p>
+        <h3 style={{ fontSize: "18px", fontWeight: "bold", margin: "8px 0 4px", textDecoration: "underline" }}>সদস্য অফিশিয়াল লেনদেন বিবরণী</h3>
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "12px", fontSize: "14px", fontWeight: "bold" }}>
+          <span>সদস্যের নাম: {user.nameBn || user.name}</span>
+          <span>মোবাইল: {user.mobile}</span>
+          <span>তারিখ: {formatDateBn(today)}</span>
+        </div>
+      </div>
+
       {/* Outer Clean Card Container */}
       <div style={{
         backgroundColor: "#ffffff",
@@ -138,7 +150,7 @@ export default function UnifiedFinanceView({ user, pendingInvoices, transactions
             </div>
             <div>
               <h1 style={{ fontSize: "1.35rem", fontWeight: 900, color: "#0f172a", margin: 0, letterSpacing: "-0.01em" }}>
-                বকেয়া চাঁদার তালিকা
+                লেনদেন বিবরণী
               </h1>
               <p style={{ fontSize: "0.85rem", color: "#64748b", margin: "2px 0 0" }}>
                 {pendingInvoices.length > 0 
@@ -171,7 +183,7 @@ export default function UnifiedFinanceView({ user, pendingInvoices, transactions
           </button>
         </div>
 
-        {/* 2. Confetti / Alert Banner */}
+        {/* 2. Confetti / Unpaid Alert Banner */}
         {pendingInvoices.length === 0 ? (
           <div style={{
             backgroundColor: "#FFF8ED",
@@ -195,20 +207,26 @@ export default function UnifiedFinanceView({ user, pendingInvoices, transactions
         ) : (
           <div style={{
             backgroundColor: "#FEF2F2",
-            border: "1px solid #FECACA",
+            border: "1.5px solid #FCA5A5",
             borderRadius: "0.85rem",
-            padding: "1rem 1.25rem",
+            padding: "1.15rem 1.25rem",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
             flexWrap: "wrap",
-            gap: "0.85rem"
+            gap: "0.85rem",
+            boxShadow: "0 4px 15px rgba(220, 38, 38, 0.08)"
           }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <AlertCircle size={20} color="#dc2626" />
-              <span style={{ fontSize: "0.9rem", color: "#991b1b", fontWeight: 700 }}>
-                আপনার {toBn(pendingInvoices.length)}টি বিলের সর্বমোট বকেয়া: ৳ {toBn(totalPendingAmount.toLocaleString("en-IN"))}
-              </span>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.65rem" }}>
+              <AlertCircle size={22} color="#dc2626" />
+              <div>
+                <strong style={{ fontSize: "0.95rem", color: "#991b1b", display: "block" }}>
+                  ⚠️ আপনার {toBn(pendingInvoices.length)}টি মাসের চাঁদা বকেয়া রয়েছে (সর্বমোট ৳ {toBn(totalPendingAmount.toLocaleString("en-IN"))})!
+                </strong>
+                <span style={{ fontSize: "0.8rem", color: "#b91c1c", fontWeight: 600 }}>
+                  দয়া করে বকেয়া চাঁদা দ্রুত পরিশোধ করুন।
+                </span>
+              </div>
             </div>
 
             <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
@@ -223,7 +241,7 @@ export default function UnifiedFinanceView({ user, pendingInvoices, transactions
                     />
                   ) : (
                     <span style={{ fontSize: "0.75rem", color: "#991b1b", backgroundColor: "#fff", padding: "0.35rem 0.65rem", borderRadius: "0.5rem", fontWeight: 700, border: "1px solid #fca5a5" }}>
-                      {monthsBn[inv.month - 1]}: ৳ {inv.amount + inv.lateFee} (ক্যাশিয়ারের কাছে জমা দিন)
+                      {monthsBn[inv.month - 1]}: ৳ {inv.amount + inv.lateFee} (পরিশোধ করুন)
                     </span>
                   )}
                 </div>
@@ -232,7 +250,7 @@ export default function UnifiedFinanceView({ user, pendingInvoices, transactions
           </div>
         )}
 
-        {/* 3. Single Unified Clean Statement Table (Exact Replica of User's Design) */}
+        {/* 3. Single Unified Statement Table */}
         <div style={{ overflowX: "auto" }}>
           <table style={{
             width: "100%",
@@ -300,6 +318,21 @@ export default function UnifiedFinanceView({ user, pendingInvoices, transactions
         </div>
 
       </div>
+
+      <style dangerouslySetInnerHTML={{__html: `
+        @media print {
+          .no-print {
+            display: none !important;
+          }
+          .only-print {
+            display: block !important;
+          }
+          body {
+            background: white !important;
+            padding: 0 !important;
+          }
+        }
+      `}} />
 
     </div>
   );
