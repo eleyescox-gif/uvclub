@@ -28,46 +28,42 @@ export default function BottomNav({ role, user }: BottomNavProps) {
 
   const navItems = [
     {
-      name: "হোম",
+      name: "Home",
       href: "/dashboard",
       icon: <LayoutDashboard size={21} />,
-      color: "#059669",          // emerald
+      color: "#059669",
       bg: "rgba(5,150,105,0.12)",
-      activeBg: "#ecfdf5",
     },
     {
-      name: "ফাইন্যান্স",
+      name: "Finance",
       href: "/dashboard/finance",
       icon: <Wallet size={21} />,
-      color: "#d97706",          // amber
+      color: "#d97706",
       bg: "rgba(217,119,6,0.12)",
-      activeBg: "#fffbeb",
     },
     {
-      name: "নোটিশ",
+      name: "Notice",
       href: "/dashboard/notices",
       icon: <Megaphone size={21} />,
-      color: "#e11d48",          // rose
+      color: "#e11d48",
       bg: "rgba(225,29,72,0.12)",
-      activeBg: "#fff1f2",
     },
     {
-      name: "ভোট",
+      name: "Vote",
       href: "/dashboard/voting",
       icon: <Vote size={21} />,
-      color: "#4f46e5",          // indigo
+      color: "#4f46e5",
       bg: "rgba(79,70,229,0.12)",
-      activeBg: "#eef2ff",
     },
     {
-      name: "প্রজেক্ট",
+      name: "Projects",
       href: "/dashboard/projects",
       icon: <Briefcase size={21} />,
-      color: "#0891b2",          // cyan
+      color: "#0891b2",
       bg: "rgba(8,145,178,0.12)",
-      activeBg: "#ecfeff",
     },
   ];
+
 
   return (
     <>

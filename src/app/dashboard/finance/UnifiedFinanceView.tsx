@@ -19,6 +19,8 @@ interface Invoice {
   amount: number;
   lateFee: number;
   status: string;
+  createdAt?: Date | string | null;
+  updatedAt?: Date | string | null;
 }
 
 interface Transaction {
@@ -34,15 +36,28 @@ interface Transaction {
 interface UnifiedFinanceViewProps {
   user: { name: string; nameBn?: string | null; mobile: string; role: string; activeStatus?: boolean };
   pendingInvoices: Invoice[];
+  paidInvoices?: Invoice[];
   transactions: Transaction[];
   gatewayActive: boolean;
   clubLogo?: string;
+  currentMonth?: number;
+  currentYear?: number;
+  currentMonthPaid?: boolean;
+  currentMonthPaidAmount?: number;
+  currentMonthPaidDate?: Date | string | null;
 }
 
 const monthsBn = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"];
 const monthsShortEn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-export default function UnifiedFinanceView({ user, pendingInvoices, transactions, gatewayActive, clubLogo }: UnifiedFinanceViewProps) {
+export default function UnifiedFinanceView({ 
+  user, pendingInvoices, paidInvoices = [], transactions, gatewayActive, clubLogo,
+  currentMonth, currentYear, currentMonthPaid, currentMonthPaidAmount = 0, currentMonthPaidDate
+}: UnifiedFinanceViewProps) {
+  const nowMonth = currentMonth ?? (new Date().getMonth() + 1);
+  const nowYear = currentYear ?? new Date().getFullYear();
+  const nowMonthBn = monthsBn[nowMonth - 1];
+  const nowMonthEn = monthsShortEn[nowMonth - 1];
   const today = new Date();
 
   // Format Date to "12 Oct 2023" style
@@ -85,7 +100,16 @@ export default function UnifiedFinanceView({ user, pendingInvoices, transactions
       const txDate = new Date(t.createdAt || t.date);
       const monthNameBn = monthsBn[txDate.getMonth()];
       
-      let desc = `চাঁদা - ${monthNameBn}`;
+      // Try to find the matching paid invoice for correct month name
+      const matchedInv = paidInvoices.find(inv => {
+        const invDate = inv.updatedAt ? new Date(inv.updatedAt) : inv.createdAt ? new Date(inv.createdAt) : null;
+        if (!invDate) return false;
+        return Math.abs(invDate.getTime() - txDate.getTime()) < 120000; // within 2 min
+      });
+      const invMonthBn = matchedInv ? monthsBn[matchedInv.month - 1] : monthNameBn;
+      const invYearShort = matchedInv ? String(matchedInv.year).slice(2) : String(txDate.getFullYear()).slice(2);
+
+      let desc = `চাঁদা - ${invMonthBn} '${invYearShort}`;
       if (t.type === "PROFIT_POSTING") desc = `প্রজেক্ট লভ্যাংশ - ${monthNameBn}`;
       else if (t.type === "WITHDRAWAL") desc = `উত্তোলন - ${monthNameBn}`;
       else if (t.type === "LOSS_POSTING") desc = `লোকসান চার্জ - ${monthNameBn}`;
@@ -188,7 +212,91 @@ export default function UnifiedFinanceView({ user, pendingInvoices, transactions
           </button>
         </div>
 
-        {/* 2. Confetti / Unpaid Alert Banner */}
+        {/* 2. Current Month Payment Status Card */}
+        <div className="no-print" style={{
+          display: "flex",
+          gap: "1rem",
+          flexWrap: "wrap",
+        }}>
+          {/* This Month Status */}
+          <div style={{
+            flex: 1,
+            minWidth: "200px",
+            borderRadius: "1rem",
+            padding: "1rem 1.15rem",
+            background: currentMonthPaid
+              ? "linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)"
+              : "linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)",
+            border: `1.5px solid ${currentMonthPaid ? "#86efac" : "#fde68a"}`,
+            display: "flex",
+            alignItems: "center",
+            gap: "0.85rem",
+          }}>
+            <div style={{
+              width: "42px",
+              height: "42px",
+              borderRadius: "50%",
+              backgroundColor: currentMonthPaid ? "#10b981" : "#f59e0b",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+              boxShadow: currentMonthPaid
+                ? "0 4px 12px rgba(16,185,129,0.3)"
+                : "0 4px 12px rgba(245,158,11,0.3)",
+            }}>
+              {currentMonthPaid
+                ? <CheckCircle2 size={22} color="#fff" />
+                : <AlertCircle size={22} color="#fff" />
+              }
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ margin: 0, fontSize: "0.72rem", fontWeight: 700, color: currentMonthPaid ? "#065f46" : "#92400e", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+                {nowMonthEn} {nowYear} — চাঁদার অবস্থা
+              </p>
+              <p style={{ margin: "2px 0 0", fontSize: "1.05rem", fontWeight: 900, color: currentMonthPaid ? "#059669" : "#b45309" }}>
+                {currentMonthPaid
+                  ? `✓ পরিশোধিত — ৳ ${toBn(currentMonthPaidAmount.toLocaleString("en-IN"))}`
+                  : `⏳ এখনো পরিশোধ হয়নি`
+                }
+              </p>
+              {currentMonthPaid && currentMonthPaidDate && (
+                <p style={{ margin: "1px 0 0", fontSize: "0.7rem", color: "#047857", fontWeight: 600 }}>
+                  {formatDateEnShort(currentMonthPaidDate)} তারিখে পরিশোধ করা হয়েছে
+                </p>
+              )}
+              {!currentMonthPaid && (
+                <p style={{ margin: "1px 0 0", fontSize: "0.7rem", color: "#92400e", fontWeight: 600 }}>
+                  দ্রুত পরিশোধ করুন — বিলম্বে জরিমানা প্রযোজ্য
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Total Paid Count */}
+          <div style={{
+            minWidth: "130px",
+            borderRadius: "1rem",
+            padding: "1rem 1.15rem",
+            background: "linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)",
+            border: "1.5px solid #bfdbfe",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+          }}>
+            <p style={{ margin: 0, fontSize: "0.7rem", fontWeight: 700, color: "#1e40af", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+              মোট পরিশোধ
+            </p>
+            <p style={{ margin: "4px 0 0", fontSize: "1.6rem", fontWeight: 900, color: "#1d4ed8", lineHeight: 1 }}>
+              {toBn(paidInvoices.length)}
+            </p>
+            <p style={{ margin: "2px 0 0", fontSize: "0.7rem", color: "#3b82f6", fontWeight: 600 }}>
+              কিস্তি সফলভাবে জমা
+            </p>
+          </div>
+        </div>
+
+        {/* 3. Pending Alert Banner */}
         {pendingInvoices.length === 0 ? (
           <div className="no-print" style={{
             backgroundColor: "#FFF8ED",
@@ -255,7 +363,7 @@ export default function UnifiedFinanceView({ user, pendingInvoices, transactions
           </div>
         )}
 
-        {/* 3. Monthly Profit/Loss Summary Card (Formula Based) */}
+        {/* 4. Monthly Profit/Loss Summary Card (Formula Based) */}
         <div className="no-print">
           <MonthlyProfitLossSummary 
             user={{ role: user.role, activeStatus: user.activeStatus ?? true }} 
