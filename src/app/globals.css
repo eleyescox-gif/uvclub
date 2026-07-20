@@ -154,12 +154,67 @@ body {
   flex-direction: column;
 }
 
+/* TopNav Responsive Club Title Styling */
+.topnav-title-container {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 1;
+}
+
+.topnav-title-text {
+  font-size: 1.75rem;
+  font-weight: 900;
+  color: #1a365d;
+  margin: 0;
+  letter-spacing: -0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.topnav-logo-box {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-color: #ffffff;
+  padding: 2px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
 /* Mobile Bottom Navigation - STRICTLY HIDDEN ON DESKTOP / PC */
 .mobile-bottom-nav {
   display: none !important;
 }
 
 @media (max-width: 768px) {
+  .topnav-title-container {
+    position: static !important;
+    transform: none !important;
+    margin-right: auto !important;
+    margin-left: 0.15rem !important;
+    max-width: calc(100vw - 160px) !important;
+  }
+
+  .topnav-title-text {
+    font-size: 1.15rem !important;
+  }
+
+  .topnav-logo-box {
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+  }
+
   .mobile-bottom-nav {
     display: flex !important;
   }
