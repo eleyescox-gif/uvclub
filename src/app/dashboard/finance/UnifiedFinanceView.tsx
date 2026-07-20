@@ -36,12 +36,13 @@ interface UnifiedFinanceViewProps {
   pendingInvoices: Invoice[];
   transactions: Transaction[];
   gatewayActive: boolean;
+  clubLogo?: string;
 }
 
 const monthsBn = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"];
 const monthsShortEn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-export default function UnifiedFinanceView({ user, pendingInvoices, transactions, gatewayActive }: UnifiedFinanceViewProps) {
+export default function UnifiedFinanceView({ user, pendingInvoices, transactions, gatewayActive, clubLogo }: UnifiedFinanceViewProps) {
   const today = new Date();
 
   // Format Date to "12 Oct 2023" style
@@ -112,7 +113,7 @@ export default function UnifiedFinanceView({ user, pendingInvoices, transactions
       {/* Official Print Header (Visible ONLY when printing) */}
       <div className="only-print" style={{ display: "none", textAlign: "center", marginBottom: "1.5rem", borderBottom: "2px solid #000", paddingBottom: "1rem" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.75rem", marginBottom: "0.5rem" }}>
-          <img src="/logo.jpg" alt="United Vision Logo" style={{ width: "45px", height: "45px", objectFit: "contain", borderRadius: "6px" }} />
+          <img src={clubLogo || "/logo.jpg"} alt="United Vision Logo" style={{ width: "45px", height: "45px", objectFit: "contain", borderRadius: "6px" }} />
           <h1 style={{ fontSize: "24px", fontWeight: "bold", color: "#0369a1", margin: 0 }}>ইউনাইটেড ভিশন ক্লাব</h1>
         </div>
         <p style={{ margin: "2px 0 4px", fontSize: "14px", color: "#334155" }}>বরইতলী, চকরিয়া, কক্সবাজার। (স্থাপিত: ২০২৬ খ্রি.)</p>

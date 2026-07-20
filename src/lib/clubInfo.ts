@@ -12,9 +12,9 @@ export async function getClubInfo(): Promise<ClubInfo> {
   const defaults: ClubInfo = {
     name: "ইউনাইটেড ভিশন ক্লাব",
     address: "বরইতলী, চকরিয়া, কক্সবাজার।",
-    logo: null,
-    paidLogo: null,
-    watermarkLogo: null,
+    logo: "/logo.jpg",
+    paidLogo: "/paid_seal.png",
+    watermarkLogo: "/logo.jpg",
   };
 
   try {
@@ -24,9 +24,9 @@ export async function getClubInfo(): Promise<ClubInfo> {
     return {
       name: cs.name || defaults.name,
       address: cs.address || defaults.address,
-      logo: cs.logo || null,
-      paidLogo: cs.paidLogo || null,
-      watermarkLogo: cs.watermarkLogo || null,
+      logo: cs.logo || defaults.logo,
+      paidLogo: cs.paidLogo || defaults.paidLogo,
+      watermarkLogo: cs.watermarkLogo || cs.logo || defaults.watermarkLogo,
     };
   } catch {
     return defaults;

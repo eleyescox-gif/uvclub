@@ -37,6 +37,7 @@ export default async function MemberFinancePage() {
   }
 
   const gatewayActive = settings?.paymentGatewayActive || false;
+  const clubLogo = settings?.logo || "/logo.jpg";
 
   return (
     <UnifiedFinanceView 
@@ -44,6 +45,7 @@ export default async function MemberFinancePage() {
       pendingInvoices={pendingInvoices}
       transactions={transactions}
       gatewayActive={gatewayActive}
+      clubLogo={clubLogo}
     />
   );
 }

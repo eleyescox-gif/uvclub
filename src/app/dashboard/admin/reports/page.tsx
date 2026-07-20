@@ -268,9 +268,6 @@ export default async function ReportsPage({
         <p style={{ color: '#6b7280', fontSize: '0.9rem' }}>ফিল্টার সেট করুন এবং প্রিন্ট বাটন চেপে প্রফেশনাল এ৪ সাইজের পিডিএফ বা রিপোর্ট প্রিন্ট করুন।</p>
       </div>
 
-      {/* General Secretary Report Requests Manager */}
-      <ReportRequestsManager />
-
       {/* Render selector component with member list for member dropdown */}
       <ReportSelector members={activeMembersList} />
 
@@ -414,81 +411,94 @@ export default async function ReportsPage({
           )}
         </div>
 
-        {/* 0. Club Institutional Financial Statement (Total Income & Expense) */}
-        {type === "club-financial-statement" && reportData && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ backgroundColor: '#0f172a', color: '#ffffff' }}>
-                  <th style={{ border: '1px solid #334155', padding: '0.75rem', textAlign: 'left', width: '60%' }}>আয়ের বিবরণ (Income Head)</th>
-                  <th style={{ border: '1px solid #334155', padding: '0.75rem', textAlign: 'right', width: '40%' }}>টাকার পরিমাণ (৳)</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td style={{ border: '1px solid #cbd5e1', padding: '0.65rem 0.75rem', fontWeight: 600 }}>১. সদস্যদের জমাকৃত মোট চাঁদা (Member Subscriptions)</td>
-                  <td style={{ border: '1px solid #cbd5e1', padding: '0.65rem 0.75rem', textAlign: 'right', fontWeight: 700, color: '#16a34a' }}>৳ {reportData.totalSubscriptions.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                </tr>
-                <tr>
-                  <td style={{ border: '1px solid #cbd5e1', padding: '0.65rem 0.75rem', fontWeight: 600 }}>২. পদত্যাগকৃত সদস্যের কর্তন আয় (Exit Deductions Bonus)</td>
-                  <td style={{ border: '1px solid #cbd5e1', padding: '0.65rem 0.75rem', textAlign: 'right', fontWeight: 700, color: '#16a34a' }}>৳ {reportData.exitBonusIncome.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                </tr>
-                <tr>
-                  <td style={{ border: '1px solid #cbd5e1', padding: '0.65rem 0.75rem', fontWeight: 600 }}>৩. প্রজেক্টসমূহের অর্জিত মোট লভ্যাংশ (Project Profit)</td>
-                  <td style={{ border: '1px solid #cbd5e1', padding: '0.65rem 0.75rem', textAlign: 'right', fontWeight: 700, color: '#16a34a' }}>৳ {reportData.projectProfits.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                </tr>
-                <tr>
-                  <td style={{ border: '1px solid #cbd5e1', padding: '0.65rem 0.75rem', fontWeight: 600 }}>৪. ব্যাংক মুনাফা / ইন্টারেস্ট (Bank Interest)</td>
-                  <td style={{ border: '1px solid #cbd5e1', padding: '0.65rem 0.75rem', textAlign: 'right', fontWeight: 700, color: '#16a34a' }}>৳ {reportData.bankInterest.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                </tr>
-                <tr>
-                  <td style={{ border: '1px solid #cbd5e1', padding: '0.65rem 0.75rem', fontWeight: 600 }}>৫. অন্যান্য বিশেষ আয় (Other Income)</td>
-                  <td style={{ border: '1px solid #cbd5e1', padding: '0.65rem 0.75rem', textAlign: 'right', fontWeight: 700, color: '#16a34a' }}>৳ {reportData.otherIncome.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                </tr>
-                <tr style={{ backgroundColor: '#f0fdf4', fontWeight: 900 }}>
-                  <td style={{ border: '1.5px solid #16a34a', padding: '0.75rem', color: '#166534' }}>সর্বমোট ক্লাব আয় (Total Gross Income)</td>
-                  <td style={{ border: '1.5px solid #16a34a', padding: '0.75rem', textAlign: 'right', color: '#15803d', fontSize: '1.05rem' }}>৳ {reportData.totalGrossIncome.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                </tr>
-              </tbody>
-            </table>
+        {/* 0. Club Institutional Financial Statement (Bengali Only, Active Transactions Only) */}
+        {type === "club-financial-statement" && reportData && (() => {
+          const activeIncomes: { name: string; amount: number }[] = [];
+          if (reportData.totalSubscriptions > 0) activeIncomes.push({ name: "সদস্যদের জমাকৃত মোট চাঁদা", amount: reportData.totalSubscriptions });
+          if (reportData.exitBonusIncome > 0) activeIncomes.push({ name: "পদত্যাগকৃত সদস্যের কর্তন ফি আয়", amount: reportData.exitBonusIncome });
+          if (reportData.projectProfits > 0) activeIncomes.push({ name: "প্রজেক্টসমূহের অর্জিত মোট লভ্যাংশ", amount: reportData.projectProfits });
+          if (reportData.bankInterest > 0) activeIncomes.push({ name: "ব্যাংক মুনাফা ও ইন্টারেস্ট", amount: reportData.bankInterest });
+          if (reportData.otherIncome > 0) activeIncomes.push({ name: "অন্যান্য বিশেষ আয়", amount: reportData.otherIncome });
 
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ backgroundColor: '#7f1d1d', color: '#ffffff' }}>
-                  <th style={{ border: '1px solid #991b1b', padding: '0.75rem', textAlign: 'left', width: '60%' }}>ব্যয়ের বিবরণ (Expense Head)</th>
-                  <th style={{ border: '1px solid #991b1b', padding: '0.75rem', textAlign: 'right', width: '40%' }}>টাকার পরিমাণ (৳)</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td style={{ border: '1px solid #cbd5e1', padding: '0.65rem 0.75rem', fontWeight: 600 }}>১. ব্যাংক সার্ভিস চার্জ ও কর্তন (Bank Charges)</td>
-                  <td style={{ border: '1px solid #cbd5e1', padding: '0.65rem 0.75rem', textAlign: 'right', fontWeight: 700, color: '#dc2626' }}>৳ {reportData.bankCharge.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                </tr>
-                <tr>
-                  <td style={{ border: '1px solid #cbd5e1', padding: '0.65rem 0.75rem', fontWeight: 600 }}>২. ক্লাব অপারেশনাল খরচ ও ব্যয় (General Expenses)</td>
-                  <td style={{ border: '1px solid #cbd5e1', padding: '0.65rem 0.75rem', textAlign: 'right', fontWeight: 700, color: '#dc2626' }}>৳ {reportData.operationalExpenses.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                </tr>
-                <tr style={{ backgroundColor: '#fef2f2', fontWeight: 900 }}>
-                  <td style={{ border: '1.5px solid #dc2626', padding: '0.75rem', color: '#991b1b' }}>সর্বমোট ক্লাব ব্যয় (Total Gross Expenses)</td>
-                  <td style={{ border: '1.5px solid #dc2626', padding: '0.75rem', textAlign: 'right', color: '#b91c1c', fontSize: '1.05rem' }}>৳ {reportData.totalGrossExpense.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                </tr>
-              </tbody>
-            </table>
+          const activeExpenses: { name: string; amount: number }[] = [];
+          if (reportData.bankCharge > 0) activeExpenses.push({ name: "ব্যাংক সার্ভিস চার্জ ও কর্তন", amount: reportData.bankCharge });
+          if (reportData.operationalExpenses > 0) activeExpenses.push({ name: "ক্লাব অপারেশনাল খরচ ও ব্যয়", amount: reportData.operationalExpenses });
 
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <tbody>
-                <tr style={{ backgroundColor: reportData.netSurplus >= 0 ? '#dcfce7' : '#fee2e2', fontWeight: 900 }}>
-                  <td style={{ border: '2px solid #000', padding: '1rem', color: '#0f172a', fontSize: '1.1rem' }}>
-                    নিট সর্বমোট ক্লাব তহবিল উদ্বৃত্ত / সঞ্চয় (Net Institutional Surplus)
-                  </td>
-                  <td style={{ border: '2px solid #000', padding: '1rem', textAlign: 'right', fontSize: '1.25rem', color: reportData.netSurplus >= 0 ? '#15803d' : '#b91c1c' }}>
-                    ৳ {reportData.netSurplus.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        )}
+          const rowCount = Math.max(activeIncomes.length, activeExpenses.length, 1);
+
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13.5px' }}>
+                <thead>
+                  <tr style={{ backgroundColor: '#134e2a', color: '#ffffff', fontWeight: 800 }}>
+                    <th colSpan={2} style={{ border: '1px solid #0e391f', padding: '0.75rem', textAlign: 'center', width: '50%', fontSize: '15px' }}>
+                      আয়ের বিবরণ
+                    </th>
+                    <th colSpan={2} style={{ border: '1px solid #0e391f', padding: '0.75rem', textAlign: 'center', width: '50%', fontSize: '15px' }}>
+                      ব্যয়ের বিবরণ
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Array.from({ length: rowCount }).map((_, idx) => {
+                    const inc = activeIncomes[idx];
+                    const exp = activeExpenses[idx];
+
+                    return (
+                      <tr key={idx}>
+                        {/* Income Side */}
+                        <td style={{ border: '1px solid #94a3b8', padding: '0.7rem 0.75rem', fontWeight: 600, width: '35%' }}>
+                          {inc ? `${idx + 1}. ${inc.name}` : '-'}
+                        </td>
+                        <td style={{ border: '1px solid #94a3b8', padding: '0.7rem 0.75rem', textAlign: 'right', fontWeight: 800, color: inc ? '#14532d' : '#94a3b8', width: '15%', fontSize: '14px' }}>
+                          {inc ? `৳ ${inc.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : '-'}
+                        </td>
+
+                        {/* Expense Side */}
+                        <td style={{ border: '1px solid #94a3b8', padding: '0.7rem 0.75rem', fontWeight: 600, width: '35%' }}>
+                          {exp ? `${idx + 1}. ${exp.name}` : '-'}
+                        </td>
+                        <td style={{ border: '1px solid #94a3b8', padding: '0.7rem 0.75rem', textAlign: 'right', fontWeight: 800, color: exp ? '#b91c1c' : '#94a3b8', width: '15%', fontSize: '14px' }}>
+                          {exp ? `৳ ${exp.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : '-'}
+                        </td>
+                      </tr>
+                    );
+                  })}
+
+                  {/* Total Row */}
+                  <tr style={{ backgroundColor: '#f0fdf4', fontWeight: 900 }}>
+                    <td style={{ border: '2px solid #166534', padding: '0.75rem', color: '#14532d' }}>
+                      সর্বমোট ক্লাব আয়
+                    </td>
+                    <td style={{ border: '2px solid #166534', padding: '0.75rem', textAlign: 'right', color: '#14532d', fontSize: '1.05rem' }}>
+                      ৳ {reportData.totalGrossIncome.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    </td>
+                    <td style={{ border: '2px solid #991b1b', padding: '0.75rem', color: '#991b1b', backgroundColor: '#fef2f2' }}>
+                      সর্বমোট ক্লাব ব্যয়
+                    </td>
+                    <td style={{ border: '2px solid #991b1b', padding: '0.75rem', textAlign: 'right', color: '#b91c1c', fontSize: '1.05rem', backgroundColor: '#fef2f2' }}>
+                      ৳ {reportData.totalGrossExpense.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              {/* Net Surplus Row */}
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <tbody>
+                  <tr style={{ backgroundColor: reportData.netSurplus >= 0 ? '#dcfce7' : '#fee2e2', fontWeight: 900 }}>
+                    <td style={{ border: '2px solid #000', padding: '0.9rem', color: '#0f172a', fontSize: '1.05rem', width: '70%' }}>
+                      নিট সর্বমোট ক্লাব তহবিল উদ্বৃত্ত / সঞ্চয়
+                    </td>
+                    <td style={{ border: '2px solid #000', padding: '0.9rem', textAlign: 'right', fontSize: '1.25rem', color: reportData.netSurplus >= 0 ? '#14532d' : '#b91c1c', width: '30%' }}>
+                      ৳ {reportData.netSurplus.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          );
+        })()}
 
         {/* 1 & 2. Members / Active Members table */}
         {(type === "member-list" || type === "active-members") && (
