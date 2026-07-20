@@ -263,84 +263,97 @@ export default function UnifiedFinanceView({ user, pendingInvoices, transactions
           />
         </div>
 
-        {/* 3. Single Unified Statement Table */}
-        <div style={{ overflowX: "auto" }}>
-          <table className="statement-print-table" style={{
-            width: "100%",
-            borderCollapse: "collapse",
-            textAlign: "left",
-            fontSize: "0.9rem"
-          }}>
-            <thead>
-              <tr style={{
-                borderBottom: "2px solid #cbd5e1",
-                color: "#0f172a",
-                fontWeight: 900,
-                backgroundColor: "#f8fafc"
-              }}>
-                <th style={{ padding: "0.85rem 0.75rem", whiteSpace: "nowrap" }}>তারিখ</th>
-                <th style={{ padding: "0.85rem 0.75rem" }}>বিবরণ</th>
-                <th style={{ padding: "0.85rem 0.75rem", whiteSpace: "nowrap" }}>মাসের নাম</th>
-                <th style={{ padding: "0.85rem 0.75rem", whiteSpace: "nowrap" }}>চাঁদা</th>
-                <th style={{ padding: "0.85rem 0.75rem", whiteSpace: "nowrap" }}>মোট জমা</th>
-              </tr>
-            </thead>
-            <tbody>
-              {processedTransactions.length === 0 ? (
-                <tr>
-                  <td colSpan={5} style={{ textAlign: "center", padding: "2rem", color: "#64748b" }}>
-                    কোনো লেনদেনের তথ্য পাওয়া যায়নি।
-                  </td>
-                </tr>
-              ) : (
-                processedTransactions.map((tx) => (
-                  <tr key={tx.id} style={{ borderBottom: "1px solid #e2e8f0" }}>
-                    {/* Date */}
-                    <td style={{ padding: "0.85rem 0.75rem", color: "#334155", fontWeight: 600, whiteSpace: "nowrap" }}>
-                      {tx.formattedDate}
-                    </td>
+        {/* 4. Transaction List — Desktop: Table | Mobile: Compact Rows */}
+        <div>
+          {processedTransactions.length === 0 ? (
+            <p style={{ textAlign: "center", padding: "2rem", color: "#64748b", fontSize: "0.9rem" }}>
+              কোনো লেনদেনের তথ্য পাওয়া যায়নি।
+            </p>
+          ) : (
+            <>
+              {/* Desktop Table */}
+              <div className="tx-table-desktop" style={{ overflowX: "auto" }}>
+                <table className="statement-print-table" style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "0.9rem" }}>
+                  <thead>
+                    <tr style={{ borderBottom: "2px solid #cbd5e1", color: "#0f172a", fontWeight: 900, backgroundColor: "#f8fafc" }}>
+                      <th style={{ padding: "0.85rem 0.75rem", whiteSpace: "nowrap" }}>তারিখ</th>
+                      <th style={{ padding: "0.85rem 0.75rem" }}>বিবরণ</th>
+                      <th style={{ padding: "0.85rem 0.75rem", whiteSpace: "nowrap" }}>মাস</th>
+                      <th style={{ padding: "0.85rem 0.75rem", whiteSpace: "nowrap" }}>চাঁদা</th>
+                      <th style={{ padding: "0.85rem 0.75rem", whiteSpace: "nowrap" }}>মোট জমা</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {processedTransactions.map((tx) => (
+                      <tr key={tx.id} style={{ borderBottom: "1px solid #e2e8f0" }}>
+                        <td style={{ padding: "0.85rem 0.75rem", color: "#334155", fontWeight: 600, whiteSpace: "nowrap" }}>{tx.formattedDate}</td>
+                        <td style={{ padding: "0.85rem 0.75rem", color: "#0f172a", fontWeight: 700 }}>{tx.desc}</td>
+                        <td style={{ padding: "0.85rem 0.75rem", color: "#334155", fontWeight: 600, whiteSpace: "nowrap" }}>{tx.monthNameBn}</td>
+                        <td style={{ padding: "0.85rem 0.75rem", fontWeight: 800, color: tx.isCredit ? "#15803d" : "#b91c1c", whiteSpace: "nowrap" }}>
+                          {tx.isCredit ? "+" : "-"}৳ {tx.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                        </td>
+                        <td style={{ padding: "0.85rem 0.75rem", color: "#0f172a", fontWeight: 800, whiteSpace: "nowrap" }}>
+                          ৳ {tx.runningTotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
 
-                    {/* Description */}
-                    <td style={{ padding: "0.85rem 0.75rem", color: "#0f172a", fontWeight: 700 }}>
-                      {tx.desc}
-                    </td>
-
-                    {/* Month Name */}
-                    <td style={{ padding: "0.85rem 0.75rem", color: "#334155", fontWeight: 600, whiteSpace: "nowrap" }}>
-                      {tx.monthNameBn}
-                    </td>
-
-                    {/* Amount */}
-                    <td style={{
-                      padding: "0.85rem 0.75rem",
-                      fontWeight: 800,
-                      color: tx.isCredit ? "#15803d" : "#b91c1c",
-                      whiteSpace: "nowrap"
-                    }}>
-                      {tx.isCredit ? "+" : "-"}৳ {tx.amount.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </td>
-
-                    {/* Running Cumulative Total Deposit */}
-                    <td style={{ padding: "0.85rem 0.75rem", color: "#0f172a", fontWeight: 800, whiteSpace: "nowrap" }}>
-                      ৳ {tx.runningTotal.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+              {/* Mobile Compact Rows */}
+              <div className="tx-cards-mobile">
+                <div style={{ display: "grid", gridTemplateColumns: "1fr auto auto", gap: "0.5rem", padding: "0.55rem 0.5rem", backgroundColor: "#f1f5f9", borderBottom: "2px solid #cbd5e1", fontWeight: 800, fontSize: "0.68rem", color: "#475569", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+                  <span>বিবরণ / তারিখ</span>
+                  <span style={{ minWidth: "72px", textAlign: "right" }}>চাঁদা</span>
+                  <span style={{ minWidth: "80px", textAlign: "right" }}>মোট জমা</span>
+                </div>
+                {processedTransactions.map((tx, i) => (
+                  <div key={tx.id} style={{ display: "grid", gridTemplateColumns: "1fr auto auto", gap: "0.35rem", alignItems: "center", padding: "0.65rem 0.5rem", borderBottom: "1px solid #f1f5f9", backgroundColor: i % 2 === 0 ? "#ffffff" : "#fafafa" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "1px", minWidth: 0 }}>
+                      <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#0f172a", lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{tx.desc}</span>
+                      <span style={{ fontSize: "0.68rem", color: "#94a3b8", fontWeight: 500 }}>{tx.formattedDate}</span>
+                    </div>
+                    <span style={{ minWidth: "72px", textAlign: "right", fontSize: "0.82rem", fontWeight: 800, color: tx.isCredit ? "#15803d" : "#b91c1c", whiteSpace: "nowrap" }}>
+                      {tx.isCredit ? "+" : "-"}৳{tx.amount.toLocaleString("en-IN")}
+                    </span>
+                    <span style={{ minWidth: "80px", textAlign: "right", fontSize: "0.82rem", fontWeight: 800, color: "#0f172a", whiteSpace: "nowrap" }}>
+                      ৳{tx.runningTotal.toLocaleString("en-IN")}
+                    </span>
+                  </div>
+                ))}
+                <div style={{ display: "flex", justifyContent: "space-between", padding: "0.65rem 0.5rem", backgroundColor: "#f0fdf4", borderTop: "2px solid #86efac", fontWeight: 900, fontSize: "0.82rem" }}>
+                  <span style={{ color: "#14532d" }}>সর্বশেষ মোট জমা</span>
+                  <span style={{ color: "#14532d" }}>৳{processedTransactions[0]?.runningTotal.toLocaleString("en-IN") ?? "০"}</span>
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
       </div>
 
+
       <style dangerouslySetInnerHTML={{__html: `
+        /* Mobile: flat card, no shadow/radius, compact rows */
+        .tx-cards-mobile { display: none; }
+        @media (max-width: 640px) {
+          .finance-statement-container {
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            border-left: none !important;
+            border-right: none !important;
+            padding: 1rem 0.65rem !important;
+            margin-left: -0.5rem !important;
+            margin-right: -0.5rem !important;
+          }
+          .tx-table-desktop { display: none !important; }
+          .tx-cards-mobile { display: block !important; }
+        }
+        /* Print */
         @media print {
-          .no-print {
-            display: none !important;
-          }
-          .only-print {
-            display: block !important;
-          }
+          .no-print { display: none !important; }
+          .only-print { display: block !important; }
           body, html, main, .layout-container, .main-content, .card-wrapper {
             background: #ffffff !important;
             padding: 0 !important;
@@ -357,10 +370,9 @@ export default function UnifiedFinanceView({ user, pendingInvoices, transactions
             padding: 0 !important;
             margin: 0 !important;
           }
-          .statement-print-table {
-            border: 1px solid #000 !important;
-            width: 100% !important;
-          }
+          .tx-cards-mobile { display: none !important; }
+          .tx-table-desktop { display: block !important; }
+          .statement-print-table { border: 1px solid #000 !important; width: 100% !important; }
           .statement-print-table th, .statement-print-table td {
             border: 1px solid #64748b !important;
             padding: 6px 10px !important;
