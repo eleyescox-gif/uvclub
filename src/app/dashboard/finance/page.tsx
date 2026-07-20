@@ -17,7 +17,7 @@ export default async function MemberFinancePage() {
   const [user, pendingInvoices, transactions, settings] = await Promise.all([
     prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, name: true, nameBn: true, mobile: true, role: true }
+      select: { id: true, name: true, nameBn: true, mobile: true, role: true, activeStatus: true }
     }).catch(() => null),
     prisma.invoice.findMany({
       where: { userId, status: "PENDING" },

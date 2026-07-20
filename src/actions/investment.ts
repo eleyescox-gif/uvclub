@@ -100,7 +100,8 @@ export async function distributeProfit(formData: FormData) {
 
   const projectId = formData.get("projectId") as string;
   const amount = parseFloat(formData.get("amount") as string);
-  const type = formData.get("type") as "PROFIT" | "LOSS"; // Form passes PROFIT or LOSS
+  const type = formData.get("type") as "PROFIT" | "LOSS";
+  const note = (formData.get("note") as string) || "";
   
   if (!projectId || !amount || !type) {
     return { error: "Missing required fields" };
@@ -108,34 +109,32 @@ export async function distributeProfit(formData: FormData) {
 
   try {
     const result = await prisma.$transaction(async (tx) => {
-      // Get total club balance
+      // Get all active members
       const allMembers = await tx.user.findMany({
-        where: { activeStatus: true, balance: { gt: 0 } },
+        where: { activeStatus: true, isDeleted: false },
         select: { id: true, balance: true }
       });
 
-      const totalClubBalance = allMembers.reduce((sum, m) => sum + m.balance, 0);
+      const totalActiveCount = allMembers.length;
 
-      if (totalClubBalance === 0) {
-        throw new Error("Total club balance is 0, cannot distribute proportionally.");
+      if (totalActiveCount === 0) {
+        throw new Error("No active members found for distribution.");
       }
 
       const transactionType = type === "PROFIT" ? "PROFIT_POSTING" : "LOSS_POSTING";
+      const perMemberShare = Math.round((amount / totalActiveCount) * 100) / 100;
 
-      // Distribute proportionally
+      // Distribute equally to all active members
       for (const member of allMembers) {
-        const userShareRatio = member.balance / totalClubBalance;
-        const userShareAmount = parseFloat((amount * userShareRatio).toFixed(2));
-
-        if (userShareAmount > 0) {
+        if (perMemberShare > 0) {
           // Add transaction
           await tx.transaction.create({
             data: {
               userId: member.id,
               type: transactionType,
-              amount: userShareAmount,
+              amount: perMemberShare,
               status: "APPROVED",
-              approvedBy: (session.user as any).id,
+              approvedBy: (session.user as any).id
             }
           });
 
@@ -143,13 +142,12 @@ export async function distributeProfit(formData: FormData) {
           if (type === "PROFIT") {
             await tx.user.update({
               where: { id: member.id },
-              data: { balance: { increment: userShareAmount } }
+              data: { balance: { increment: perMemberShare } }
             });
           } else {
-            // LOSS
             await tx.user.update({
               where: { id: member.id },
-              data: { balance: { decrement: userShareAmount } }
+              data: { balance: { decrement: perMemberShare } }
             });
           }
         }

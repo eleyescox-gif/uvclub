@@ -275,14 +275,14 @@ export function CreateProjectForm() {
   );
 }
 
-export function ProfitDistributionForm({ projects }: { projects: any[] }) {
+export function ProfitDistributionForm({ projects = [] }: { projects: any[] }) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error", text: string } | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
-    if(!window.confirm("আপনি কি নিশ্চিত? এই ট্রানজেকশন সবার ব্যালেন্সে যুক্ত হবে।")) return;
+    if(!window.confirm("আপনি কি নিশ্চিত? এই ট্রানজেকশন সবার ব্যালেন্সে সমহারে যুক্ত/কর্তন হবে।")) return;
 
     setLoading(true);
     setMessage(null);
@@ -304,31 +304,43 @@ export function ProfitDistributionForm({ projects }: { projects: any[] }) {
     <div className={`glass ${styles.card}`}>
       <h2 className={styles.cardTitle}>লাভ/লোকসান বন্টন করুন (Proportional)</h2>
       <p style={{fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem'}}>
-        এখানে ইনপুট দেওয়া টাকা সদস্যদের বর্তমান ব্যালেন্সের অনুপাতে (যাদের ব্যালেন্স বেশি তারা বেশি পাবে) অটোমেটিকভাবে বন্টন হয়ে যাবে।
+        ইনপুট দেওয়া টাকা সক্রিয় সদস্যদের ব্যালেন্সের অনুপাতে অটোমেটিকভাবে বন্টন বা কর্তন হবে।
       </p>
 
       <form onSubmit={handleSubmit}>
         <div className={styles.formGroup}>
-          <label className={styles.label}>প্রজেক্ট নির্বাচন করুন</label>
-          <select name="projectId" className={styles.select} required>
-            <option value="">-- প্রজেক্ট নির্বাচন করুন --</option>
-            {projects.map(p => (
-              <option key={p.id} value={p.id}>{p.title}</option>
-            ))}
+          <label className={styles.label}>প্রজেক্ট বা খাত নির্বাচন করুন</label>
+          <select name="projectId" className={styles.select} required defaultValue="BANK_INTEREST">
+            <option value="BANK_INTEREST">🏦 ব্যাংক লাভ / মুনাফা (Bank Interest)</option>
+            <option value="BANK_CHARGE">💳 ব্যাংক কর্তন / সার্ভিস চার্জ (Bank Charge)</option>
+            <option value="OTHER_INCOME">💰 অন্যান্য বিশেষ আয় (Other Income)</option>
+            <option value="OTHER_EXPENSE">🧾 অন্যান্য ক্লাব ব্যয় (Other Expense)</option>
+            {projects && projects.length > 0 && (
+              <optgroup label="📁 প্রজেক্টসমূহ">
+                {projects.map(p => (
+                  <option key={p.id} value={p.id}>📂 প্রজেক্ট: {p.title}</option>
+                ))}
+              </optgroup>
+            )}
           </select>
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>ধরন</label>
+          <label className={styles.label}>বন্টনের ধরন</label>
           <select name="type" className={styles.select} required>
-            <option value="PROFIT">লভ্যাংশ (Profit)</option>
-            <option value="LOSS">লোকসান (Loss)</option>
+            <option value="PROFIT">📈 লভ্যাংশ / জমা (Profit)</option>
+            <option value="LOSS">📉 লোকসান / কর্তন (Loss)</option>
           </select>
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>মোট টাকার পরিমাণ</label>
-          <input type="number" name="amount" className={styles.input} required min="1" />
+          <label className={styles.label}>মোট টাকার পরিমাণ (৳)</label>
+          <input type="number" name="amount" className={styles.input} required min="1" placeholder="যেমন: 5000" />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label className={styles.label}>খাত / নোট লিখুন (ঐচ্ছিক)</label>
+          <input type="text" name="note" className={styles.input} placeholder="যেমন: মে ২০২৬ ব্যাংক লাভ্যাংশ" />
         </div>
 
         <button type="submit" disabled={loading} className={`btn btn-warning ${styles.submitBtn}`}>

@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import OnlinePaymentCard from "./OnlinePaymentCard";
+import MonthlyProfitLossSummary from "@/components/dashboard/MonthlyProfitLossSummary";
 
 interface Invoice {
   id: string;
@@ -31,7 +32,7 @@ interface Transaction {
 }
 
 interface UnifiedFinanceViewProps {
-  user: { name: string; nameBn?: string | null; mobile: string; role: string };
+  user: { name: string; nameBn?: string | null; mobile: string; role: string; activeStatus?: boolean };
   pendingInvoices: Invoice[];
   transactions: Transaction[];
   gatewayActive: boolean;
@@ -252,6 +253,14 @@ export default function UnifiedFinanceView({ user, pendingInvoices, transactions
             </div>
           </div>
         )}
+
+        {/* 3. Monthly Profit/Loss Summary Card (Formula Based) */}
+        <div className="no-print">
+          <MonthlyProfitLossSummary 
+            user={{ role: user.role, activeStatus: user.activeStatus ?? true }} 
+            transactions={transactions} 
+          />
+        </div>
 
         {/* 3. Single Unified Statement Table */}
         <div style={{ overflowX: "auto" }}>
