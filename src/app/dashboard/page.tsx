@@ -133,11 +133,20 @@ export default async function DashboardPage() {
   };
 
   let clubBalance = 0;
+  let totalIncome = 0;
+  let totalExpense = 0;
+
   approvedTxs.forEach(t => {
-    if (t.type === 'DEPOSIT' || t.type === 'PROFIT_POSTING') clubBalance += t.amount;
-    if (t.type === 'WITHDRAWAL' || t.type === 'LOSS_POSTING') clubBalance -= t.amount;
+    if (t.type === 'DEPOSIT' || t.type === 'PROFIT_POSTING') {
+      clubBalance += t.amount;
+      totalIncome += t.amount;
+    } else if (t.type === 'WITHDRAWAL' || t.type === 'LOSS_POSTING' || t.type === 'PENALTY') {
+      clubBalance -= t.amount;
+      totalExpense += t.amount;
+    }
   });
 
+  const netSurplus = totalIncome - totalExpense;
   const personalBalance = user?.balance || 0;
 
   return (
@@ -223,6 +232,146 @@ export default async function DashboardPage() {
             </div>
           </div>
         </Link>
+      </div>
+
+      {/* Profit & Loss (লাভ ও লোকসান) Financial Palette Card */}
+      <div style={{
+        backgroundColor: '#ffffff',
+        borderRadius: '1.25rem',
+        border: '1px solid var(--border)',
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)',
+        padding: '1.25rem 1.5rem',
+        marginBottom: '1.5rem',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+            <div style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '10px',
+              backgroundColor: 'rgba(16, 185, 129, 0.12)',
+              color: 'var(--primary)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}>
+              <Landmark size={20} />
+            </div>
+            <div>
+              <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#0f172a' }}>
+                প্রতিষ্ঠানের আয়-ব্যয় ও নিট লভ্যাংশ স্টেটমেন্ট (P&L Palette)
+              </h3>
+              <p style={{ margin: '2px 0 0', fontSize: '0.78rem', color: '#64748b' }}>
+                ইউনাইটেড ভিশন ক্লাবের সর্বমোট আয়, পরিচালন ব্যয় ও সঞ্চিত নিট তহবিলের আর্থিক সারাংশ
+              </p>
+            </div>
+          </div>
+
+          <Link href="/dashboard/admin/reports" style={{
+            fontSize: '0.78rem',
+            fontWeight: 700,
+            color: 'var(--primary)',
+            textDecoration: 'none',
+            backgroundColor: 'var(--primary-light)',
+            padding: '0.4rem 0.85rem',
+            borderRadius: '0.5rem',
+            transition: 'all 0.2s'
+          }}>
+            বিস্তারিত রিপোর্ট &rarr;
+          </Link>
+        </div>
+
+        {/* 3-Color Palette Grid */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: '1rem',
+          marginTop: '0.25rem'
+        }}>
+          {/* 1. Total Income Palette Block */}
+          <div style={{
+            background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)',
+            border: '1px solid #86efac',
+            borderRadius: '1rem',
+            padding: '1rem 1.15rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.35rem'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#065f46', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                🟢 মোট অর্জিত আয়
+              </span>
+              <span style={{ fontSize: '0.68rem', backgroundColor: '#ffffff', color: '#047857', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
+                Gross Income
+              </span>
+            </div>
+            <h3 style={{ margin: 0, fontSize: '1.45rem', fontWeight: 900, color: '#047857' }}>
+              <AnimatedCounter value={totalIncome} prefix="৳ " />
+            </h3>
+            <span style={{ fontSize: '0.72rem', color: '#065f46', fontWeight: 600 }}>
+              চাঁদা ও সফল এন্ট্রি থেকে সংগৃহীত
+            </span>
+          </div>
+
+          {/* 2. Total Expense Palette Block */}
+          <div style={{
+            background: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)',
+            border: '1px solid #fca5a5',
+            borderRadius: '1rem',
+            padding: '1rem 1.15rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.35rem'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#991b1b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                🔴 মোট পরিচালনা ও ব্যাংক ব্যয়
+              </span>
+              <span style={{ fontSize: '0.68rem', backgroundColor: '#ffffff', color: '#b91c1c', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
+                Total Expenses
+              </span>
+            </div>
+            <h3 style={{ margin: 0, fontSize: '1.45rem', fontWeight: 900, color: '#b91c1c' }}>
+              <AnimatedCounter value={totalExpense} prefix="৳ " />
+            </h3>
+            <span style={{ fontSize: '0.72rem', color: '#991b1b', fontWeight: 600 }}>
+              সার্ভার, অফিস ও ব্যাংক চার্জ সমূহের যোগফল
+            </span>
+          </div>
+
+          {/* 3. Net Surplus / Profit Palette Block */}
+          <div style={{
+            background: netSurplus >= 0
+              ? 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)'
+              : 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)',
+            border: `1px solid ${netSurplus >= 0 ? '#93c5fd' : '#fed7aa'}`,
+            borderRadius: '1rem',
+            padding: '1rem 1.15rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.35rem'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.75rem', fontWeight: 800, color: netSurplus >= 0 ? '#1e40af' : '#c2410c', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                💙 নিট তহবিল লভ্যাংশ / সঞ্চয়
+              </span>
+              <span style={{ fontSize: '0.68rem', backgroundColor: '#ffffff', color: netSurplus >= 0 ? '#1d4ed8' : '#ea580c', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
+                Net Surplus
+              </span>
+            </div>
+            <h3 style={{ margin: 0, fontSize: '1.45rem', fontWeight: 900, color: netSurplus >= 0 ? '#1d4ed8' : '#c2410c' }}>
+              <AnimatedCounter value={netSurplus} prefix="৳ " />
+            </h3>
+            <span style={{ fontSize: '0.72rem', color: netSurplus >= 0 ? '#1e40af' : '#c2410c', fontWeight: 600 }}>
+              {netSurplus >= 0 ? 'ক্লাবের নিট সংরক্ষিত লভ্যাংশ তহবিলে রয়েছে' : 'ঘাটতি সঞ্চয় তহবিল'}
+            </span>
+          </div>
+        </div>
       </div>
 
       <div className={styles.mainGrid}>
