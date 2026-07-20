@@ -124,7 +124,7 @@ export default async function ReportsPage({
   
   // 6. Single Member Ledger (Detailed statement over custom date range)
   else if (type === "single-member-ledger") {
-    reportTitle = "সদস্যের একক লেনদেন বিবরণী (Ledger Statement)";
+    reportTitle = "একক সদস্যের লেনদেন বিবরণী";
     
     if (userId) {
       ledgerUser = await prisma.user.findUnique({
@@ -453,7 +453,7 @@ export default async function ReportsPage({
               <tr style={{ backgroundColor: '#f8fafc' }}>
                 <th style={{ border: '1px solid #cbd5e1', padding: '0.75rem 0.5rem', textAlign: 'center', width: '8%' }}>ক্রমিক</th>
                 <th style={{ border: '1px solid #cbd5e1', padding: '0.75rem 0.5rem', textAlign: 'left', width: '28%' }}>সদস্যের নাম</th>
-                <th style={{ border: '1px solid #cbd5e1', padding: '0.75rem 0.5rem', textAlign: 'right', width: '16%' }}>মোট জমা (Deposit)</th>
+                <th style={{ border: '1px solid #cbd5e1', padding: '0.75rem 0.5rem', textAlign: 'right', width: '16%' }}>মোট জমা</th>
                 <th style={{ border: '1px solid #cbd5e1', padding: '0.75rem 0.5rem', textAlign: 'right', width: '16%' }}>মোট উত্তোলন</th>
                 <th style={{ border: '1px solid #cbd5e1', padding: '0.75rem 0.5rem', textAlign: 'right', width: '16%' }}>লাভ/ক্ষতি পোস্টিং</th>
                 <th style={{ border: '1px solid #cbd5e1', padding: '0.75rem 0.5rem', textAlign: 'right', width: '16%' }}>বর্তমান ব্যালেন্স</th>
@@ -495,10 +495,10 @@ export default async function ReportsPage({
                   <thead>
                     <tr style={{ backgroundColor: '#f8fafc' }}>
                       <th style={{ border: '1px solid #cbd5e1', padding: '0.75rem 0.5rem', textAlign: 'center', width: '12%' }}>তারিখ</th>
-                      <th style={{ border: '1px solid #cbd5e1', padding: '0.75rem 0.5rem', textAlign: 'left', width: '38%' }}>বিবরণ (Particulars)</th>
+                      <th style={{ border: '1px solid #cbd5e1', padding: '0.75rem 0.5rem', textAlign: 'left', width: '38%' }}>বিবরণ</th>
                       <th style={{ border: '1px solid #cbd5e1', padding: '0.75rem 0.5rem', textAlign: 'right', width: '16%' }}>জমা (+)</th>
                       <th style={{ border: '1px solid #cbd5e1', padding: '0.75rem 0.5rem', textAlign: 'right', width: '16%' }}>উত্তোলন/খরচ (-)</th>
-                      <th style={{ border: '1px solid #cbd5e1', padding: '0.75rem 0.5rem', textAlign: 'right', width: '18%' }}>জের (Balance)</th>
+                      <th style={{ border: '1px solid #cbd5e1', padding: '0.75rem 0.5rem', textAlign: 'right', width: '18%' }}>জের (ব্যালেন্স)</th>
                     </tr>
                   </thead>
                   <tbody>
