@@ -24,6 +24,13 @@ export default async function AdminFinancePage() {
 
   const members = await getAllMembersForSelect();
 
+  // Fetch active projects for profit distribution dropdown
+  const activeProjects = await prisma.project.findMany({
+    where: { status: { in: ['ACTIVE', 'PROPOSED'] } },
+    select: { id: true, title: true, status: true },
+    orderBy: { createdAt: 'desc' }
+  });
+
   // Fetch recent transactions
   const recentTransactions = await prisma.transaction.findMany({
     take: 10,
@@ -56,7 +63,7 @@ export default async function AdminFinancePage() {
         {/* Left Column: Post Payment & Profit Distribution Forms */}
         <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
           <PostPaymentForm members={members} />
-          <ProfitDistributionForm />
+          <ProfitDistributionForm activeProjects={activeProjects} />
         </div>
 
         {/* Right Column */}
