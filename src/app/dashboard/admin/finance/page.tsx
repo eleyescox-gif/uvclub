@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { getAllMembersForSelect } from "@/actions/finance";
 import styles from "./finance-admin.module.css";
 import PostPaymentForm from "./PostPaymentForm";
+import ProfitDistributionForm from "./ProfitDistributionForm";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
 import { FileText } from "lucide-react";
@@ -17,7 +18,7 @@ export default async function AdminFinancePage() {
   }
 
   const role = (session.user as any).role;
-  if (role !== "ADMIN" && role !== "CASHIER") {
+  if (role !== "ADMIN" && role !== "CASHIER" && role !== "PRESIDENT" && role !== "SECRETARY") {
     redirect("/dashboard");
   }
 
@@ -48,12 +49,15 @@ export default async function AdminFinancePage() {
     <div className={styles.container}>
       <header className={styles.header}>
         <h1 className={styles.title}>অ্যাডমিন ফাইন্যান্স প্যানেল</h1>
-        <p className={styles.subtitle}>সদস্যদের চাঁদা পোস্টিং এবং রিপোর্ট</p>
+        <p className={styles.subtitle}>সদস্যদের চাঁদা পোস্টিং, প্রফিট ডিস্ট্রিবিউশন ও রিপোর্ট</p>
       </header>
 
       <div className={styles.grid}>
-        {/* Post Payment Form */}
-        <PostPaymentForm members={members} />
+        {/* Left Column: Post Payment & Profit Distribution Forms */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+          <PostPaymentForm members={members} />
+          <ProfitDistributionForm />
+        </div>
 
         {/* Right Column */}
         <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
