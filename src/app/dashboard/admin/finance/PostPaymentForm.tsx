@@ -27,7 +27,7 @@ export default function PostPaymentForm({ members }: { members: any[] }) {
     if (memberId) {
       const member = members.find(m => m.id === memberId);
       setSelectedMobile(member?.mobile || "");
-      setSelectedName(member?.name || "");
+      setSelectedName(member?.nameBn || member?.name || "");
     } else {
       setSelectedMobile("");
       setSelectedName("");
@@ -112,7 +112,7 @@ ${receiptLink}
           <select name="userId" className={styles.select} required onChange={handleMemberChange}>
             <option value="">-- সদস্য নির্বাচন করুন --</option>
             {members.map(m => (
-              <option key={m.id} value={m.id}>{m.name} ({m.mobile})</option>
+              <option key={m.id} value={m.id}>{m.nameBn || m.name}</option>
             ))}
           </select>
         </div>
