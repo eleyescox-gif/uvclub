@@ -49,7 +49,7 @@ export default function MemberAdmissionForm({ memberData }: MemberAdmissionFormP
     <div className="print-container" style={{ 
       maxWidth: '210mm', // A4 width for screen
       minHeight: '297mm', // A4 height for screen
-      padding: '20mm 15mm',
+      padding: '0.5in',
       margin: '0 auto',
       backgroundColor: 'white',
       color: 'black',
@@ -240,16 +240,17 @@ export default function MemberAdmissionForm({ memberData }: MemberAdmissionFormP
             left: 0;
             top: 0;
             margin: 0 !important;
-            /* Do not remove padding so the content doesn't hit the paper edge */
+            padding: 0.5in !important;
             box-shadow: none !important;
             border: none !important;
             width: 100% !important;
             max-width: none !important;
             background: white !important;
+            box-sizing: border-box !important;
           }
           @page {
-            size: A4;
-            margin: 0; /* Let container padding act as margins */
+            size: A4 portrait;
+            margin: 0.5in;
           }
         }
       `}} />
