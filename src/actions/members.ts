@@ -44,7 +44,10 @@ export async function addMember(formData: FormData) {
 
   let dob = undefined;
   if (dobStr) {
-    dob = new Date(dobStr);
+    const parsedDate = new Date(dobStr);
+    if (!isNaN(parsedDate.getTime())) {
+      dob = parsedDate;
+    }
   }
 
   try {
@@ -307,7 +310,10 @@ export async function updateMember(userId: string, formData: FormData) {
 
   let dob = undefined;
   if (dobStr) {
-    dob = new Date(dobStr);
+    const parsedDate = new Date(dobStr);
+    if (!isNaN(parsedDate.getTime())) {
+      dob = parsedDate;
+    }
   }
 
   try {

@@ -158,7 +158,7 @@ export default function EditMemberForm({ user, currentUserRole }: { user: any, c
               <label htmlFor="activeStatusCheckbox" style={{ fontWeight: 600, color: '#15803d', cursor: 'pointer' }}>সদস্যপদ সক্রিয় (Active)?</label>
             </div>
             
-            {(currentUserRole === "ADMIN" || currentUserRole === "PRESIDENT") && (
+            {(currentUserRole === "ADMIN" || currentUserRole === "PRESIDENT" || currentUserRole === "CONTROLLER") && (
               <div className={styles.formGroup}>
                 <label className={styles.label} style={{ color: '#166534' }}>সদস্যের রোল (Role)</label>
                 <select name="role" defaultValue={user.role} className={styles.input} style={{ borderColor: '#86efac' }}>
