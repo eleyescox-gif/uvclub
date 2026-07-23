@@ -90,6 +90,9 @@ export default async function ManageMembersPage() {
           <p style={{ color: '#6b7280', fontSize: '0.875rem', margin: '2px 0 0' }}>সদস্যদের হিসাব স্থগিত, পদত্যাগ অনুমোদন ও পাসওয়ার্ড ম্যানেজমেন্ট</p>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', marginLeft: 'auto', flexWrap: 'wrap', alignItems: 'center' }}>
+          <Link href="/dashboard/admin/committee" style={{ color: '#7c3aed', display: 'flex', alignItems: 'center', gap: '0.35rem', textDecoration: 'none', fontWeight: 700, fontSize: '0.85rem', padding: '0.35rem 0.65rem', borderRadius: '0.5rem', backgroundColor: 'rgba(124, 58, 237, 0.1)', border: '1px solid rgba(124, 58, 237, 0.25)' }}>
+            ☑️ পদবী ও রোল নির্বাচন (Assign Roles)
+          </Link>
           <Link href="/dashboard/admin/members/print-form" target="_blank" style={{ color: '#059669', display: 'flex', alignItems: 'center', gap: '0.25rem', textDecoration: 'none', fontWeight: 600, fontSize: '0.85rem', padding: '0.35rem 0.65rem', borderRadius: '0.5rem', backgroundColor: 'rgba(5, 150, 105, 0.1)', border: '1px solid rgba(5, 150, 105, 0.25)' }}>
             <Printer size={15} /> ফাঁকা ফরম প্রিন্ট
           </Link>

@@ -22,6 +22,7 @@ import { signOut } from "next-auth/react";
 import styles from "./sidebar.module.css";
 
 const roleTitles: Record<string, string> = {
+  CONTROLLER: "কন্ট্রোলার",
   PRESIDENT: "সভাপতি",
   SECRETARY: "সাধারণ সম্পাদক",
   CASHIER: "ক্যাশিয়ার",
@@ -74,35 +75,35 @@ export default function Sidebar({ role, user, totalMembersCount }: SidebarProps)
   ];
 
   const adminItems = [];
-  if (role === "ADMIN" || role === "PRESIDENT") {
+  if (role === "ADMIN" || role === "PRESIDENT" || role === "CONTROLLER") {
     adminItems.push({ name: "Member Requests", href: "/dashboard/admin/members/pending", icon: <UserPlus size={18} />, color: "#ea580c", bg: "rgba(234, 88, 12, 0.12)" });
   }
   
-  if (role === "ADMIN" || role === "SECRETARY" || role === "PRESIDENT") {
+  if (role === "ADMIN" || role === "SECRETARY" || role === "PRESIDENT" || role === "CONTROLLER") {
     adminItems.push({ name: "Member Manage", href: "/dashboard/admin/members/manage", icon: <Users size={18} />, color: "#2563eb", bg: "rgba(37, 99, 235, 0.12)" });
   }
   
-  if (role === "ADMIN" || role === "PRESIDENT") {
+  if (role === "ADMIN" || role === "PRESIDENT" || role === "CONTROLLER") {
     adminItems.push({ name: "Committee Manage", href: "/dashboard/admin/committee", icon: <ShieldCheck size={18} />, color: "#7c3aed", bg: "rgba(124, 58, 237, 0.12)" });
   }
 
-  if (role === "ADMIN" || role === "SECRETARY" || role === "PRESIDENT") {
+  if (role === "ADMIN" || role === "SECRETARY" || role === "PRESIDENT" || role === "CONTROLLER") {
     adminItems.push({ name: "Member Entry", href: "/dashboard/admin/members/add", icon: <UserPlus size={18} />, color: "#059669", bg: "rgba(5, 150, 105, 0.12)" });
   }
   
-  if (role === "ADMIN" || role === "CASHIER") {
+  if (role === "ADMIN" || role === "CASHIER" || role === "CONTROLLER") {
     adminItems.push({ name: "Admin Finance", href: "/dashboard/admin/finance", icon: <Wallet size={18} />, color: "#d97706", bg: "rgba(217, 119, 6, 0.12)" });
   }
   
-  if (role === "ADMIN" || role === "PRESIDENT" || role === "SECRETARY") {
+  if (role === "ADMIN" || role === "PRESIDENT" || role === "SECRETARY" || role === "CONTROLLER") {
     adminItems.push({ name: "Admin Projects", href: "/dashboard/admin/projects", icon: <Briefcase size={18} />, color: "#0891b2", bg: "rgba(8, 145, 178, 0.12)" });
   }
   
-  if (role === "ADMIN" || role === "PRESIDENT" || role === "SECRETARY" || role === "CASHIER") {
+  if (role === "ADMIN" || role === "PRESIDENT" || role === "SECRETARY" || role === "CASHIER" || role === "CONTROLLER") {
     adminItems.push({ name: "Reports", href: "/dashboard/admin/reports", icon: <FileText size={18} />, color: "#e11d48", bg: "rgba(225, 29, 72, 0.12)" });
   }
 
-  if (role === "SECRETARY" || role === "ADMIN") {
+  if (role === "SECRETARY" || role === "ADMIN" || role === "CONTROLLER") {
     adminItems.push({ name: "Data Clear Requests", href: "/dashboard/admin/data-clear", icon: <ShieldCheck size={18} />, color: "#dc2626", bg: "rgba(220, 38, 38, 0.12)" });
   }
 

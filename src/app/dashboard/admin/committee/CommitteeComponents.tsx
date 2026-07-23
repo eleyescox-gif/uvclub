@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { assignToCommittee, removeFromCommittee } from "@/actions/committee";
-import { UserCheck, Trash2, Shield } from "lucide-react";
+import { UserCheck, Trash2, Shield, AlertTriangle, CheckSquare, Settings2, Sparkles, Printer } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface Member {
   id: string;
@@ -11,39 +12,205 @@ interface Member {
   mobile: string;
 }
 
-export function CommitteeSelectForm({ members }: { members: Member[] }) {
+export function InterimModeToggle({ initialMode }: { initialMode: boolean }) {
+  const [isInterim, setIsInterim] = useState(initialMode);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleToggle = async () => {
+    const newStatus = !isInterim;
+    const confirmMsg = newStatus
+      ? "আপনি কি নিশ্চিত যে আপনি 'অন্তরবর্তীকালীন মোড (No-Committee Mode)' সক্রিয় করতে চান?\nসক্রিয় করলে কার্যনির্বাহী কমিটি সাময়িকভাবে স্থগিত থাকবে এবং নিয়ন্ত্রক সদস্যের পদবী হবে 'কন্ট্রোলার (Controller)'।"
+      : "আপনি কি অন্তরবর্তীকালীন মোড বন্ধ করে নিয়মিত কমিটি মোড পুনঃসক্রিয় করতে চান?";
+
+    if (!window.confirm(confirmMsg)) return;
+
     setLoading(true);
-    setError(null);
-
-    const formData = new FormData(e.currentTarget);
-    const result = await assignToCommittee(formData);
-
-    if (result.error) {
-      setError(result.error);
-    } else {
-      alert("সদস্যকে সফলভাবে পরিচালনা কমিটিতে যুক্ত করা হয়েছে।");
-      (e.target as HTMLFormElement).reset();
+    try {
+      const res = await fetch("/api/admin/settings/toggle-interim-mode", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ noCommitteeMode: newStatus }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setIsInterim(data.noCommitteeMode);
+        alert(data.noCommitteeMode ? "অন্তরবর্তীকালীন মোড সফলভাবে সক্রিয় করা হয়েছে।" : "নিয়মিত কমিটি মোড সফলভাবে পুনঃসক্রিয় করা হয়েছে।");
+        router.refresh();
+      } else {
+        alert(data.error || "মোড পরিবর্তন করতে ব্যর্থ");
+      }
+    } catch (e: any) {
+      alert("ত্রুটি: " + e.message);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
-    <div className="glass" style={{ padding: '1.75rem', borderRadius: '1rem', border: '1px solid var(--border)' }}>
-      <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-        <UserCheck size={20} /> কমিটিতে সদস্য নির্বাচন (Select Member)
+    <div style={{
+      backgroundColor: isInterim ? "#fff7ed" : "#ffffff",
+      border: `1.5px solid ${isInterim ? "#fed7aa" : "#e2e8f0"}`,
+      borderRadius: "12px",
+      padding: "1.25rem",
+      marginBottom: "1.5rem",
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.75rem",
+    }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.75rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.65rem" }}>
+          <div style={{
+            width: "36px",
+            height: "36px",
+            borderRadius: "8px",
+            backgroundColor: isInterim ? "#ffedd5" : "#ecfdf5",
+            color: isInterim ? "#c2410c" : "#059669",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0
+          }}>
+            <Settings2 size={20} />
+          </div>
+          <div>
+            <h3 style={{ margin: 0, fontSize: "1rem", fontWeight: 700, color: "#0f172a" }}>
+              অন্তরবর্তীকালীন মোড (Interim No-Committee Mode)
+            </h3>
+            <p style={{ margin: "2px 0 0", fontSize: "0.75rem", color: "#64748b" }}>
+              কমিটি না থাকলে বা সাময়িক দায়িত্বে অর্পণের ক্ষেত্রে 'কন্ট্রোলার (Controller)' হিসেবে ক্লাব পরিচালনা করতে ব্যবহার করুন।
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={handleToggle}
+          disabled={loading}
+          style={{
+            padding: "0.5rem 1.15rem",
+            borderRadius: "8px",
+            border: `1px solid ${isInterim ? "#ea580c" : "#059669"}`,
+            backgroundColor: isInterim ? "#ea580c" : "#059669",
+            color: "#ffffff",
+            fontSize: "0.8125rem",
+            fontWeight: 700,
+            cursor: "pointer",
+            transition: "all 0.15s ease",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.4rem"
+          }}
+        >
+          <Sparkles size={16} />
+          {loading ? "আপডেট হচ্ছে..." : isInterim ? "অন্তরবর্তীকালীন মোড বন্ধ করুন" : "অন্তরবর্তীকালীন মোড সক্রিয় করুন"}
+        </button>
+      </div>
+
+      {isInterim && (
+        <div style={{
+          backgroundColor: "#ffffff",
+          border: "1px solid #fdba74",
+          borderRadius: "8px",
+          padding: "0.75rem 1rem",
+          fontSize: "0.8125rem",
+          color: "#9a3412",
+          fontWeight: 600,
+          display: "flex",
+          alignItems: "center",
+          gap: "0.5rem"
+        }}>
+          <AlertTriangle size={18} color="#c2410c" />
+          <span>
+            <strong>সতর্কতা:</strong> বর্তমানে <strong>অন্তরবর্তীকালীন মোড (Interim Controller Mode)</strong> সক্রিয় রয়েছে। পরিচালনা পদে নিযুক্ত সদস্যের পদবী <strong>'কন্ট্রোলার (Controller)'</strong> হিসেবে সিস্টেমে গণ্য হবে।
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function CheckboxRoleAssignForm({ members }: { members: Member[] }) {
+  const [selectedUser, setSelectedUser] = useState("");
+  const [selectedRole, setSelectedRole] = useState("CONTROLLER");
+  const [customDesignation, setCustomDesignation] = useState("কন্ট্রোলার (অন্তরবর্তীকালীন)");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  const roleOptions = [
+    { key: "CONTROLLER", label: "কন্ট্রোলার (অন্তরবর্তীকালীন মোড)", desc: "কমিটি না থাকলে অন্তরবর্তীকালে ক্লাব নিয়ন্ত্রকের দায়িত্ব", color: "#c2410c", defaultDesig: "কন্ট্রোলার" },
+    { key: "PRESIDENT", label: "সভাপতি (President)", desc: "সভাপতি পদে ফুল অ্যাডমিন ও অনুমোদন ক্ষমতা", color: "#059669", defaultDesig: "সভাপতি" },
+    { key: "SECRETARY", label: "সাধারণ সম্পাদক (Secretary)", desc: "সাধারণ সম্পাদক পদে নোটিশ, মেম্বার ও রিপোর্ট পাওয়ার", color: "#2563eb", defaultDesig: "সাধারণ সম্পাদক" },
+    { key: "CASHIER", label: "ক্যাশিয়ার (Cashier)", desc: "অর্থ জমা, চাঁদা এন্ট্রি ও ক্যাশ বুক অনুমোদন", color: "#d97706", defaultDesig: "ক্যাশিয়ার" },
+    { key: "ADMIN", label: "অ্যাডমিন (System Admin)", desc: "সম্পূর্ণ কারিগরি ও সিস্টেম কন্ট্রোল", color: "#7c3aed", defaultDesig: "অ্যাডমিন" },
+    { key: "MEMBER", label: "সাধারণ সদস্য (General Member)", desc: "সাধারণ মেম্বার সুবিধা", color: "#64748b", defaultDesig: "সদস্য" },
+  ];
+
+  const handleRoleSelect = (roleKey: string, defaultDesig: string) => {
+    setSelectedRole(roleKey);
+    setCustomDesignation(defaultDesig);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedUser) {
+      setError("দয়া করে একজন সদস্য নির্বাচন করুন।");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/admin/members/update-role", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: selectedUser,
+          role: selectedRole,
+          committeeDesignation: customDesignation
+        })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        alert("সদস্যের রোল ও পারমিশন টিকমার্ক অনুযায়ী সফলভাবে আপডেট করা হয়েছে!");
+        setSelectedUser("");
+        router.refresh();
+      } else {
+        setError(data.error || "রোল পরিবর্তন ব্যর্থ হয়েছে");
+      }
+    } catch (err: any) {
+      setError("ত্রুটি: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{
+      backgroundColor: "#ffffff",
+      border: "1px solid #e2e8f0",
+      borderRadius: "12px",
+      padding: "1.25rem",
+    }}>
+      <h2 style={{ fontSize: "1.05rem", fontWeight: 700, color: "#0f172a", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        <CheckSquare size={18} color="#059669" /> সদস্য পদবী ও রোল নির্বাচন (Role Checkbox Assign)
       </h2>
 
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        {/* Select Member */}
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+        {/* 1. Member Selector */}
         <div>
-          <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.4rem', color: '#4b5563' }}>সদস্য নির্বাচন করুন</label>
-          <select name="userId" required style={{ width: '100%', padding: '0.6rem 0.8rem', borderRadius: '0.5rem', border: '1px solid var(--border)', fontSize: '0.85rem' }}>
-            <option value="">-- সদস্য নির্বাচন করুন --</option>
+          <label style={{ display: "block", fontSize: "0.8125rem", fontWeight: 700, marginBottom: "0.4rem", color: "#475569" }}>
+            ১. সদস্য সিলেক্ট করুন
+          </label>
+          <select 
+            value={selectedUser} 
+            onChange={(e) => setSelectedUser(e.target.value)}
+            required 
+            style={{ width: "100%", padding: "0.6rem 0.8rem", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "0.875rem", backgroundColor: "#ffffff" }}
+          >
+            <option value="">-- সদস্য সিলেক্ট করুন --</option>
             {members.map(m => (
               <option key={m.id} value={m.id}>
                 {m.nameBn || m.name} ({m.mobile})
@@ -52,38 +219,87 @@ export function CommitteeSelectForm({ members }: { members: Member[] }) {
           </select>
         </div>
 
-        {/* Designation Input */}
+        {/* 2. Role Checkbox Selection Cards */}
         <div>
-          <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.4rem', color: '#4b5563' }}>কমিটির পদবী (Designation)</label>
-          <input 
-            type="text" 
-            name="designation" 
-            required 
-            placeholder="যেমন: সহ-সভাপতি, সহ-সাধারণ সম্পাদক, সদস্য"
-            style={{ width: '100%', padding: '0.6rem 0.8rem', borderRadius: '0.5rem', border: '1px solid var(--border)', fontSize: '0.85rem' }} 
+          <label style={{ display: "block", fontSize: "0.8125rem", fontWeight: 700, marginBottom: "0.4rem", color: "#475569" }}>
+            ২. পদবী/রোল টিক দিয়ে নির্বাচন করুন (Checkmark Role)
+          </label>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "8px" }}>
+            {roleOptions.map((item) => {
+              const isChecked = selectedRole === item.key;
+              return (
+                <div
+                  key={item.key}
+                  onClick={() => handleRoleSelect(item.key, item.defaultDesig)}
+                  style={{
+                    padding: "10px 12px",
+                    borderRadius: "8px",
+                    border: `1.5px solid ${isChecked ? item.color : "#e2e8f0"}`,
+                    backgroundColor: isChecked ? `${item.color}08` : "#f8fafc",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: "8px",
+                    transition: "all 0.15s ease"
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={isChecked}
+                    onChange={() => handleRoleSelect(item.key, item.defaultDesig)}
+                    style={{ marginTop: "3px", accentColor: item.color, cursor: "pointer" }}
+                  />
+                  <div>
+                    <span style={{ fontSize: "0.8125rem", fontWeight: 700, color: isChecked ? item.color : "#0f172a", display: "block" }}>
+                      {item.label}
+                    </span>
+                    <span style={{ fontSize: "0.72rem", color: "#64748b", fontWeight: 400, marginTop: "2px", display: "block" }}>
+                      {item.desc}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 3. Custom Designation Input */}
+        <div>
+          <label style={{ display: "block", fontSize: "0.8125rem", fontWeight: 700, marginBottom: "0.4rem", color: "#475569" }}>
+            ৩. কমিটির অফিসিয়াল পদবী নাম
+          </label>
+          <input
+            type="text"
+            value={customDesignation}
+            onChange={(e) => setCustomDesignation(e.target.value)}
+            required
+            placeholder="যেমন: কন্ট্রোলার, সভাপতি, সহ-সভাপতি, সদস্য"
+            style={{ width: "100%", padding: "0.6rem 0.8rem", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "0.875rem" }}
           />
         </div>
 
-        {/* System Access Role */}
-        <div>
-          <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.4rem', color: '#4b5563' }}>সিস্টেম রোল/অনুমতি (System Role)</label>
-          <select name="systemRole" required style={{ width: '100%', padding: '0.6rem 0.8rem', borderRadius: '0.5rem', border: '1px solid var(--border)', fontSize: '0.85rem' }}>
-            <option value="MEMBER">সাধারণ মেম্বার পারমিশন (Member Role)</option>
-            <option value="PRESIDENT">সভাপতি পারমিশন (President Role)</option>
-            <option value="SECRETARY">সাধারণ সম্পাদক পারমিশন (Secretary Role)</option>
-            <option value="CASHIER">ক্যাশিয়ার পারমিশন (Cashier Role)</option>
-            <option value="ADMIN">অ্যাডমিন পারমিশন (Admin Role)</option>
-          </select>
-        </div>
-
         {error && (
-          <div style={{ padding: '0.75rem', borderRadius: '0.5rem', background: 'rgba(239, 68, 68, 0.08)', color: 'var(--danger)', fontSize: '0.8rem', fontWeight: 600 }}>
+          <div style={{ padding: "0.75rem", borderRadius: "8px", backgroundColor: "#fef2f2", border: "1px solid #fecdd3", color: "#dc2626", fontSize: "0.8125rem", fontWeight: 600 }}>
             {error}
           </div>
         )}
 
-        <button type="submit" disabled={loading} className="btn btn-primary" style={{ width: '100%', padding: '0.7rem', fontWeight: 700, marginTop: '0.5rem' }}>
-          {loading ? "সংরক্ষণ হচ্ছে..." : "কমিটিতে নিযুক্ত করুন"}
+        <button 
+          type="submit" 
+          disabled={loading} 
+          style={{
+            padding: "0.65rem 1.25rem",
+            borderRadius: "8px",
+            border: "none",
+            backgroundColor: "#059669",
+            color: "#ffffff",
+            fontSize: "0.875rem",
+            fontWeight: 700,
+            cursor: "pointer",
+            marginTop: "0.25rem"
+          }}
+        >
+          {loading ? "আপডেট করা হচ্ছে..." : "✓ পছন্দনীয় রোল ও পদবী সংরক্ষণ করুন"}
         </button>
       </form>
     </div>
@@ -94,7 +310,7 @@ export function RemoveCommitteeButton({ userId, userName }: { userId: string, us
   const [loading, setLoading] = useState(false);
 
   const handleRemove = async () => {
-    if (!window.confirm(`আপনি কি নিশ্চিত যে আপনি ${userName}-কে পরিচালনা কমিটি থেকে বাদ দিতে চান? বাদ দিলে তার সিস্টেম পারমিশন সাধারণ সদস্য হিসেবে রিসেট হবে।`)) return;
+    if (!window.confirm(`আপনি কি নিশ্চিত যে আপনি ${userName}-কে পরিচালনা কমিটি থেকে বাদ দিতে চান? বাদ দিলে তার পদবী সাধারণ সদস্য হিসেবে রিসেট হবে।`)) return;
     
     setLoading(true);
     const result = await removeFromCommittee(userId);
@@ -110,16 +326,18 @@ export function RemoveCommitteeButton({ userId, userName }: { userId: string, us
     <button 
       onClick={handleRemove} 
       disabled={loading} 
-      className="btn btn-secondary" 
       style={{ 
-        padding: '0.25rem 0.5rem', 
-        fontSize: '0.75rem', 
-        display: 'flex', 
-        alignItems: 'center', 
-        gap: '0.25rem', 
-        color: 'var(--danger)', 
-        borderColor: '#fca5a5', 
-        backgroundColor: '#fef2f2' 
+        padding: "0.35rem 0.65rem", 
+        fontSize: "0.75rem", 
+        borderRadius: "6px",
+        display: "flex", 
+        alignItems: "center", 
+        gap: "0.25rem", 
+        color: "#dc2626", 
+        border: "1px solid #fecdd3", 
+        backgroundColor: "#fef2f2",
+        cursor: "pointer",
+        fontWeight: 700
       }}
       title="কমিটি থেকে বাদ দিন"
     >
@@ -133,11 +351,21 @@ export function PrintCommitteeButton() {
   return (
     <button 
       onClick={() => window.print()} 
-      className="btn btn-secondary" 
-      style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 1rem', fontSize: '0.85rem', fontWeight: 700 }}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "0.4rem",
+        padding: "0.45rem 0.85rem",
+        borderRadius: "8px",
+        border: "1px solid #e2e8f0",
+        backgroundColor: "#f8fafc",
+        fontSize: "0.8125rem",
+        fontWeight: 700,
+        cursor: "pointer"
+      }}
     >
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-      <span>তালিকা প্রিন্ট করুন</span>
+      <Printer size={15} />
+      <span>তালিকা প্রিন্ট</span>
     </button>
   );
 }

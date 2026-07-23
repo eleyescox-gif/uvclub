@@ -189,6 +189,7 @@ model ClubSettings {
   watermarkLogo        String?
   address              String?
   paymentGatewayActive Boolean  @default(false)
+  noCommitteeMode      Boolean  @default(false)
   bkashNumber          String?
   nagadNumber          String?
   bankDetails          String?

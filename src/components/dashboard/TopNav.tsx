@@ -23,6 +23,7 @@ interface TopNavProps {
 }
 
 const roleTitles: Record<string, string> = {
+  CONTROLLER: "কন্ট্রোলার",
   PRESIDENT: "সভাপতি",
   SECRETARY: "সাধারণ সম্পাদক",
   CASHIER: "ক্যাশিয়ার",

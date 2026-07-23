@@ -1,0 +1,37 @@
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
+import prisma from "@/lib/prisma";
+
+export async function POST(req: Request) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: "অননুমোদিত অ্যাক্সেস" }, { status: 401 });
+    }
+
+    const currentRole = (session.user as any).role;
+    if (currentRole !== "ADMIN" && currentRole !== "PRESIDENT" && currentRole !== "SECRETARY" && currentRole !== "CONTROLLER") {
+      return NextResponse.json({ error: "পারমিশন নেই" }, { status: 403 });
+    }
+
+    const { noCommitteeMode } = await req.json();
+
+    const updatedSettings = await (prisma as any).clubSettings.upsert({
+      where: { id: "singleton" },
+      create: {
+        id: "singleton",
+        name: "United Vision",
+        noCommitteeMode: Boolean(noCommitteeMode)
+      },
+      update: {
+        noCommitteeMode: Boolean(noCommitteeMode)
+      }
+    });
+
+    return NextResponse.json({ success: true, noCommitteeMode: updatedSettings.noCommitteeMode });
+  } catch (error: any) {
+    console.error("Toggle interim mode error:", error);
+    return NextResponse.json({ error: error.message || "অন্তরবর্তীকালীন মোড পরিবর্তন করতে ব্যর্থ" }, { status: 500 });
+  }
+}
