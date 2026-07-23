@@ -147,9 +147,8 @@ export default async function DashboardPage() {
   const netSurplus = totalIncome - totalExpense;
   const personalBalance = user?.balance || 0;
 
-  // Clean, consistent Quick Services List
+  // Clean, consistent Quick Services List (1 single financial service: বিবরণী)
   const quickServices = [
-    { name: "চাঁদা জমা", href: "/dashboard/finance", icon: <Wallet size={20} /> },
     { name: "বিবরণী", href: "/dashboard/finance", icon: <FileText size={20} /> },
     { name: "ভোট প্যানেল", href: "/dashboard/voting", icon: <Vote size={20} /> },
     { name: "নোটিশ", href: "/dashboard/notices", icon: <Megaphone size={20} /> },
@@ -164,7 +163,6 @@ export default async function DashboardPage() {
   }
   if (role === "ADMIN" || role === "PRESIDENT" || role === "SECRETARY") {
     quickServices.push({ name: "অনুমোদন", href: "/dashboard/admin/members/pending", icon: <CheckCircle2 size={20} /> });
-    quickServices.push({ name: "রিপোর্ট", href: "/dashboard/admin/reports", icon: <Activity size={20} /> });
   }
 
   return (
