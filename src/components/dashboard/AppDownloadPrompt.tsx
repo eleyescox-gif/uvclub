@@ -1,9 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Download, X, Smartphone, Sparkles, CheckCircle2 } from "lucide-react";
 
 export default function AppDownloadPrompt() {
+  const pathname = usePathname();
+  const { data: session } = useSession();
+
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
@@ -55,7 +60,7 @@ export default function AppDownloadPrompt() {
     } else {
       // Fallback instructions for browser PWA installation
       alert(
-        "📲 অ্যাপস ইনস্টল করার নির্দেশিকা:\n\n১. ব্রাউজারের উপরে/নিচে ৩-ডট মেগারু (Menu)-তে ক্লিক করুন।\n২. 'Add to Home screen' বা 'Install App' নির্বাচন করুন।"
+        "📲 অ্যাপস ইনস্টল করার নির্দেশিকা:\n\n১. ব্রাউজারের উপরে/নিচে ৩-ডট মেনু (Menu)-তে ক্লিক করুন।\n২. 'Add to Home screen' বা 'Install App' নির্বাচন করুন।"
       );
       setShowPrompt(false);
     }
@@ -66,7 +71,8 @@ export default function AppDownloadPrompt() {
     sessionStorage.setItem("uvc_app_prompt_dismissed", "true");
   };
 
-  if (isStandalone || !showPrompt) {
+  // Do NOT show if logged in OR not on public home page ("/")
+  if (session?.user || pathname !== "/" || isStandalone || !showPrompt) {
     return null;
   }
 
