@@ -106,7 +106,7 @@ export default function MemberAdmissionForm({ memberData }: MemberAdmissionFormP
           <div style={{ display: 'flex', alignItems: 'flex-end' }}>
             <span style={{ width: '180px' }}>নাম (ইংরেজি ব্লকে)</span>
             <div style={{ flex: 1, borderBottom: '1px dotted black', paddingBottom: '2px', textTransform: 'uppercase' }}>
-              {memberData?.nameEn || ''}
+              {memberData?.nameEn ? memberData.nameEn.toUpperCase() : ''}
             </div>
           </div>
 
