@@ -93,11 +93,11 @@ export default async function ManageMembersPage() {
           <Link href="/dashboard/admin/committee" style={{ color: '#7c3aed', display: 'flex', alignItems: 'center', gap: '0.35rem', textDecoration: 'none', fontWeight: 700, fontSize: '0.85rem', padding: '0.35rem 0.65rem', borderRadius: '0.5rem', backgroundColor: 'rgba(124, 58, 237, 0.1)', border: '1px solid rgba(124, 58, 237, 0.25)' }}>
             ☑️ পদবী ও রোল নির্বাচন (Assign Roles)
           </Link>
-          <Link href="/dashboard/admin/members/print-form" target="_blank" style={{ color: '#059669', display: 'flex', alignItems: 'center', gap: '0.25rem', textDecoration: 'none', fontWeight: 600, fontSize: '0.85rem', padding: '0.35rem 0.65rem', borderRadius: '0.5rem', backgroundColor: 'rgba(5, 150, 105, 0.1)', border: '1px solid rgba(5, 150, 105, 0.25)' }}>
-            <Printer size={15} /> ফাঁকা ফরম প্রিন্ট
+          <Link href="/dashboard/admin/members/print-form" target="_blank" style={{ color: '#059669', display: 'flex', alignItems: 'center', gap: '0.25rem', textDecoration: 'none', fontWeight: 700, fontSize: '0.85rem', padding: '0.35rem 0.65rem', borderRadius: '0.5rem', backgroundColor: 'rgba(5, 150, 105, 0.1)', border: '1px solid rgba(5, 150, 105, 0.25)' }}>
+            <Printer size={15} /> 📄 ফাঁকা আবেদন ফরম (Print/PDF)
           </Link>
-          <Link href="/dashboard/admin/members/print-list" target="_blank" style={{ color: '#0284c7', display: 'flex', alignItems: 'center', gap: '0.25rem', textDecoration: 'none', fontWeight: 600, fontSize: '0.85rem', padding: '0.35rem 0.65rem', borderRadius: '0.5rem', backgroundColor: 'rgba(2, 132, 199, 0.1)', border: '1px solid rgba(2, 132, 199, 0.25)' }}>
-            <Printer size={15} /> প্রিন্ট তালিকা
+          <Link href="/dashboard/admin/members/print-list" target="_blank" style={{ color: '#0284c7', display: 'flex', alignItems: 'center', gap: '0.25rem', textDecoration: 'none', fontWeight: 700, fontSize: '0.85rem', padding: '0.35rem 0.65rem', borderRadius: '0.5rem', backgroundColor: 'rgba(2, 132, 199, 0.1)', border: '1px solid rgba(2, 132, 199, 0.25)' }}>
+            <Printer size={15} /> 👥 মেম্বার প্রিন্ট তালিকা (PDF)
           </Link>
           {(role === "ADMIN" || role === "PRESIDENT") && (
             <Link href="/dashboard/admin/members/trash" className="btn btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', textDecoration: 'none', color: '#ef4444', borderColor: '#ef4444', padding: '0.35rem 0.65rem', fontSize: '0.85rem' }}>

@@ -16,7 +16,7 @@ export default async function FilledPrintMemberFormPage({ params }: { params: Pr
   }
 
   const role = (session.user as any).role;
-  if (role !== "ADMIN" && role !== "SECRETARY" && role !== "PRESIDENT" && role !== "CASHIER") {
+  if (role !== "ADMIN" && role !== "SECRETARY" && role !== "PRESIDENT" && role !== "CASHIER" && role !== "CONTROLLER") {
     redirect("/dashboard");
   }
 
