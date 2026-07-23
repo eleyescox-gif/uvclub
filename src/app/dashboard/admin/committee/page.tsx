@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
 import { ShieldCheck, Phone, User as UserIcon, Award, Sparkles } from "lucide-react";
-import { InterimModeToggle, CheckboxRoleAssignForm, RemoveCommitteeButton, PrintCommitteeButton } from "./CommitteeComponents";
+import { InterimModeToggle, CheckboxRoleAssignForm, ExecutiveCommitteeForm, RemoveCommitteeButton, PrintCommitteeButton } from "./CommitteeComponents";
 
 export default async function CommitteeManagePage() {
   const session = await getServerSession(authOptions);
@@ -213,9 +213,10 @@ export default async function CommitteeManagePage() {
           </div>
         </div>
 
-        {/* Right Column: Checkbox Role Assignment Form */}
+        {/* Right Column: Executive Committee Formation & Checkbox Role Assignment */}
         {canManage && (
           <div className="no-print">
+            <ExecutiveCommitteeForm members={allMembers} />
             <CheckboxRoleAssignForm members={allMembers} />
           </div>
         )}

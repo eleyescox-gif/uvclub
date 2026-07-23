@@ -347,6 +347,190 @@ export function RemoveCommitteeButton({ userId, userName }: { userId: string, us
   );
 }
 
+export function ExecutiveCommitteeForm({ members }: { members: Member[] }) {
+  const [presidentId, setPresidentId] = useState("");
+  const [secretaryId, setSecretaryId] = useState("");
+  const [cashierId, setCashierId] = useState("");
+  const [vicePresidentId, setVicePresidentId] = useState("");
+  const [jointSecretaryId, setJointSecretaryId] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!presidentId && !secretaryId && !cashierId) {
+      setError("দয়া করে অন্তত মূল ৩টি পদের (সভাপতি, সাধারণ সম্পাদক, ক্যাশিয়ার) সদস্য সিলেক্ট করুন।");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/admin/committee/bulk-update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          presidentId,
+          secretaryId,
+          cashierId,
+          vicePresidentId,
+          jointSecretaryId
+        })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        alert("🎉 পরিচালনা কমিটির সদস্য ও পদবীসমূহ এক সাথে সফলভাবে আপডেট করা হয়েছে!");
+        router.refresh();
+      } else {
+        setError(data.error || "কমিটি আপডেট করতে ব্যর্থ হয়েছে।");
+      }
+    } catch (err: any) {
+      setError("ত্রুটি: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{
+      backgroundColor: "#ffffff",
+      border: "1.5px solid #059669",
+      borderRadius: "14px",
+      padding: "1.5rem",
+      marginBottom: "2rem",
+      boxShadow: "0 10px 25px -5px rgba(5, 150, 105, 0.08)"
+    }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem", flexWrap: "wrap", gap: "0.5rem" }}>
+        <h2 style={{ fontSize: "1.15rem", fontWeight: 800, color: "#047857", margin: 0, display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <Shield size={22} color="#059669" /> পরিচালনা কমিটি গঠন (Form Executive Committee)
+        </h2>
+        <span style={{ fontSize: "0.75rem", color: "#059669", backgroundColor: "#ecfdf5", padding: "0.25rem 0.65rem", borderRadius: "9999px", fontWeight: 700, border: "1px solid #a7f3d0" }}>
+          ১-ক্লিকে নতুন পরিচালনা কমিটি গঠন
+        </span>
+      </div>
+
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.15rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "1rem" }}>
+          {/* 1. President */}
+          <div>
+            <label style={{ display: "block", fontSize: "0.8125rem", fontWeight: 700, marginBottom: "0.35rem", color: "#1e293b" }}>
+              👑 সভাপতি (President)
+            </label>
+            <select
+              value={presidentId}
+              onChange={(e) => setPresidentId(e.target.value)}
+              style={{ width: "100%", padding: "0.55rem 0.75rem", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "0.85rem" }}
+            >
+              <option value="">-- সদস্য সিলেক্ট করুন --</option>
+              {members.map(m => (
+                <option key={m.id} value={m.id}>{m.nameBn || m.name} ({m.mobile})</option>
+              ))}
+            </select>
+          </div>
+
+          {/* 2. Secretary */}
+          <div>
+            <label style={{ display: "block", fontSize: "0.8125rem", fontWeight: 700, marginBottom: "0.35rem", color: "#1e293b" }}>
+              📜 সাধারণ সম্পাদক (General Secretary)
+            </label>
+            <select
+              value={secretaryId}
+              onChange={(e) => setSecretaryId(e.target.value)}
+              style={{ width: "100%", padding: "0.55rem 0.75rem", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "0.85rem" }}
+            >
+              <option value="">-- সদস্য সিলেক্ট করুন --</option>
+              {members.map(m => (
+                <option key={m.id} value={m.id}>{m.nameBn || m.name} ({m.mobile})</option>
+              ))}
+            </select>
+          </div>
+
+          {/* 3. Cashier */}
+          <div>
+            <label style={{ display: "block", fontSize: "0.8125rem", fontWeight: 700, marginBottom: "0.35rem", color: "#1e293b" }}>
+              💰 ক্যাশিয়ার (Cashier)
+            </label>
+            <select
+              value={cashierId}
+              onChange={(e) => setCashierId(e.target.value)}
+              style={{ width: "100%", padding: "0.55rem 0.75rem", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "0.85rem" }}
+            >
+              <option value="">-- সদস্য সিলেক্ট করুন --</option>
+              {members.map(m => (
+                <option key={m.id} value={m.id}>{m.nameBn || m.name} ({m.mobile})</option>
+              ))}
+            </select>
+          </div>
+
+          {/* 4. Vice President */}
+          <div>
+            <label style={{ display: "block", fontSize: "0.8125rem", fontWeight: 700, marginBottom: "0.35rem", color: "#475569" }}>
+              🛡️ সহ-সভাপতি (Vice President - ঐচ্ছিক)
+            </label>
+            <select
+              value={vicePresidentId}
+              onChange={(e) => setVicePresidentId(e.target.value)}
+              style={{ width: "100%", padding: "0.55rem 0.75rem", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "0.85rem" }}
+            >
+              <option value="">-- সদস্য সিলেক্ট করুন (ঐচ্ছিক) --</option>
+              {members.map(m => (
+                <option key={m.id} value={m.id}>{m.nameBn || m.name} ({m.mobile})</option>
+              ))}
+            </select>
+          </div>
+
+          {/* 5. Joint Secretary */}
+          <div>
+            <label style={{ display: "block", fontSize: "0.8125rem", fontWeight: 700, marginBottom: "0.35rem", color: "#475569" }}>
+              📝 সহ-সাধারণ সম্পাদক (Joint Sec. - ঐচ্ছিক)
+            </label>
+            <select
+              value={jointSecretaryId}
+              onChange={(e) => setJointSecretaryId(e.target.value)}
+              style={{ width: "100%", padding: "0.55rem 0.75rem", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "0.85rem" }}
+            >
+              <option value="">-- সদস্য সিলেক্ট করুন (ঐচ্ছিক) --</option>
+              {members.map(m => (
+                <option key={m.id} value={m.id}>{m.nameBn || m.name} ({m.mobile})</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {error && (
+          <div style={{ padding: "0.75rem", borderRadius: "8px", backgroundColor: "#fef2f2", color: "#dc2626", fontSize: "0.8125rem", fontWeight: 600 }}>
+            {error}
+          </div>
+        )}
+
+        <button
+          type="submit"
+          disabled={loading}
+          style={{
+            padding: "0.75rem 1.5rem",
+            borderRadius: "8px",
+            border: "none",
+            backgroundColor: "#059669",
+            color: "#ffffff",
+            fontSize: "0.9rem",
+            fontWeight: 800,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "0.5rem"
+          }}
+        >
+          {loading ? "কমিটি গঠন ও আপডেট হচ্ছে..." : "✓ নতুন পরিচালনা কমিটি গঠন ও আপডেট করুন"}
+        </button>
+      </form>
+    </div>
+  );
+}
+
 export function PrintCommitteeButton() {
   return (
     <button 
