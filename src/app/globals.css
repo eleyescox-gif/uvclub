@@ -245,7 +245,7 @@ body {
     margin: 0.5in;
   }
   
-  aside, header, .no-print {
+  aside, header, nav, footer, .no-print, .mobile-bottom-nav {
     display: none !important;
   }
 

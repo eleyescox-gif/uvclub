@@ -420,7 +420,7 @@ export default async function DashboardPage() {
                     <span className={styles.dot} style={{ backgroundColor: '#059669' }}></span> আদায় হয়েছে
                   </span>
                   <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#15803d', backgroundColor: '#ffffff', padding: '2px 8px', borderRadius: '6px', border: '1px solid #86efac' }}>
-                    {paidInvoicesAllTime} টি
+                    {paidInvoicesAllTime} জন
                   </span>
                 </div>
 
@@ -429,7 +429,7 @@ export default async function DashboardPage() {
                     <span className={styles.dot} style={{ backgroundColor: '#dc2626' }}></span> বকেয়া
                   </span>
                   <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#b91c1c', backgroundColor: '#ffffff', padding: '2px 8px', borderRadius: '6px', border: '1px solid #fca5a5' }}>
-                    {Math.max(0, totalInvoicesAllTime - paidInvoicesAllTime)} টি
+                    {Math.max(0, totalInvoicesAllTime - paidInvoicesAllTime)} জন
                   </span>
                 </div>
               </div>

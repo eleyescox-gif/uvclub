@@ -169,6 +169,11 @@ export default function BottomNav({ role, user }: BottomNavProps) {
             display: flex !important;
           }
         }
+        @media print {
+          .mobile-bottom-nav, nav, footer, .no-print {
+            display: none !important;
+          }
+        }
       `}</style>
     </>
   );
