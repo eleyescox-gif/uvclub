@@ -13,7 +13,7 @@ export default async function NoticesPage() {
   }
 
   const role = (session.user as any).role;
-  const isAuthorizedLeader = role === "SECRETARY" || role === "PRESIDENT" || role === "CASHIER" || role === "ADMIN";
+  const isAuthorizedLeader = role === "SECRETARY" || role === "PRESIDENT" || role === "CASHIER" || role === "ADMIN" || role === "CONTROLLER";
 
   // Fetch active notices
   const notices = await prisma.notice.findMany({

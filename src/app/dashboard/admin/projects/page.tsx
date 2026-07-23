@@ -13,11 +13,11 @@ export default async function AdminProjectsPage() {
   }
 
   const role = (session.user as any).role;
-  if (role !== "ADMIN" && role !== "PRESIDENT" && role !== "SECRETARY" && role !== "CASHIER") {
+  if (role !== "ADMIN" && role !== "PRESIDENT" && role !== "SECRETARY" && role !== "CASHIER" && role !== "CONTROLLER") {
     redirect("/dashboard");
   }
 
-  const canEdit = role === "ADMIN" || role === "PRESIDENT" || role === "SECRETARY";
+  const canEdit = role === "ADMIN" || role === "PRESIDENT" || role === "SECRETARY" || role === "CONTROLLER";
 
   const projects = await prisma.project.findMany({
     orderBy: { createdAt: 'desc' }

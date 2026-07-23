@@ -12,7 +12,7 @@ export default async function AddMemberPage() {
   }
 
   const role = (session.user as any).role;
-  if (role !== "ADMIN" && role !== "SECRETARY" && role !== "PRESIDENT") {
+  if (role !== "ADMIN" && role !== "SECRETARY" && role !== "PRESIDENT" && role !== "CONTROLLER") {
     redirect("/dashboard");
   }
 

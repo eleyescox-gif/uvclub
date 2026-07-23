@@ -15,7 +15,7 @@ export default async function PendingMembersPage() {
   }
 
   const role = (session.user as any).role;
-  if (role !== "ADMIN" && role !== "PRESIDENT" && role !== "SECRETARY") {
+  if (role !== "ADMIN" && role !== "PRESIDENT" && role !== "SECRETARY" && role !== "CONTROLLER") {
     redirect("/dashboard");
   }
 

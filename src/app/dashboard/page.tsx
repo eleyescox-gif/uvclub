@@ -158,10 +158,10 @@ export default async function DashboardPage() {
     { name: "প্রোফাইল", href: "/dashboard/profile", icon: <User size={20} /> },
   ];
 
-  if (role === "ADMIN" || role === "CASHIER") {
+  if (role === "ADMIN" || role === "CASHIER" || role === "CONTROLLER") {
     quickServices.push({ name: "চাঁদা এন্ট্রি", href: "/dashboard/admin/finance", icon: <Plus size={20} /> });
   }
-  if (role === "ADMIN" || role === "PRESIDENT" || role === "SECRETARY") {
+  if (role === "ADMIN" || role === "PRESIDENT" || role === "SECRETARY" || role === "CONTROLLER") {
     quickServices.push({ name: "অনুমোদন", href: "/dashboard/admin/members/pending", icon: <CheckCircle2 size={20} /> });
   }
 

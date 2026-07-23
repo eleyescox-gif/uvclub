@@ -18,7 +18,7 @@ export default async function AdminFinancePage() {
   }
 
   const role = (session.user as any).role;
-  if (role !== "ADMIN" && role !== "CASHIER" && role !== "PRESIDENT" && role !== "SECRETARY") {
+  if (role !== "ADMIN" && role !== "CASHIER" && role !== "PRESIDENT" && role !== "SECRETARY" && role !== "CONTROLLER") {
     redirect("/dashboard");
   }
 

@@ -10,7 +10,7 @@ export async function assignToCommittee(formData: FormData) {
   if (!session?.user) return { error: "Unauthenticated" };
 
   const currentUserRole = (session.user as any).role;
-  if (currentUserRole !== "ADMIN" && currentUserRole !== "PRESIDENT") {
+  if (currentUserRole !== "ADMIN" && currentUserRole !== "PRESIDENT" && currentUserRole !== "CONTROLLER" && currentUserRole !== "SECRETARY") {
     return { error: "Unauthorized. Only Admin and President can assign committee members." };
   }
 

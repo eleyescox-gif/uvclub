@@ -14,7 +14,7 @@ export async function postPayment(formData: FormData) {
   }
 
   const role = (session.user as any).role;
-  if (role !== "CASHIER" && role !== "ADMIN") {
+  if (role !== "CASHIER" && role !== "ADMIN" && role !== "CONTROLLER" && role !== "PRESIDENT" && role !== "SECRETARY") {
     return { error: "Unauthorized. Only admins/cashiers can post payments." };
   }
 

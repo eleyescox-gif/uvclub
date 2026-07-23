@@ -9,7 +9,7 @@ export default async function DataClearRequestsPage() {
   if (!session?.user) redirect("/login");
   
   const role = (session.user as any).role;
-  if (role !== "SECRETARY") {
+  if (role !== "SECRETARY" && role !== "ADMIN" && role !== "CONTROLLER" && role !== "PRESIDENT") {
     redirect("/dashboard");
   }
 
