@@ -202,7 +202,7 @@ export default async function CommitteeManagePage() {
 
                       {canManage && (
                         <td className="no-print" style={{ padding: '1rem' }}>
-                          <RemoveCommitteeButton userId={user.id} userName={user.nameBn || user.name} />
+                          <RemoveCommitteeButton userId={user.id} userName={user.nameBn || user.name} isController={user.role === 'CONTROLLER'} />
                         </td>
                       )}
                     </tr>

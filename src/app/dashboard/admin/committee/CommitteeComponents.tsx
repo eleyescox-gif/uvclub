@@ -306,8 +306,16 @@ export function CheckboxRoleAssignForm({ members }: { members: Member[] }) {
   );
 }
 
-export function RemoveCommitteeButton({ userId, userName }: { userId: string, userName: string }) {
+export function RemoveCommitteeButton({ userId, userName, isController }: { userId: string, userName: string, isController?: boolean }) {
   const [loading, setLoading] = useState(false);
+
+  if (isController) {
+    return (
+      <span style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: 600, padding: "0.2rem 0.5rem", borderRadius: "4px", backgroundColor: "#f1f5f9" }}>
+        🛡️ সুরক্ষিত (কন্ট্রোলার)
+      </span>
+    );
+  }
 
   const handleRemove = async () => {
     if (!window.confirm(`আপনি কি নিশ্চিত যে আপনি ${userName}-কে পরিচালনা কমিটি থেকে বাদ দিতে চান? বাদ দিলে তার পদবী সাধারণ সদস্য হিসেবে রিসেট হবে।`)) return;

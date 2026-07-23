@@ -11,7 +11,7 @@ export async function assignToCommittee(formData: FormData) {
 
   const currentUserRole = (session.user as any).role;
   if (currentUserRole !== "ADMIN" && currentUserRole !== "PRESIDENT" && currentUserRole !== "CONTROLLER" && currentUserRole !== "SECRETARY") {
-    return { error: "Unauthorized. Only Admin and President can assign committee members." };
+    return { error: "Unauthorized. Only authorized leaders can assign committee members." };
   }
 
   const userId = formData.get("userId") as string;
@@ -59,9 +59,21 @@ export async function removeFromCommittee(userId: string) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return { error: "Unauthenticated" };
 
+  const currentUserId = (session.user as any).id;
   const currentUserRole = (session.user as any).role;
-  if (currentUserRole !== "ADMIN" && currentUserRole !== "PRESIDENT") {
-    return { error: "Unauthorized. Only Admin and President can remove committee members." };
+  
+  if (currentUserRole !== "ADMIN" && currentUserRole !== "PRESIDENT" && currentUserRole !== "CONTROLLER" && currentUserRole !== "SECRETARY") {
+    return { error: "Unauthorized. Only authorized leaders/controller can remove committee members." };
+  }
+
+  // Prevent self-deletion of controller
+  const targetUser = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, role: true, name: true }
+  });
+
+  if (targetUser?.role === "CONTROLLER" || userId === currentUserId) {
+    return { error: "সক্রিয় কন্ট্রোলার নিজেকে বা অন্য কোনো কন্ট্রোলারকে তালিকা থেকে বাদ দিতে পারবেন না।" };
   }
 
   try {
@@ -69,7 +81,7 @@ export async function removeFromCommittee(userId: string) {
       // 1. Delete the Committee record
       await tx.committee.delete({
         where: { userId }
-      });
+      }).catch(() => {});
 
       // 2. Reset the User's role back to MEMBER
       await tx.user.update({
