@@ -15,7 +15,7 @@ export default async function EditMemberPage({ params }: { params: Promise<{ id:
   }
 
   const role = (session.user as any).role;
-  if (role !== "ADMIN" && role !== "SECRETARY" && role !== "PRESIDENT") {
+  if (role !== "ADMIN" && role !== "SECRETARY" && role !== "PRESIDENT" && role !== "CONTROLLER") {
     redirect("/dashboard");
   }
 

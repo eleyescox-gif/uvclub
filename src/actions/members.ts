@@ -13,8 +13,8 @@ export async function addMember(formData: FormData) {
   }
 
   const role = (session.user as any).role;
-  if (role !== "ADMIN" && role !== "SECRETARY" && role !== "PRESIDENT") {
-    return { error: "Unauthorized. Only Secretary or Admin can add members." };
+  if (role !== "ADMIN" && role !== "SECRETARY" && role !== "PRESIDENT" && role !== "CONTROLLER") {
+    return { error: "Unauthorized. Only authorized leaders can add members." };
   }
 
   const name = formData.get("name") as string;
@@ -34,8 +34,8 @@ export async function addMember(formData: FormData) {
   const profilePicture = formData.get("profilePicture") as string;
   
   let userRole = formData.get("role") as string | undefined;
-  if (role !== "ADMIN" && role !== "PRESIDENT") {
-    userRole = undefined; // Force default if not authorized
+  if (role !== "ADMIN" && role !== "PRESIDENT" && role !== "CONTROLLER") {
+    userRole = undefined;
   }
 
   if (!name || !mobile || !password) {
@@ -62,7 +62,7 @@ export async function addMember(formData: FormData) {
         nameBn,
         nameEn,
         mobile,
-        password, // Reminder: Hash in production
+        password,
         fatherName,
         motherName,
         address,
@@ -74,10 +74,12 @@ export async function addMember(formData: FormData) {
         nomineeMobile,
         nomineeAge,
         role: userRole || "MEMBER",
-        activeStatus: false, // Requires President Approval
+        activeStatus: true, // Immediate activation for controller/admin
+        joinDate: new Date(),
       }
     });
 
+    revalidatePath("/dashboard/admin/members/manage");
     revalidatePath("/dashboard/admin/members/pending");
     return { success: true };
   } catch (error: any) {
@@ -93,8 +95,8 @@ export async function approveMember(userId: string) {
   }
 
   const role = (session.user as any).role;
-  if (role !== "ADMIN" && role !== "PRESIDENT") {
-    return { error: "Unauthorized. Only President can approve members." };
+  if (role !== "ADMIN" && role !== "PRESIDENT" && role !== "CONTROLLER") {
+    return { error: "Unauthorized. Only authorized leaders can approve members." };
   }
 
   try {
@@ -107,6 +109,7 @@ export async function approveMember(userId: string) {
     });
 
     revalidatePath("/dashboard/admin/members/pending");
+    revalidatePath("/dashboard/admin/members/manage");
     return { success: true };
   } catch (error: any) {
     return { error: error.message || "Failed to approve member" };
@@ -121,8 +124,8 @@ export async function resetPassword(formData: FormData) {
   }
 
   const role = (session.user as any).role;
-  if (role !== "ADMIN") {
-    return { error: "Unauthorized. Only Admin can reset passwords." };
+  if (role !== "ADMIN" && role !== "PRESIDENT" && role !== "CONTROLLER") {
+    return { error: "Unauthorized. Only Admin/President/Controller can reset passwords." };
   }
 
   const userId = formData.get("userId") as string;
@@ -156,8 +159,8 @@ export async function deleteMember(userId: string) {
   const role = (session.user as any).role;
   const loggedInUserId = (session.user as any).id;
 
-  if (role !== "ADMIN" && role !== "PRESIDENT" && role !== "SECRETARY") {
-    return { error: "Unauthorized. Only Admin, President or Secretary can delete members." };
+  if (role !== "ADMIN" && role !== "PRESIDENT" && role !== "SECRETARY" && role !== "CONTROLLER") {
+    return { error: "Unauthorized. Only authorized leaders can delete members." };
   }
 
   try {
@@ -177,17 +180,15 @@ export async function deleteMember(userId: string) {
       });
       return { success: true, message: "Deletion request submitted for approval." };
     } else {
-      // Admin or President soft deletes the member (moves to trash)
       await prisma.user.update({
         where: { id: userId },
         data: {
           isDeleted: true,
           deletedAt: new Date(),
-          activeStatus: false // Deactivate them
+          activeStatus: false
         }
       });
 
-      // Approve any pending exit requests for this user
       await prisma.exitRequest.updateMany({
         where: { userId, status: "PENDING" },
         data: { status: "APPROVED" }
@@ -206,8 +207,8 @@ export async function restoreMember(userId: string) {
   if (!session?.user) return { error: "Unauthenticated" };
   
   const role = (session.user as any).role;
-  if (role !== "ADMIN" && role !== "PRESIDENT") {
-    return { error: "Unauthorized. Only Admin or President can restore members." };
+  if (role !== "ADMIN" && role !== "PRESIDENT" && role !== "CONTROLLER") {
+    return { error: "Unauthorized. Only authorized leaders can restore members." };
   }
 
   try {
@@ -252,8 +253,8 @@ export async function hardDeleteMember(userId: string) {
   if (!session?.user) return { error: "Unauthenticated" };
   
   const role = (session.user as any).role;
-  if (role !== "ADMIN" && role !== "PRESIDENT") {
-    return { error: "Unauthorized. Only Admin or President can permanently delete members." };
+  if (role !== "ADMIN" && role !== "PRESIDENT" && role !== "CONTROLLER") {
+    return { error: "Unauthorized. Only authorized leaders can permanently delete members." };
   }
 
   try {
@@ -278,8 +279,8 @@ export async function updateMember(userId: string, formData: FormData) {
   if (!session?.user) return { error: "Unauthenticated" };
   
   const role = (session.user as any).role;
-  if (role !== "ADMIN" && role !== "PRESIDENT" && role !== "SECRETARY") {
-    return { error: "Unauthorized. Only Admin, President or Secretary can edit members." };
+  if (role !== "ADMIN" && role !== "PRESIDENT" && role !== "SECRETARY" && role !== "CONTROLLER") {
+    return { error: "Unauthorized. Only authorized leaders can edit members." };
   }
 
   const name = formData.get("name") as string;
@@ -323,8 +324,7 @@ export async function updateMember(userId: string, formData: FormData) {
       dataToUpdate.profilePicture = profilePicture;
     }
     
-    // Only Admin/President can change role
-    if (userRole && (role === "ADMIN" || role === "PRESIDENT")) {
+    if (userRole && (role === "ADMIN" || role === "PRESIDENT" || role === "CONTROLLER")) {
       dataToUpdate.role = userRole;
     }
 
@@ -346,15 +346,14 @@ export async function approveExitRequest(requestId: string) {
   if (!session?.user) return { error: "Unauthenticated" };
   
   const role = (session.user as any).role;
-  if (role !== "ADMIN" && role !== "PRESIDENT") {
-    return { error: "Unauthorized. Only Admin or President can approve deletion requests." };
+  if (role !== "ADMIN" && role !== "PRESIDENT" && role !== "CONTROLLER") {
+    return { error: "Unauthorized. Only authorized leaders can approve deletion requests." };
   }
 
   try {
     const request = await prisma.exitRequest.findUnique({ where: { id: requestId } });
     if (!request) return { error: "Request not found" };
 
-    // Soft delete the member
     await prisma.user.update({
       where: { id: request.userId },
       data: {
@@ -364,7 +363,6 @@ export async function approveExitRequest(requestId: string) {
       }
     });
 
-    // Mark request as approved
     await prisma.exitRequest.update({
       where: { id: requestId },
       data: { status: "APPROVED" }
@@ -383,15 +381,14 @@ export async function rejectExitRequest(requestId: string) {
   if (!session?.user) return { error: "Unauthenticated" };
   
   const role = (session.user as any).role;
-  if (role !== "ADMIN" && role !== "PRESIDENT") {
-    return { error: "Unauthorized. Only Admin or President can reject deletion requests." };
+  if (role !== "ADMIN" && role !== "PRESIDENT" && role !== "CONTROLLER") {
+    return { error: "Unauthorized. Only authorized leaders can reject deletion requests." };
   }
 
   try {
     const request = await prisma.exitRequest.findUnique({ where: { id: requestId } });
     if (!request) return { error: "Request not found" };
 
-    // Mark request as rejected
     await prisma.exitRequest.update({
       where: { id: requestId },
       data: { status: "REJECTED" }
@@ -413,7 +410,6 @@ export async function requestExit(reason: string) {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) throw new Error("User not found");
 
-  // Create voting event for 75% member exit approval
   const votingEvent = await prisma.votingEvent.create({
     data: {
       title: `সদস্যপদ বাতিলের আবেদন: ${user.nameBn || user.name}`,

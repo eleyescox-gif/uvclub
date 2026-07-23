@@ -12,8 +12,8 @@ export async function PATCH(req: Request) {
     }
 
     const role = (session.user as any).role;
-    if (role !== "PRESIDENT" && role !== "ADMIN" && role !== "SECRETARY") {
-      return NextResponse.json({ error: "কেবল সভাপতি বা অ্যাডমিন হিসাব স্থগিত/সক্রিয় করতে পারবেন" }, { status: 403 });
+    if (role !== "PRESIDENT" && role !== "ADMIN" && role !== "SECRETARY" && role !== "CONTROLLER") {
+      return NextResponse.json({ error: "পারমিশন নেই" }, { status: 403 });
     }
 
     const { userId, activeStatus } = await req.json();

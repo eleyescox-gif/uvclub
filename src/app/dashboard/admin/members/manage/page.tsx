@@ -200,13 +200,13 @@ export default async function ManageMembersPage() {
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path><path d="m15 5 4 4"></path></svg>
                       </Link>
 
-                      {/* 3. President / Admin Suspend Toggle Icon Button */}
-                      {(role === "PRESIDENT" || role === "ADMIN") && (
+                      {/* 3. President / Admin / Controller Suspend Toggle Icon Button */}
+                      {(role === "PRESIDENT" || role === "ADMIN" || role === "CONTROLLER") && (
                         <SuspendMemberButton userId={user.id} activeStatus={user.activeStatus} unpaidMonths={unpaidCount} />
                       )}
 
-                      {/* Exit Approval Modal for President */}
-                      {hasExitRequest && exitReq && (role === "ADMIN" || role === "PRESIDENT") && (
+                      {/* Exit Approval Modal for President / Controller */}
+                      {hasExitRequest && exitReq && (role === "ADMIN" || role === "PRESIDENT" || role === "CONTROLLER") && (
                         <PresidentExitApprovalModal
                           exitRequestId={exitReq.id}
                           userName={user.nameBn || user.name}
@@ -222,7 +222,7 @@ export default async function ManageMembersPage() {
                         <DeleteMemberButton userId={user.id} userName={user.name} currentUserRole={role} />
                       )}
 
-                      {role === "ADMIN" && (
+                      {(role === "ADMIN" || role === "PRESIDENT" || role === "CONTROLLER") && (
                         <ResetPasswordModal user={user} />
                       )}
                     </td>
