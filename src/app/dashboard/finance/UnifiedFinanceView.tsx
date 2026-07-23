@@ -351,7 +351,7 @@ export default function UnifiedFinanceView({
         <div>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px", borderBottom: "1px solid #e2e8f0", paddingBottom: "8px" }}>
             <h3 style={{ margin: 0, fontSize: "0.9375rem", fontWeight: 700, color: "#0f172a", display: "flex", alignItems: "center", gap: "6px" }}>
-              <FileText size={16} color="#059669" /> লেনদেন ইতিহাস (bKash Style List)
+              <FileText size={16} color="#059669" /> লেনদেন ইতিহাস
             </h3>
             <span style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: 400 }}>
               তারিখ • রশিদ নম্বর • জমা
