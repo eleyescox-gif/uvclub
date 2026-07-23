@@ -7,6 +7,7 @@ interface Notice {
   id: string;
   title: string;
   content: string;
+  bannerImage?: string | null;
   createdAt: string;
   creatorName?: string;
   creatorRole?: string;
@@ -85,7 +86,7 @@ export default function NoticePopupModal({ notices, autoCloseSeconds = 8 }: Noti
       <div
         style={{
           width: "100%",
-          maxWidth: "480px",
+          maxWidth: "500px",
           backgroundColor: "#ffffff",
           borderRadius: "20px",
           overflow: "hidden",
@@ -100,7 +101,7 @@ export default function NoticePopupModal({ notices, autoCloseSeconds = 8 }: Noti
         <div
           style={{
             background: "linear-gradient(135deg, #059669 0%, #047857 100%)",
-            padding: "1.25rem 1.5rem",
+            padding: "1.15rem 1.5rem",
             color: "#ffffff",
             display: "flex",
             justifyContent: "space-between",
@@ -160,6 +161,17 @@ export default function NoticePopupModal({ notices, autoCloseSeconds = 8 }: Noti
             <X size={18} />
           </button>
         </div>
+
+        {/* Notice Banner Image (if available) */}
+        {notice.bannerImage && (
+          <div style={{ width: "100%", maxHeight: "220px", overflow: "hidden", backgroundColor: "#f8fafc" }}>
+            <img 
+              src={notice.bannerImage} 
+              alt={notice.title} 
+              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} 
+            />
+          </div>
+        )}
 
         {/* Modal Body */}
         <div style={{ padding: "1.5rem" }}>

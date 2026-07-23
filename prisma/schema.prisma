@@ -175,7 +175,8 @@ model Notice {
   id          String   @id @default(uuid())
   title       String
   content     String
-  createdBy   String   // Secretary's ID
+  bannerImage String?
+  createdBy   String   // Creator ID
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

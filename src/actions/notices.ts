@@ -10,12 +10,13 @@ export async function createNotice(formData: FormData) {
   if (!session?.user) return { error: "Unauthenticated" };
 
   const role = (session.user as any).role;
-  if (role !== "ADMIN" && role !== "PRESIDENT" && role !== "SECRETARY" && role !== "CASHIER") {
-    return { error: "Unauthorized. Only Admin, President, Secretary, or Cashier can post notices." };
+  if (role !== "ADMIN" && role !== "PRESIDENT" && role !== "SECRETARY" && role !== "CASHIER" && role !== "CONTROLLER") {
+    return { error: "Unauthorized. Only authorized leaders/controller can post notices." };
   }
 
   const title = formData.get("title") as string;
   const content = formData.get("content") as string;
+  const bannerImage = (formData.get("bannerImage") as string) || null;
 
   if (!title || !content) {
     return { error: "Title and content are required." };
@@ -26,6 +27,7 @@ export async function createNotice(formData: FormData) {
       data: {
         title,
         content,
+        bannerImage,
         createdBy: (session.user as any).id,
         isActive: true,
       }
@@ -44,12 +46,11 @@ export async function deleteNotice(noticeId: string) {
   if (!session?.user) return { error: "Unauthenticated" };
 
   const role = (session.user as any).role;
-  if (role !== "ADMIN" && role !== "PRESIDENT" && role !== "SECRETARY" && role !== "CASHIER") {
-    return { error: "Unauthorized. Only authorized leaders can delete notices." };
+  if (role !== "ADMIN" && role !== "PRESIDENT" && role !== "SECRETARY" && role !== "CASHIER" && role !== "CONTROLLER") {
+    return { error: "Unauthorized. Only authorized leaders/controller can delete notices." };
   }
 
   try {
-    // We can soft delete by updating isActive to false
     await prisma.notice.update({
       where: { id: noticeId },
       data: { isActive: false }

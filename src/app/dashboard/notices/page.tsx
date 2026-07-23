@@ -96,6 +96,12 @@ export default async function NoticesPage() {
                   </div>
                 </div>
 
+                {notice.bannerImage && (
+                  <div style={{ width: '100%', maxHeight: '300px', borderRadius: '12px', overflow: 'hidden', border: '1px solid #cbd5e1' }}>
+                    <img src={notice.bannerImage} alt={notice.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
+                )}
+
                 <p style={{ 
                   color: 'var(--foreground)', 
                   lineHeight: 1.6, 

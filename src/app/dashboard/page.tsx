@@ -170,6 +170,7 @@ export default async function DashboardPage() {
     id: n.id,
     title: n.title,
     content: n.content,
+    bannerImage: n.bannerImage,
     createdAt: n.createdAt.toISOString()
   }));
 
