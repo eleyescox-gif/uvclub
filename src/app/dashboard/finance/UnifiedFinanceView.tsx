@@ -296,28 +296,8 @@ export default function UnifiedFinanceView({
           </div>
         </div>
 
-        {/* 3. Pending Alert Banner */}
-        {pendingInvoices.length === 0 ? (
-          <div className="no-print" style={{
-            backgroundColor: "#FFF8ED",
-            border: "1px solid #FDE68A",
-            borderRadius: "0.85rem",
-            padding: "0.9rem 1.25rem",
-            textAlign: "center",
-            fontSize: "0.95rem",
-            color: "#78350F",
-            fontWeight: 600,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "0.5rem"
-          }}>
-            <span style={{ fontSize: "1.2rem" }}>🏆🎉</span>
-            <span>
-              চমৎকার! <strong>আপনার কোনো বকেয়া চাঁদা নেই। সমস্ত চাঁদা সফলভাবে পরিশোধ করা হয়েছে।</strong>
-            </span>
-          </div>
-        ) : (
+        {/* 3. Pending Alert Banner (Only shown if user has pending invoices) */}
+        {pendingInvoices.length > 0 && (
           <div className="no-print" style={{
             backgroundColor: "#FEF2F2",
             border: "1.5px solid #FCA5A5",
