@@ -172,8 +172,8 @@ export default async function CommitteeManagePage() {
                             <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--foreground)', margin: 0 }}>
                               {user.nameBn || user.name}
                             </h3>
-                            <span style={{ fontSize: '0.78rem', color: user.role === 'CONTROLLER' ? '#c2410c' : 'var(--primary)', fontWeight: 700, marginTop: '2px', display: 'block' }}>
-                              {user.committeeRole?.designation || getRoleName(user.role)}
+                            <span style={{ fontSize: '0.78rem', color: (noCommitteeMode && user.role !== 'CONTROLLER' && user.role !== 'ADMIN') ? '#64748b' : user.role === 'CONTROLLER' ? '#c2410c' : 'var(--primary)', fontWeight: 700, marginTop: '2px', display: 'block' }}>
+                              {noCommitteeMode ? (user.role === 'CONTROLLER' ? 'কন্ট্রোলার (অন্তরবর্তীকালীন)' : 'সদস্য (কমিটি স্থগিত)') : (user.committeeRole?.designation || getRoleName(user.role))}
                             </span>
                           </div>
                         </div>
@@ -185,11 +185,11 @@ export default async function CommitteeManagePage() {
                           fontWeight: 700, 
                           padding: '0.25rem 0.65rem', 
                           borderRadius: '9999px',
-                          backgroundColor: user.role === 'CONTROLLER' ? '#ffedd5' : user.role === 'PRESIDENT' ? '#ecfdf5' : user.role === 'SECRETARY' ? '#eff6ff' : user.role === 'CASHIER' ? '#fffbeb' : '#f1f5f9',
-                          color: user.role === 'CONTROLLER' ? '#c2410c' : user.role === 'PRESIDENT' ? '#047857' : user.role === 'SECRETARY' ? '#1d4ed8' : user.role === 'CASHIER' ? '#b45309' : '#475569',
-                          border: `1px solid ${user.role === 'CONTROLLER' ? '#fed7aa' : user.role === 'PRESIDENT' ? '#a7f3d0' : user.role === 'SECRETARY' ? '#bfdbfe' : user.role === 'CASHIER' ? '#fde68a' : '#cbd5e1'}`
+                          backgroundColor: (noCommitteeMode && user.role !== 'CONTROLLER' && user.role !== 'ADMIN') ? '#f1f5f9' : user.role === 'CONTROLLER' ? '#ffedd5' : user.role === 'PRESIDENT' ? '#ecfdf5' : user.role === 'SECRETARY' ? '#eff6ff' : user.role === 'CASHIER' ? '#fffbeb' : '#f1f5f9',
+                          color: (noCommitteeMode && user.role !== 'CONTROLLER' && user.role !== 'ADMIN') ? '#64748b' : user.role === 'CONTROLLER' ? '#c2410c' : user.role === 'PRESIDENT' ? '#047857' : user.role === 'SECRETARY' ? '#1d4ed8' : user.role === 'CASHIER' ? '#b45309' : '#475569',
+                          border: `1px solid ${(noCommitteeMode && user.role !== 'CONTROLLER' && user.role !== 'ADMIN') ? '#cbd5e1' : user.role === 'CONTROLLER' ? '#fed7aa' : user.role === 'PRESIDENT' ? '#a7f3d0' : user.role === 'SECRETARY' ? '#bfdbfe' : user.role === 'CASHIER' ? '#fde68a' : '#cbd5e1'}`
                         }}>
-                          {getRoleName(user.role)}
+                          {noCommitteeMode ? (user.role === 'CONTROLLER' ? 'কন্ট্রোলার' : 'সদস্য') : getRoleName(user.role)}
                         </span>
                       </td>
 

@@ -6,19 +6,21 @@ import { Users, User, Phone, Calendar, Mail } from "lucide-react";
 import Link from "next/link";
 
 const roleTitles: Record<string, string> = {
+  CONTROLLER: "কন্ট্রোলার",
   PRESIDENT: "সভাপতি",
   SECRETARY: "সাধারণ সম্পাদক",
   CASHIER: "ক্যাশিয়ার",
   ADMIN: "অ্যাডমিন",
-  MEMBER: "সাধারণ সদস্য",
+  MEMBER: "সদস্য",
 };
 
 const roleOrderMap: Record<string, number> = {
-  PRESIDENT: 1,
-  SECRETARY: 2,
-  CASHIER: 3,
-  ADMIN: 4,
-  MEMBER: 5,
+  CONTROLLER: 1,
+  PRESIDENT: 2,
+  SECRETARY: 3,
+  CASHIER: 4,
+  ADMIN: 5,
+  MEMBER: 6,
 };
 
 export default async function MembersGalleryPage() {
@@ -28,25 +30,32 @@ export default async function MembersGalleryPage() {
     redirect("/login");
   }
 
-  // Fetch all active and non-deleted members
-  const members = await prisma.user.findMany({
-    where: {
-      activeStatus: true,
-      isDeleted: false,
-    },
-    select: {
-      id: true,
-      name: true,
-      nameBn: true,
-      nameEn: true,
-      mobile: true,
-      profilePicture: true,
-      role: true,
-      joinDate: true,
-    },
-  });
+  // Fetch club settings & all active members
+  const [settings, members] = await Promise.all([
+    (prisma as any).clubSettings.findUnique({
+      where: { id: "singleton" }
+    }).catch(() => null),
+    prisma.user.findMany({
+      where: {
+        activeStatus: true,
+        isDeleted: false,
+      },
+      select: {
+        id: true,
+        name: true,
+        nameBn: true,
+        nameEn: true,
+        mobile: true,
+        profilePicture: true,
+        role: true,
+        joinDate: true,
+      },
+    })
+  ]);
 
-  // Sort: Committee first (President, Secretary, Cashier, Admin) then general Members
+  const noCommitteeMode = settings?.noCommitteeMode ?? false;
+
+  // Sort: Committee/Controller first, then general Members
   const sortedMembers = [...members].sort((a, b) => {
     const orderA = roleOrderMap[a.role] || 99;
     const orderB = roleOrderMap[b.role] || 99;
@@ -63,7 +72,9 @@ export default async function MembersGalleryPage() {
           <h1 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--foreground)', display: 'flex', alignItems: 'center', gap: '0.75rem', margin: 0 }}>
             <Users size={32} color="var(--primary)" /> সদস্যবৃন্দ (Members)
           </h1>
-          <p style={{ color: '#6b7280', marginTop: '0.25rem' }}>ইউনাইটেড ভিশন ক্লাবের সম্মানিত সকল সক্রিয় সদস্যবৃন্দ</p>
+          <p style={{ color: '#6b7280', marginTop: '0.25rem' }}>
+            {noCommitteeMode ? "⚡ অন্তরবর্তীকালীন সময়ে ক্লাবের সম্মানিত সদস্যবৃন্দ (কমিটি স্থগিত)" : "ইউনাইটেড ভিশন ক্লাবের সম্মানিত সকল সক্রিয় সদস্যবৃন্দ"}
+          </p>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem' }}>
           <Link href="/dashboard" className="btn btn-secondary" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -79,8 +90,14 @@ export default async function MembersGalleryPage() {
         gap: '2rem' 
       }}>
         {sortedMembers.map((member) => {
-          const isCommittee = member.role !== 'MEMBER';
-          const roleTitle = roleTitles[member.role] || member.role;
+          // If noCommitteeMode is active: only CONTROLLER / ADMIN retain leadership title, all others show as 'সদস্য'
+          const effectiveRole = noCommitteeMode 
+            ? (member.role === 'CONTROLLER' || member.role === 'ADMIN' ? member.role : 'MEMBER')
+            : member.role;
+
+          const isController = effectiveRole === 'CONTROLLER';
+          const isLeader = effectiveRole !== 'MEMBER';
+          const displayRoleTitle = roleTitles[effectiveRole] || 'সদস্য';
 
           return (
             <div 
@@ -94,27 +111,27 @@ export default async function MembersGalleryPage() {
                 alignItems: 'center', 
                 padding: '2rem 1.5rem',
                 textAlign: 'center',
-                border: isCommittee ? '1.5px solid rgba(15, 103, 61, 0.25)' : '1px solid var(--border)',
-                boxShadow: isCommittee ? '0 10px 25px -5px rgba(15, 103, 61, 0.08)' : '0 4px 6px -1px rgba(0,0,0,0.02)',
+                border: isController ? '2px solid #ea580c' : isLeader ? '1.5px solid rgba(15, 103, 61, 0.25)' : '1px solid var(--border)',
+                boxShadow: isController ? '0 10px 25px -5px rgba(234, 88, 12, 0.15)' : isLeader ? '0 10px 25px -5px rgba(15, 103, 61, 0.08)' : '0 4px 6px -1px rgba(0,0,0,0.02)',
                 position: 'relative',
                 transition: 'all 0.3s ease',
               }}
             >
-              {/* Highlight ribbon for Committee members */}
-              {isCommittee && (
+              {/* Highlight ribbon */}
+              {isLeader && (
                 <div style={{
                   position: 'absolute',
                   top: '12px',
                   right: '12px',
-                  backgroundColor: 'rgba(15, 103, 61, 0.1)',
-                  color: 'var(--primary)',
+                  backgroundColor: isController ? 'rgba(234, 88, 12, 0.12)' : 'rgba(15, 103, 61, 0.1)',
+                  color: isController ? '#c2410c' : 'var(--primary)',
                   fontSize: '0.7rem',
                   fontWeight: 700,
                   padding: '0.25rem 0.6rem',
                   borderRadius: '9999px',
-                  border: '1px solid rgba(15, 103, 61, 0.2)'
+                  border: isController ? '1px solid rgba(234, 88, 12, 0.3)' : '1px solid rgba(15, 103, 61, 0.2)'
                 }}>
-                  কমিটি
+                  {isController ? "কন্ট্রোলার" : "কমিটি"}
                 </div>
               )}
 
@@ -142,7 +159,7 @@ export default async function MembersGalleryPage() {
                   <div style={{ 
                     width: '100%', 
                     height: '100%', 
-                    background: 'linear-gradient(135deg, var(--primary) 0%, #34d399 100%)', 
+                    background: isController ? 'linear-gradient(135deg, #ea580c 0%, #f97316 100%)' : 'linear-gradient(135deg, var(--primary) 0%, #34d399 100%)', 
                     color: 'white', 
                     display: 'flex', 
                     alignItems: 'center', 
@@ -165,33 +182,31 @@ export default async function MembersGalleryPage() {
                 display: 'inline-block',
                 padding: '0.35rem 1rem', 
                 borderRadius: '9999px', 
-                background: member.role === 'PRESIDENT' ? 'rgba(239, 68, 68, 0.08)' : 
-                            member.role === 'SECRETARY' ? 'rgba(59, 130, 246, 0.08)' : 
-                            member.role === 'CASHIER' ? 'rgba(245, 158, 11, 0.08)' : 
-                            member.role === 'ADMIN' ? 'rgba(107, 114, 128, 0.08)' : 'rgba(243, 244, 246, 1)',
-                color: member.role === 'PRESIDENT' ? '#dc2626' : 
-                       member.role === 'SECRETARY' ? '#2563eb' : 
-                       member.role === 'CASHIER' ? '#d97706' : 
-                       member.role === 'ADMIN' ? '#4b5563' : '#6b7280',
-                fontWeight: 600,
+                background: isController ? '#ffedd5' : 
+                            effectiveRole === 'PRESIDENT' ? 'rgba(239, 68, 68, 0.08)' : 
+                            effectiveRole === 'SECRETARY' ? 'rgba(59, 130, 246, 0.08)' : 
+                            effectiveRole === 'CASHIER' ? 'rgba(245, 158, 11, 0.08)' : 
+                            effectiveRole === 'ADMIN' ? 'rgba(107, 114, 128, 0.08)' : '#f1f5f9',
+                color: isController ? '#c2410c' : 
+                       effectiveRole === 'PRESIDENT' ? '#dc2626' : 
+                       effectiveRole === 'SECRETARY' ? '#2563eb' : 
+                       effectiveRole === 'CASHIER' ? '#d97706' : 
+                       effectiveRole === 'ADMIN' ? '#4b5563' : '#475569',
+                fontWeight: 700,
                 fontSize: '0.8rem',
                 marginBottom: '1rem',
-                border: member.role === 'PRESIDENT' ? '1px solid rgba(239, 68, 68, 0.15)' : 
-                        member.role === 'SECRETARY' ? '1px solid rgba(59, 130, 246, 0.15)' : 
-                        member.role === 'CASHIER' ? '1px solid rgba(245, 158, 11, 0.15)' : 'none'
+                border: isController ? '1px solid #fed7aa' : 
+                        effectiveRole === 'PRESIDENT' ? '1px solid rgba(239, 68, 68, 0.15)' : 
+                        effectiveRole === 'SECRETARY' ? '1px solid rgba(59, 130, 246, 0.15)' : '#cbd5e1'
               }}>
-                {roleTitle}
+                {displayRoleTitle}
               </span>
 
-              {/* Extra details with small icons */}
-              <div style={{ width: '100%', borderTop: '1px solid #f3f4f6', paddingTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.4rem', alignItems: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', color: '#6b7280' }}>
-                  <Phone size={12} style={{ color: '#9ca3af' }} />
-                  <span>{member.mobile}</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.75rem', color: '#9ca3af' }}>
-                  <Calendar size={11} />
-                  <span>যোগদান: {new Date(member.joinDate).toLocaleDateString('bn-BD', { year: 'numeric', month: 'long' })}</span>
+              {/* Contact Information */}
+              <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.85rem', color: '#4b5563' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                  <Phone size={14} color="var(--primary)" />
+                  <span style={{ fontWeight: 600 }}>{member.mobile}</span>
                 </div>
               </div>
             </div>
