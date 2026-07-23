@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import Link from "next/link";
-import { ArrowLeft, AlertCircle, Printer } from "lucide-react";
+import { ArrowLeft, AlertCircle, Printer, FileText } from "lucide-react";
 import ResetPasswordModal from "./ResetPasswordModal";
 import DeleteMemberButton from "./DeleteMemberButton";
 import SuspendMemberButton from "./SuspendMemberButton";
@@ -87,18 +87,9 @@ export default async function ManageMembersPage() {
         </Link>
         <div>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--foreground)', margin: 0 }}>মেম্বার ব্যবস্থাপনা</h1>
-          <p style={{ color: '#6b7280', fontSize: '0.875rem', margin: '2px 0 0' }}>সদস্যদের হিসাব স্থগিত, পদত্যাগ অনুমোদন ও পাসওয়ার্ড ম্যানেজমেন্ট</p>
+          <p style={{ color: '#6b7280', fontSize: '0.875rem', margin: '2px 0 0' }}>সদস্যদের হিসাব স্থগিত, পদত্যাগ অনুমোদন, পাসওয়ার্ড ও ভর্তি ফরম PDF</p>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', marginLeft: 'auto', flexWrap: 'wrap', alignItems: 'center' }}>
-          <Link href="/dashboard/admin/committee" style={{ color: '#7c3aed', display: 'flex', alignItems: 'center', gap: '0.35rem', textDecoration: 'none', fontWeight: 700, fontSize: '0.85rem', padding: '0.35rem 0.65rem', borderRadius: '0.5rem', backgroundColor: 'rgba(124, 58, 237, 0.1)', border: '1px solid rgba(124, 58, 237, 0.25)' }}>
-            ☑️ পদবী ও রোল নির্বাচন (Assign Roles)
-          </Link>
-          <Link href="/dashboard/admin/members/print-form" target="_blank" style={{ color: '#059669', display: 'flex', alignItems: 'center', gap: '0.25rem', textDecoration: 'none', fontWeight: 700, fontSize: '0.85rem', padding: '0.35rem 0.65rem', borderRadius: '0.5rem', backgroundColor: 'rgba(5, 150, 105, 0.1)', border: '1px solid rgba(5, 150, 105, 0.25)' }}>
-            <Printer size={15} /> 📄 ফাঁকা আবেদন ফরম (Print/PDF)
-          </Link>
-          <Link href="/dashboard/admin/members/print-list" target="_blank" style={{ color: '#0284c7', display: 'flex', alignItems: 'center', gap: '0.25rem', textDecoration: 'none', fontWeight: 700, fontSize: '0.85rem', padding: '0.35rem 0.65rem', borderRadius: '0.5rem', backgroundColor: 'rgba(2, 132, 199, 0.1)', border: '1px solid rgba(2, 132, 199, 0.25)' }}>
-            <Printer size={15} /> 👥 মেম্বার প্রিন্ট তালিকা (PDF)
-          </Link>
           {(role === "ADMIN" || role === "PRESIDENT") && (
             <Link href="/dashboard/admin/members/trash" className="btn btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', textDecoration: 'none', color: '#ef4444', borderColor: '#ef4444', padding: '0.35rem 0.65rem', fontSize: '0.85rem' }}>
               <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
@@ -159,25 +150,29 @@ export default async function ManageMembersPage() {
                     </td>
                     <td style={{ padding: '0.85rem 0.5rem', display: 'flex', justifyContent: 'flex-end', gap: '0.35rem', alignItems: 'center' }}>
                       
-                      {/* 1. View / Print Form Icon Button */}
+                      {/* 1. Individual Member PDF Form Button */}
                       <Link 
                         href={`/dashboard/admin/members/${user.id}/print-form`}
                         target="_blank"
                         style={{
-                          width: "32px",
                           height: "32px",
+                          padding: "0 0.55rem",
                           borderRadius: "0.5rem",
                           display: "inline-flex",
                           alignItems: "center",
-                          justifyContent: "center",
-                          backgroundColor: "rgba(2, 132, 199, 0.1)",
+                          gap: "0.3rem",
+                          backgroundColor: "rgba(2, 132, 199, 0.12)",
                           color: "#0284c7",
-                          border: "1px solid rgba(2, 132, 199, 0.25)",
-                          textDecoration: "none"
+                          border: "1px solid rgba(2, 132, 199, 0.3)",
+                          textDecoration: "none",
+                          fontWeight: 700,
+                          fontSize: "0.75rem",
+                          transition: "all 0.2s"
                         }}
-                        title="সদস্য ফরম দেখুন ও প্রিন্ট করুন (View & Print)"
+                        title={`${user.nameBn || user.name}-এর মেম্বারশিপ ফরম ও PDF জেনারেট করুন`}
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        <FileText size={14} />
+                        <span>ফরম PDF</span>
                       </Link>
 
                       {/* 2. Edit Member Icon Button */}
