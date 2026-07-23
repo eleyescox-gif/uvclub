@@ -195,14 +195,14 @@ export function CheckboxRoleAssignForm({ members }: { members: Member[] }) {
       padding: "1.25rem",
     }}>
       <h2 style={{ fontSize: "1.05rem", fontWeight: 700, color: "#0f172a", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-        <CheckSquare size={18} color="#059669" /> সদস্য পদবী ও রোল নির্বাচন (Role Checkbox Assign)
+        <CheckSquare size={18} color="#059669" /> সদস্য পদবী ও রোল বন্টন
       </h2>
 
       <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
         {/* 1. Member Selector */}
         <div>
           <label style={{ display: "block", fontSize: "0.8125rem", fontWeight: 700, marginBottom: "0.4rem", color: "#475569" }}>
-            ১. সদস্য সিলেক্ট করুন
+            ১. সদস্য নির্বাচন করুন
           </label>
           <select 
             value={selectedUser} 
@@ -210,7 +210,7 @@ export function CheckboxRoleAssignForm({ members }: { members: Member[] }) {
             required 
             style={{ width: "100%", padding: "0.6rem 0.8rem", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "0.875rem", backgroundColor: "#ffffff" }}
           >
-            <option value="">-- সদস্য সিলেক্ট করুন --</option>
+            <option value="">-- সদস্য নির্বাচন করুন --</option>
             {members.map(m => (
               <option key={m.id} value={m.id}>
                 {m.nameBn || m.name} ({m.mobile})
@@ -222,7 +222,7 @@ export function CheckboxRoleAssignForm({ members }: { members: Member[] }) {
         {/* 2. Role Checkbox Selection Cards */}
         <div>
           <label style={{ display: "block", fontSize: "0.8125rem", fontWeight: 700, marginBottom: "0.4rem", color: "#475569" }}>
-            ২. পদবী/রোল টিক দিয়ে নির্বাচন করুন (Checkmark Role)
+            ২. পদবী/রোল নির্বাচন করুন
           </label>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "8px" }}>
             {roleOptions.map((item) => {
@@ -263,21 +263,6 @@ export function CheckboxRoleAssignForm({ members }: { members: Member[] }) {
           </div>
         </div>
 
-        {/* 3. Custom Designation Input */}
-        <div>
-          <label style={{ display: "block", fontSize: "0.8125rem", fontWeight: 700, marginBottom: "0.4rem", color: "#475569" }}>
-            ৩. কমিটির অফিসিয়াল পদবী নাম
-          </label>
-          <input
-            type="text"
-            value={customDesignation}
-            onChange={(e) => setCustomDesignation(e.target.value)}
-            required
-            placeholder="যেমন: কন্ট্রোলার, সভাপতি, সহ-সভাপতি, সদস্য"
-            style={{ width: "100%", padding: "0.6rem 0.8rem", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "0.875rem" }}
-          />
-        </div>
-
         {error && (
           <div style={{ padding: "0.75rem", borderRadius: "8px", backgroundColor: "#fef2f2", border: "1px solid #fecdd3", color: "#dc2626", fontSize: "0.8125rem", fontWeight: 600 }}>
             {error}
@@ -299,7 +284,7 @@ export function CheckboxRoleAssignForm({ members }: { members: Member[] }) {
             marginTop: "0.25rem"
           }}
         >
-          {loading ? "আপডেট করা হচ্ছে..." : "✓ পছন্দনীয় রোল ও পদবী সংরক্ষণ করুন"}
+          {loading ? "সংরক্ষণ হচ্ছে..." : "✓ রোল ও পদবী নিশ্চিত করুন"}
         </button>
       </form>
     </div>
