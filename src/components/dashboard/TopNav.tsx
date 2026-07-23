@@ -201,7 +201,7 @@ export default function TopNav({ user, activeNoticesCount = 0, clubSettings, not
                 flexShrink: 0
               }}>
                 {user?.profilePicture ? (
-                  <img src={user.profilePicture} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src={user.profilePicture} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center' }} />
                 ) : (
                   user?.name?.charAt(0).toUpperCase() || "U"
                 )}

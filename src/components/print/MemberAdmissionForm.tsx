@@ -82,9 +82,9 @@ export default function MemberAdmissionForm({ memberData }: MemberAdmissionFormP
           </div>
         </div>
 
-        <div style={{ width: '130px', height: '160px', border: '1px solid #9ca3af', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', color: '#6b7280', fontSize: '14px', borderRadius: '5px', overflow: 'hidden' }}>
+        <div style={{ width: '130px', height: '130px', border: '2px solid #0284c7', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', color: '#6b7280', fontSize: '13px', borderRadius: '50%', overflow: 'hidden', backgroundColor: '#f8fafc', flexShrink: 0 }}>
           {memberData?.profilePicture ? (
-            <img src={memberData.profilePicture} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src={memberData.profilePicture} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center' }} />
           ) : (
             <>পাসপোর্ট সাইজ<br/>ছবি</>
           )}

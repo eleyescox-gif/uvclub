@@ -61,9 +61,9 @@ export default function EditMemberForm({ user, currentUserRole }: { user: any, c
           </h3>
 
           <div className={styles.imageUploadSection} style={{ marginBottom: '1.5rem', padding: '1.5rem', backgroundColor: '#f9fafb', borderRadius: '0.5rem', border: '1px dashed #d1d5db', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <div className={styles.imagePreview} style={{ width: '80px', height: '80px', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid #d1d5db', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div className={styles.imagePreview} style={{ width: '80px', height: '80px', borderRadius: '50%', overflow: 'hidden', border: '2px solid #0284c7', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff', flexShrink: 0 }}>
               {photoBase64 ? (
-                <img src={photoBase64} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img src={photoBase64} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center' }} />
               ) : (
                 <div style={{ color: '#9ca3af', fontSize: '0.75rem', textAlign: 'center' }}>ছবি নেই</div>
               )}

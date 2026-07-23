@@ -139,11 +139,11 @@ export default async function MembersGalleryPage() {
               <div style={{ 
                 width: '110px', 
                 height: '110px', 
-                borderRadius: '1rem', 
+                borderRadius: '50%', 
                 overflow: 'hidden', 
                 backgroundColor: '#f3f4f6', 
                 marginBottom: '1.25rem', 
-                boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center',
@@ -153,7 +153,7 @@ export default async function MembersGalleryPage() {
                   <img 
                     src={member.profilePicture} 
                     alt={member.name} 
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center' }} 
                   />
                 ) : (
                   <div style={{ 

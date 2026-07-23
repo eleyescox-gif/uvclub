@@ -61,7 +61,7 @@ export default function ProfileEditForm({ user }: { user: User }) {
       <div className={styles.profileHeader}>
         <div className={styles.avatarWrapper}>
           {profilePicture ? (
-            <img src={profilePicture} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src={profilePicture} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center' }} />
           ) : (
             <span style={{ fontSize: '2rem', color: '#9ca3af', fontWeight: 'bold' }}>{user.name.charAt(0)}</span>
           )}
