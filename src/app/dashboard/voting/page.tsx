@@ -14,7 +14,7 @@ export default async function VotingEnginePage() {
 
   const userId = (session.user as any).id;
   const role = (session.user as any).role;
-  const isAdmin = role === "ADMIN" || role === "PRESIDENT" || role === "SECRETARY";
+  const isAdmin = role === "ADMIN" || role === "PRESIDENT" || role === "SECRETARY" || role === "CONTROLLER";
 
   // Fetch active members
   const members = await prisma.user.findMany({

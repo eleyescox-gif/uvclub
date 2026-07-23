@@ -11,7 +11,7 @@ export async function createPoll(formData: FormData) {
   if (!session?.user) return { error: "Unauthenticated" };
 
   const role = (session.user as any).role;
-  if (role !== "ADMIN" && role !== "PRESIDENT" && role !== "SECRETARY") {
+  if (role !== "ADMIN" && role !== "PRESIDENT" && role !== "SECRETARY" && role !== "CONTROLLER") {
     return { error: "Unauthorized. Only President/Secretary can create polls." };
   }
 
@@ -195,7 +195,7 @@ export async function deletePoll(pollId: string) {
   if (!session?.user) return { error: "Unauthenticated" };
 
   const role = (session.user as any).role;
-  if (role !== "ADMIN" && role !== "PRESIDENT") {
+  if (role !== "ADMIN" && role !== "PRESIDENT" && role !== "SECRETARY" && role !== "CONTROLLER") {
     return { error: "Unauthorized. Only President or Admin can delete polls." };
   }
 

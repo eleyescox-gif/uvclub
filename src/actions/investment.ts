@@ -13,7 +13,7 @@ export async function createProject(formData: FormData) {
   }
 
   const role = (session.user as any).role;
-  if (role !== "ADMIN" && role !== "PRESIDENT" && role !== "SECRETARY") {
+  if (role !== "ADMIN" && role !== "PRESIDENT" && role !== "SECRETARY" && role !== "CONTROLLER") {
     return { error: "Unauthorized" };
   }
 
@@ -51,7 +51,7 @@ export async function updateProject(formData: FormData) {
   }
 
   const role = (session.user as any).role;
-  if (role !== "ADMIN" && role !== "PRESIDENT" && role !== "SECRETARY") {
+  if (role !== "ADMIN" && role !== "PRESIDENT" && role !== "SECRETARY" && role !== "CONTROLLER") {
     return { error: "Unauthorized" };
   }
 
@@ -94,7 +94,7 @@ export async function distributeProfit(formData: FormData) {
 
   const role = (session.user as any).role;
   // Usually CASHIER or PRESIDENT manages funds
-  if (role !== "ADMIN" && role !== "PRESIDENT" && role !== "CASHIER") {
+  if (role !== "ADMIN" && role !== "PRESIDENT" && role !== "CASHIER" && role !== "CONTROLLER") {
     return { error: "Unauthorized" };
   }
 
@@ -174,7 +174,7 @@ export async function deleteProject(projectId: string) {
   }
 
   const role = (session.user as any).role;
-  if (role !== "ADMIN" && role !== "PRESIDENT" && role !== "SECRETARY") {
+  if (role !== "ADMIN" && role !== "PRESIDENT" && role !== "SECRETARY" && role !== "CONTROLLER") {
     return { error: "Unauthorized" };
   }
 
