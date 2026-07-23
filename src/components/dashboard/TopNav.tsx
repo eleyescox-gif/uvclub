@@ -63,7 +63,7 @@ export default function TopNav({ user, activeNoticesCount = 0, clubSettings, not
       minWidth: 0,
     }}>
       {/* Spacer for hamburger button on mobile */}
-      <div style={{ flex: '0 0 40px', width: '40px' }}></div>
+      <div className="topnav-hamburger-spacer"></div>
 
       {/* Logo and Club Name Title (Centered on Desktop, Left on Mobile via CSS) */}
       <div className="topnav-title-container">

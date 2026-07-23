@@ -177,26 +177,26 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* 1. Top Important Balance Card (Full Width at Top) */}
-      <div className={styles.balanceCardFull}>
-        <div className={styles.balanceHeader}>
-          <span className={styles.balanceLabel}>
-            <Wallet size={20} /> আমার মোট জমা
-          </span>
+      {/* 1. Top Summary Stats Grid (3 Columns Desktop, 2 Columns Mobile) */}
+      <div className={styles.topStatsGrid}>
+        {/* Card 1: My Personal Deposit */}
+        <div className={styles.balanceCardFull}>
+          <div className={styles.statCardHeader}>
+            <span className={styles.statCardTitle} style={{ color: 'rgba(255,255,255,0.9)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Wallet size={18} /> আমার মোট জমা
+            </span>
+          </div>
+          <div>
+            <h2 className={styles.statCardValue} style={{ color: '#ffffff', fontSize: '1.75rem' }}>
+              <AnimatedCounter value={personalBalance} prefix="৳ " />
+            </h2>
+            <span className={styles.ctaBadge} style={{ backgroundColor: 'rgba(255,255,255,0.2)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.35)' }}>
+              ব্যক্তিগত সঞ্চয় তহবিল
+            </span>
+          </div>
         </div>
-        <div>
-          <h2 className={styles.balanceValue}>
-            <AnimatedCounter value={personalBalance} prefix="৳ " />
-          </h2>
-        </div>
-        <div className={styles.balanceTag}>
-          ব্যক্তিগত সঞ্চয় তহবিল
-        </div>
-      </div>
 
-      {/* 2. Secondary Stats Grid (Club Fund & Pending Polls) */}
-      <div className={styles.secondaryStatsGrid}>
-        {/* Card: Club Total Fund */}
+        {/* Card 2: Club Total Fund */}
         <div className={styles.statCardFlat}>
           <div className={styles.statCardHeader}>
             <span className={styles.statCardTitle}>ক্লাবের জমা</span>
@@ -214,7 +214,7 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {/* Card: Pending Polls */}
+        {/* Card 3: Pending Polls */}
         <Link href="/dashboard/voting" style={{ textDecoration: 'none' }}>
           <div className={styles.statCardFlat}>
             <div className={styles.statCardHeader}>

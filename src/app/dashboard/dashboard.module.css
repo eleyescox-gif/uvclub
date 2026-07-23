@@ -32,66 +32,26 @@
   margin-top: 4px;
 }
 
-/* Top Balance Card (Full Width at Top) */
+/* Top Summary Stats Grid (3 Columns on Desktop, 2 Columns Mobile) */
+.topStatsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
 .balanceCardFull {
   background-color: #059669;
   border: 1px solid #047857;
   border-radius: 12px;
-  padding: 20px 24px;
+  padding: 16px 20px;
   color: #ffffff;
-  margin-bottom: 16px;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   gap: 12px;
   position: relative;
   overflow: hidden;
-}
-
-.balanceHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.balanceLabel {
-  font-size: 0.875rem; /* 14px */
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.95);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.balanceValue {
-  font-size: 2rem; /* 32px */
-  font-weight: 700;
-  color: #ffffff;
-  margin: 0;
-  letter-spacing: -0.02em;
-}
-
-.balanceTag {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  color: #ffffff;
-  font-size: 0.8125rem; /* 13px */
-  font-weight: 700;
-  padding: 6px 14px;
-  border-radius: 8px;
-  width: fit-content;
-}
-
-/* Secondary Stats Grid (2 Columns on Desktop & Mobile) */
-.secondaryStatsGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-  margin-bottom: 16px;
 }
 
 .statCardFlat {
@@ -586,6 +546,16 @@
   }
 }
 
+@media (max-width: 768px) {
+  .topStatsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .balanceCardFull {
+    grid-column: span 2;
+  }
+}
+
 @media (max-width: 640px) {
   .header {
     margin-bottom: 12px;
@@ -596,14 +566,6 @@
   .balanceCardFull {
     padding: 16px;
     border-radius: 10px;
-  }
-  .balanceValue {
-    font-size: 1.625rem; /* 26px on mobile */
-  }
-  
-  .secondaryStatsGrid {
-    grid-template-columns: repeat(2, 1fr); /* Max 2 columns */
-    gap: 10px;
   }
   .statCardFlat {
     padding: 12px 14px;
