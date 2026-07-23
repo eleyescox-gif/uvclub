@@ -186,20 +186,6 @@ export default function Sidebar({ role, user, totalMembersCount }: SidebarProps)
                       {item.icon}
                     </div>
                     <span className={styles.navText} style={{ flex: 1 }}>{item.name}</span>
-                    {item.name === "Members" && totalMembersCount !== undefined && (
-                      <span style={{
-                        fontSize: '0.72rem',
-                        fontWeight: 800,
-                        color: '#2563eb',
-                        backgroundColor: 'rgba(37, 99, 235, 0.12)',
-                        border: '1px solid rgba(37, 99, 235, 0.2)',
-                        padding: '1px 7px',
-                        borderRadius: '10px',
-                        marginLeft: 'auto'
-                      }}>
-                        {totalMembersCount} জন
-                      </span>
-                    )}
                   </Link>
                 )
               })}
