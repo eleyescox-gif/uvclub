@@ -17,6 +17,16 @@ export async function POST(req: Request) {
 
     const { noCommitteeMode } = await req.json();
 
+    // If turning OFF control mode, ensure an elected committee exists
+    if (!noCommitteeMode) {
+      const committeeCount = await prisma.committee.count();
+      if (committeeCount === 0) {
+        return NextResponse.json({ 
+          error: "কন্ট্রোল মোড বন্ধ করতে হলে অবশ্যই একটি নির্বাচিত পরিচালনা কমিটি থাকতে হবে! দয়া করে আগে নিচে পরিচালনা কমিটি গঠন করুন।" 
+        }, { status: 400 });
+      }
+    }
+
     const updatedSettings = await (prisma as any).clubSettings.upsert({
       where: { id: "singleton" },
       create: {

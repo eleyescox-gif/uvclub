@@ -19,7 +19,7 @@ export default async function DashboardLayout({
   }
 
   const role = (session.user as any).role || "MEMBER";
-
+  let effectiveRole = role;
   let formattedNotices: any[] = [];
   let collectionStats = { paid: 0, due: 0 };
   let totalMembersCount = 0;
@@ -33,8 +33,9 @@ export default async function DashboardLayout({
     const currentMonth = today.getMonth() + 1;
     const currentYear = today.getFullYear();
 
-    // Parallelized DB queries for ultra-fast response
-    const [activeNotices, memberCount, paidInvoicesCount] = await Promise.all([
+    // Fetch settings and parallelize DB queries
+    const [settings, activeNotices, memberCount, paidInvoicesCount] = await Promise.all([
+      (prisma as any).clubSettings.findUnique({ where: { id: "singleton" } }).catch(() => null),
       prisma.notice.findMany({
         where: { isActive: true },
         orderBy: { createdAt: 'desc' },
@@ -45,6 +46,13 @@ export default async function DashboardLayout({
         where: { month: currentMonth, year: currentYear, status: 'PAID' }
       }).catch(() => 0)
     ]);
+
+    const noCommitteeMode = settings?.noCommitteeMode ?? false;
+
+    // IF noCommitteeMode is TRUE: Only CONTROLLER or ADMIN retains admin powers, all others become 'MEMBER'
+    effectiveRole = noCommitteeMode
+      ? (role === "CONTROLLER" || role === "ADMIN" ? role : "MEMBER")
+      : role;
 
     totalMembersCount = memberCount;
 
@@ -62,6 +70,7 @@ export default async function DashboardLayout({
     });
 
     const getRoleName = (r: string) => {
+      if (r === 'CONTROLLER') return 'কন্ট্রোলার';
       if (r === 'PRESIDENT') return 'সভাপতি';
       if (r === 'SECRETARY') return 'সাধারণ সম্পাদক';
       if (r === 'CASHIER') return 'ক্যাশিয়ার';
@@ -87,12 +96,12 @@ export default async function DashboardLayout({
   return (
     <div className="layout-container">
       {/* Sidebar - fixed width on desktop */}
-      <Sidebar role={role} user={session.user} totalMembersCount={totalMembersCount} />
+      <Sidebar role={effectiveRole} user={{ ...session.user, role: effectiveRole }} totalMembersCount={totalMembersCount} />
 
       {/* Main Content Area */}
       <main className="main-content">
         <div className="card-wrapper">
-          <TopNav user={session.user} activeNoticesCount={formattedNotices.length} clubSettings={clubSettings} notices={formattedNotices} collectionStats={collectionStats} />
+          <TopNav user={{ ...session.user, role: effectiveRole }} activeNoticesCount={formattedNotices.length} clubSettings={clubSettings} notices={formattedNotices} collectionStats={collectionStats} />
           <div style={{ flex: 1 }}>
             {children}
           </div>
@@ -100,7 +109,7 @@ export default async function DashboardLayout({
       </main>
 
       {/* Mobile App Bottom Navigation Bar */}
-      <BottomNav role={role} user={session.user} />
+      <BottomNav role={effectiveRole} user={{ ...session.user, role: effectiveRole }} />
     </div>
   );
 }
