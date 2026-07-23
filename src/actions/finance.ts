@@ -95,8 +95,12 @@ export async function postPayment(formData: FormData) {
 
 export async function getAllMembersForSelect() {
   const members = await prisma.user.findMany({
-    select: { id: true, name: true, mobile: true },
-    orderBy: { name: "asc" }
+    where: { activeStatus: true, isDeleted: false },
+    select: { id: true, name: true, nameBn: true, mobile: true },
+    orderBy: [
+      { nameBn: "asc" },
+      { name: "asc" }
+    ]
   });
   return members;
 }
