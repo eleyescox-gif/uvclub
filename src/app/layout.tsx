@@ -21,6 +21,8 @@ export const metadata: Metadata = {
   }
 };
 
+import AppDownloadPrompt from "@/components/dashboard/AppDownloadPrompt";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -38,7 +40,10 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="min-h-full flex flex-col" style={{ fontFamily: "'Hind Siliguri', 'Noto Sans Bengali', 'SolaimanLipi', sans-serif" }} suppressHydrationWarning>
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <AppDownloadPrompt />
+        </Providers>
       </body>
     </html>
   );
