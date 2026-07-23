@@ -17,13 +17,36 @@ export async function POST(req: Request) {
 
     const { noCommitteeMode } = await req.json();
 
-    // If turning OFF control mode, ensure an elected committee exists
+    // If turning OFF control mode (handing over to committee)
     if (!noCommitteeMode) {
-      const committeeCount = await prisma.committee.count();
-      if (committeeCount === 0) {
+      const committeeMembers = await prisma.committee.findMany();
+
+      if (committeeMembers.length === 0) {
         return NextResponse.json({ 
-          error: "কন্ট্রোল মোড বন্ধ করতে হলে অবশ্যই একটি নির্বাচিত পরিচালনা কমিটি থাকতে হবে! দয়া করে আগে নিচে পরিচালনা কমিটি গঠন করুন।" 
+          error: "কন্ট্রোল মোড বন্ধ করতে হলে অবশ্যই একটি নির্বাচিত পরিচালনা কমিটি থাকতে হবে! দয়া করে আগে পরিচালনা কমিটি গঠন করে পদবী অর্পণ করুন।" 
         }, { status: 400 });
+      }
+
+      // Handover: Revert CONTROLLER user back to their assigned committee role or MEMBER
+      const controllerUsers = await prisma.user.findMany({
+        where: { role: "CONTROLLER" },
+        include: { committeeRole: true }
+      });
+
+      for (const u of controllerUsers) {
+        let restoredRole = "MEMBER";
+        if (u.committeeRole) {
+          const desig = u.committeeRole.designation.toLowerCase();
+          if (desig.includes("সভাপতি") || desig.includes("president")) restoredRole = "PRESIDENT";
+          else if (desig.includes("সম্পাদক") || desig.includes("secretary")) restoredRole = "SECRETARY";
+          else if (desig.includes("ক্যাশ") || desig.includes("cashier")) restoredRole = "CASHIER";
+          else if (desig.includes("অ্যাডমিন") || desig.includes("admin")) restoredRole = "ADMIN";
+        }
+
+        await prisma.user.update({
+          where: { id: u.id },
+          data: { role: restoredRole }
+        });
       }
     }
 
