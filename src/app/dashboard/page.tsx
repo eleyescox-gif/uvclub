@@ -7,6 +7,7 @@ import styles from "./dashboard.module.css";
 import { authOptions } from "@/lib/auth";
 import { PollOptionList } from "@/app/dashboard/voting/VotingComponents";
 import AnimatedCounter from "@/components/dashboard/AnimatedCounter";
+import NoticePopupModal from "@/components/dashboard/NoticePopupModal";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -165,8 +166,18 @@ export default async function DashboardPage() {
     quickServices.push({ name: "অনুমোদন", href: "/dashboard/admin/members/pending", icon: <CheckCircle2 size={20} /> });
   }
 
+  const popupNotices = latestNotices.map(n => ({
+    id: n.id,
+    title: n.title,
+    content: n.content,
+    createdAt: n.createdAt.toISOString()
+  }));
+
   return (
     <div className={styles.container}>
+      {/* Auto-Dismissing Notice Announcement Popup */}
+      <NoticePopupModal notices={popupNotices} autoCloseSeconds={8} />
+
       {/* Header Area */}
       <div className={styles.header}>
         <div>
