@@ -17,8 +17,15 @@ export async function POST(req: Request) {
 
     const { noCommitteeMode } = await req.json();
 
-    // If turning OFF control mode (handing over to committee)
-    if (!noCommitteeMode) {
+    // If turning ON control mode (handing over to Controller)
+    if (noCommitteeMode) {
+      const userId = (session.user as any).id;
+      await prisma.user.update({
+        where: { id: userId },
+        data: { role: "CONTROLLER" }
+      });
+    } else {
+      // If turning OFF control mode (handing over to committee)
       const committeeMembers = await prisma.committee.findMany();
 
       if (committeeMembers.length === 0) {
