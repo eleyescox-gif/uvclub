@@ -17,20 +17,20 @@ export async function addMember(formData: FormData) {
     return { error: "Unauthorized. Only authorized leaders can add members." };
   }
 
-  const name = formData.get("name") as string;
-  const nameBn = formData.get("nameBn") as string;
-  const nameEn = formData.get("nameEn") as string;
-  const mobile = formData.get("mobile") as string;
-  const password = formData.get("password") as string;
-  const fatherName = formData.get("fatherName") as string;
-  const motherName = formData.get("motherName") as string;
-  const address = formData.get("address") as string;
-  const nid = formData.get("nid") as string;
+  const name = (formData.get("name") as string || "").trim();
+  const nameBn = (formData.get("nameBn") as string || "").trim();
+  const nameEn = (formData.get("nameEn") as string || "").trim();
+  const mobile = (formData.get("mobile") as string || "").trim();
+  const password = (formData.get("password") as string || "").trim();
+  const fatherName = (formData.get("fatherName") as string || "").trim();
+  const motherName = (formData.get("motherName") as string || "").trim();
+  const address = (formData.get("address") as string || "").trim();
+  const nid = (formData.get("nid") as string || "").trim();
   const dobStr = formData.get("dob") as string;
-  const nomineeName = formData.get("nomineeName") as string;
-  const nomineeNid = formData.get("nomineeNid") as string;
-  const nomineeMobile = formData.get("nomineeMobile") as string;
-  const nomineeAge = formData.get("nomineeAge") as string;
+  const nomineeName = (formData.get("nomineeName") as string || "").trim();
+  const nomineeNid = (formData.get("nomineeNid") as string || "").trim();
+  const nomineeMobile = (formData.get("nomineeMobile") as string || "").trim();
+  const nomineeAge = (formData.get("nomineeAge") as string || "").trim();
   const profilePicture = formData.get("profilePicture") as string;
   
   let userRole = formData.get("role") as string | undefined;
@@ -286,21 +286,21 @@ export async function updateMember(userId: string, formData: FormData) {
     return { error: "Unauthorized. Only authorized leaders can edit members." };
   }
 
-  const name = formData.get("name") as string;
-  const nameBn = formData.get("nameBn") as string;
-  const nameEn = formData.get("nameEn") as string;
-  const mobile = formData.get("mobile") as string;
-  const password = formData.get("password") as string;
-  const fatherName = formData.get("fatherName") as string;
-  const motherName = formData.get("motherName") as string;
-  const address = formData.get("address") as string;
-  const nid = formData.get("nid") as string;
+  const name = (formData.get("name") as string || "").trim();
+  const nameBn = (formData.get("nameBn") as string || "").trim();
+  const nameEn = (formData.get("nameEn") as string || "").trim();
+  const mobile = (formData.get("mobile") as string || "").trim();
+  const password = (formData.get("password") as string || "").trim();
+  const fatherName = (formData.get("fatherName") as string || "").trim();
+  const motherName = (formData.get("motherName") as string || "").trim();
+  const address = (formData.get("address") as string || "").trim();
+  const nid = (formData.get("nid") as string || "").trim();
   const dobStr = formData.get("dob") as string;
-  const nomineeName = formData.get("nomineeName") as string;
-  const nomineeRelation = formData.get("nomineeRelation") as string;
-  const nomineeNid = formData.get("nomineeNid") as string;
-  const nomineeMobile = formData.get("nomineeMobile") as string;
-  const nomineeAge = formData.get("nomineeAge") as string;
+  const nomineeName = (formData.get("nomineeName") as string || "").trim();
+  const nomineeRelation = (formData.get("nomineeRelation") as string || "").trim();
+  const nomineeNid = (formData.get("nomineeNid") as string || "").trim();
+  const nomineeMobile = (formData.get("nomineeMobile") as string || "").trim();
+  const nomineeAge = (formData.get("nomineeAge") as string || "").trim();
   const activeStatus = formData.get("activeStatus") === "true";
   const userRole = formData.get("role") as string || undefined;
   const profilePicture = formData.get("profilePicture") as string;

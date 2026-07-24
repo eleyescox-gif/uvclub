@@ -51,8 +51,15 @@ export async function recoverUserPin(mobile: string): Promise<{ success?: boolea
   const formattedMobile = mobile.trim();
   
   try {
-    const user = await prisma.user.findUnique({
-      where: { mobile: formattedMobile }
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { mobile: formattedMobile },
+          { name: formattedMobile },
+          { nid: formattedMobile }
+        ],
+        isDeleted: false
+      }
     });
 
     if (!user || user.isDeleted) {
