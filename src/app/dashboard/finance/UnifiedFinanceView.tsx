@@ -347,8 +347,8 @@ export default function UnifiedFinanceView({
           />
         </div>
 
-        {/* 5. bKash-Style Professional Statement List (bKash Transaction History) */}
-        <div>
+        {/* 5. bKash-Style Professional Statement List (bKash Transaction History - Screen Only) */}
+        <div className="no-print">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px", borderBottom: "1px solid #e2e8f0", paddingBottom: "8px" }}>
             <h3 style={{ margin: 0, fontSize: "0.9375rem", fontWeight: 700, color: "#0f172a", display: "flex", alignItems: "center", gap: "6px" }}>
               <FileText size={16} color="#059669" /> লেনদেন ইতিহাস
@@ -379,7 +379,7 @@ export default function UnifiedFinanceView({
                     transition: "border-color 0.15s ease",
                   }}
                 >
-                  {/* Left: Icon Bubble (Green Arrow in for Deposit, Red Arrow out for Withdrawal) */}
+                  {/* Left: Icon Bubble */}
                   <div style={{
                     width: "40px",
                     height: "40px",
@@ -463,6 +463,8 @@ export default function UnifiedFinanceView({
             border: none !important;
             border-radius: 0 !important;
             width: 100% !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
           }
           .finance-statement-container {
             border: none !important;
@@ -471,10 +473,14 @@ export default function UnifiedFinanceView({
             padding: 0 !important;
             margin: 0 !important;
           }
-          .statement-print-table { border: 1px solid #000 !important; width: 100% !important; }
+          @page {
+            size: A4 portrait;
+            margin: 0.5in;
+          }
+          .statement-print-table { border: 1px solid #000 !important; width: 100% !important; border-collapse: collapse !important; }
           .statement-print-table th, .statement-print-table td {
             border: 1px solid #000 !important;
-            padding: 6px 10px !important;
+            padding: 8px 10px !important;
             color: #000 !important;
           }
         }
