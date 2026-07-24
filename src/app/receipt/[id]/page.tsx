@@ -16,6 +16,31 @@ export default async function ReceiptPage({ params }: { params: Promise<{ id: st
 
   if (!transaction) notFound();
 
+  // Check 1 month (30 days) receipt validity rule
+  const createdDate = new Date(transaction.createdAt);
+  const now = new Date();
+  const diffDays = Math.ceil(Math.abs(now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24));
+  const isExpired = diffDays > 30;
+
+  if (isExpired) {
+    return (
+      <div style={{ maxWidth: '600px', margin: '4rem auto', padding: '2rem', textAlign: 'center', backgroundColor: '#fff', borderRadius: '1rem', border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+        <div style={{ padding: '1rem', backgroundColor: '#fef3c7', color: '#d97706', borderRadius: '50%', width: '60px', height: '60px', margin: '0 auto 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.75rem' }}>
+          ⏳
+        </div>
+        <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.75rem' }}>
+          এই রশিদের ১ মাসের মেয়াদের সময়সীমা শেষ হয়েছে
+        </h2>
+        <p style={{ color: '#64748b', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+          সর্বশেষ পোস্টিং এর মেম্বার ক্যাশ রশিদের মেয়াদ ১ মাস (৩০ দিন)। তবে আপনার সকল লেনদেন বিবরণী চিরস্থায়ীভাবে আপনার ড্যাশবোর্ডে সংরক্ষিত রয়েছে।
+        </p>
+        <Link href="/dashboard/finance" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', padding: '0.75rem 1.5rem', borderRadius: '0.5rem', fontWeight: 700 }}>
+          📋 মূল লেনদেন বিবরণীতে যান (View Statement)
+        </Link>
+      </div>
+    );
+  }
+
   // Sequential member ID (001–020)
   const allMembers = await prisma.user.findMany({
     where: { activeStatus: true, isDeleted: false },
