@@ -107,6 +107,10 @@ export default async function MembersGalleryPage() {
           const isLeader = effectiveRole !== 'MEMBER';
           const displayRoleTitle = roleTitles[effectiveRole] || 'সদস্য';
 
+          const displayName = (member.nameBn && member.nameBn.trim()) || (member.nameEn && member.nameEn.trim()) || member.name;
+          const cleanNameForInitial = displayName.replace(/^[0-9\s]+/, "").trim();
+          const displayInitial = (cleanNameForInitial || displayName).charAt(0).toUpperCase();
+
           return (
             <div 
               key={member.id} 
@@ -161,7 +165,7 @@ export default async function MembersGalleryPage() {
                   {member.profilePicture ? (
                     <img 
                       src={member.profilePicture} 
-                      alt={member.name} 
+                      alt={displayName} 
                       style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center' }} 
                     />
                   ) : (
@@ -176,7 +180,7 @@ export default async function MembersGalleryPage() {
                       fontSize: '2rem',
                       fontWeight: 700
                     }}>
-                      {member.name.charAt(0).toUpperCase()}
+                      {displayInitial}
                     </div>
                   )}
                 </div>
@@ -203,7 +207,7 @@ export default async function MembersGalleryPage() {
 
               {/* Names */}
               <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--foreground)', margin: '0 0 0.75rem 0' }}>
-                {member.nameBn || member.name}
+                {displayName}
               </h3>
 
               {/* Role Title Badge */}

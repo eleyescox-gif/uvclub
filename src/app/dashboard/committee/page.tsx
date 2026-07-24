@@ -30,6 +30,9 @@ export default async function CommitteePage() {
     select: {
       id: true,
       name: true,
+      nameBn: true,
+      nameEn: true,
+      profilePicture: true,
       role: true,
       mobile: true,
       createdAt: true
@@ -56,11 +59,17 @@ export default async function CommitteePage() {
         {committeeMembers.length > 0 ? (
           committeeMembers.map(member => (
             <div key={member.id} className="glass" style={{ padding: '2rem 1.5rem', borderRadius: '1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-              <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(79, 70, 229, 0.2) 100%)', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '1rem' }}>
-                <UserCircle size={48} color="var(--primary)" />
+              <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(79, 70, 229, 0.2) 100%)', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '1rem', overflow: 'hidden' }}>
+                {member.profilePicture ? (
+                  <img src={member.profilePicture} alt={member.name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center' }} />
+                ) : (
+                  <UserCircle size={48} color="var(--primary)" />
+                )}
               </div>
               
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--foreground)' }}>{member.name}</h2>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--foreground)' }}>
+                {member.nameBn || member.nameEn || member.name}
+              </h2>
               
               <div style={{ margin: '0.75rem 0' }}>
                 <span style={{ 
