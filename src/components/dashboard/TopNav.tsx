@@ -36,6 +36,31 @@ export default function TopNav({ user, activeNoticesCount = 0, clubSettings, not
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
+  const [seenNoticeIds, setSeenNoticeIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    try {
+      const readIds = notices.filter(n => localStorage.getItem(`notice_seen_${n.id}`)).map(n => n.id);
+      setSeenNoticeIds(readIds);
+    } catch (e) {}
+  }, [notices]);
+
+  const markNoticeAsSeen = (id: string) => {
+    try {
+      localStorage.setItem(`notice_seen_${id}`, "true");
+      setSeenNoticeIds(prev => [...prev, id]);
+    } catch (e) {}
+  };
+
+  const markAllNoticesAsSeen = () => {
+    try {
+      notices.forEach(n => localStorage.setItem(`notice_seen_${n.id}`, "true"));
+      setSeenNoticeIds(notices.map(n => n.id));
+    } catch (e) {}
+  };
+
+  const unreadNotices = notices.filter(n => !seenNoticeIds.includes(n.id));
+  const hasUnread = unreadNotices.length > 0;
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -81,7 +106,13 @@ export default function TopNav({ user, activeNoticesCount = 0, clubSettings, not
           {/* 1. Notification Bell */}
           <div ref={dropdownRef} style={{ position: 'relative' }}>
             <div 
-              onClick={() => { setShowDropdown(!showDropdown); setShowProfileMenu(false); }}
+              onClick={() => { 
+                setShowDropdown(!showDropdown); 
+                setShowProfileMenu(false); 
+                if (!showDropdown) {
+                  markAllNoticesAsSeen();
+                }
+              }}
               style={{ 
                 position: 'relative', 
                 width: '38px', 
@@ -99,7 +130,7 @@ export default function TopNav({ user, activeNoticesCount = 0, clubSettings, not
               }}
             >
               <Bell size={18} />
-              {activeNoticesCount > 0 && (
+              {hasUnread && (
                 <span style={{ 
                   position: 'absolute', 
                   top: '-2px', 
@@ -141,7 +172,7 @@ export default function TopNav({ user, activeNoticesCount = 0, clubSettings, not
                     <div style={{ padding: '1rem 0', textAlign: 'center', color: '#9ca3af', fontSize: '0.8rem' }}>কোনো নোটিশ নেই</div>
                   ) : (
                     notices.map((n) => (
-                      <Link key={n.id} href="/dashboard/notices" onClick={() => setShowDropdown(false)} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', gap: '0.25rem', padding: '0.6rem', borderRadius: '0.5rem', transition: 'background-color 0.2s', border: '1px solid transparent' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--background)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                      <Link key={n.id} href="/dashboard/notices" onClick={() => { setShowDropdown(false); markNoticeAsSeen(n.id); }} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', gap: '0.25rem', padding: '0.6rem', borderRadius: '0.5rem', transition: 'background-color 0.2s', border: '1px solid transparent' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--background)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
                         <span style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--primary)' }}>{n.title}</span>
                         <span style={{ fontSize: '0.75rem', color: '#4b5563', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: 1.3 }}>{n.content}</span>
                         <span style={{ fontSize: '0.65rem', color: '#9ca3af', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>

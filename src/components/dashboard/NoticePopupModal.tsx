@@ -26,10 +26,21 @@ export default function NoticePopupModal({ notices, autoCloseSeconds = 8 }: Noti
   useEffect(() => {
     if (!notices || notices.length === 0) return;
 
-    // Check if user closed it in this session
-    const hasDismissed = sessionStorage.getItem(`notice_dismissed_${notices[0]?.id}`);
-    if (!hasDismissed) {
+    // Check if current notice has already been seen in localStorage
+    const unseenNotices = notices.filter(n => {
+      try {
+        return !localStorage.getItem(`notice_seen_${n.id}`);
+      } catch (e) {
+        return true;
+      }
+    });
+
+    if (unseenNotices.length > 0) {
       setIsOpen(true);
+      // Mark as seen so pop-up will not bother the member again
+      try {
+        localStorage.setItem(`notice_seen_${unseenNotices[0].id}`, "true");
+      } catch (e) {}
     }
   }, [notices]);
 
@@ -58,7 +69,9 @@ export default function NoticePopupModal({ notices, autoCloseSeconds = 8 }: Noti
   const handleClose = () => {
     setIsOpen(false);
     if (notice?.id) {
-      sessionStorage.setItem(`notice_dismissed_${notice.id}`, "true");
+      try {
+        localStorage.setItem(`notice_seen_${notice.id}`, "true");
+      } catch (e) {}
     }
   };
 

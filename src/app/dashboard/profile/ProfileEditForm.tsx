@@ -72,7 +72,13 @@ export default function ProfileEditForm({ user }: { user: User }) {
           </label>
         </div>
         <div>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--foreground)', marginBottom: '0.25rem' }}>{user.name}</h2>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--foreground)', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            {user.name}
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', backgroundColor: '#dcfce7', border: '1px solid #86efac', padding: '0.15rem 0.5rem', borderRadius: '9999px', fontSize: '0.725rem', fontWeight: 700, color: '#15803d' }}>
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#22c55e', boxShadow: '0 0 8px #22c55e' }}></span>
+              অনলাইনে আছেন
+            </span>
+          </h2>
           <p style={{ color: '#6b7280', fontSize: '0.875rem', marginBottom: '0.25rem', fontWeight: 500 }}>
             {user.role === 'PRESIDENT' ? 'সভাপতি (President)' :
              user.role === 'ADMIN' ? 'এডমিন (Admin)' :
