@@ -6,6 +6,7 @@ import TopNav from "@/components/dashboard/TopNav";
 import BottomNav from "@/components/dashboard/BottomNav";
 import prisma from "@/lib/prisma";
 import { getClubInfo } from "@/lib/clubInfo";
+import UserHeartbeat from "@/components/dashboard/UserHeartbeat";
 
 export default async function DashboardLayout({
   children,
@@ -64,28 +65,19 @@ export default async function DashboardLayout({
         }).catch(() => [])
       : [];
 
-    const creatorsMap: Record<string, typeof noticeCreators[0]> = {};
-    noticeCreators.forEach(c => {
-      creatorsMap[c.id] = c;
+    const creatorMap = new Map(noticeCreators.map(c => [c.id, c]));
+
+    formattedNotices = activeNotices.map(n => {
+      const creator = creatorMap.get(n.createdBy);
+      return {
+        id: n.id,
+        title: n.title,
+        content: n.content,
+        createdAt: n.createdAt.toISOString(),
+        creatorName: creator?.nameBn || creator?.name || "ইউনাইটেড ভিশন এডমিন",
+        creatorRole: creator?.role ? (creator.role === 'PRESIDENT' ? 'সভাপতি' : creator.role === 'SECRETARY' ? 'সাধারণ সম্পাদক' : creator.role === 'CONTROLLER' ? 'কন্ট্রোলার' : 'অ্যাডমিন') : 'অ্যাডমিন'
+      };
     });
-
-    const getRoleName = (r: string) => {
-      if (r === 'CONTROLLER') return 'কন্ট্রোলার';
-      if (r === 'PRESIDENT') return 'সভাপতি';
-      if (r === 'SECRETARY') return 'সাধারণ সম্পাদক';
-      if (r === 'CASHIER') return 'ক্যাশিয়ার';
-      if (r === 'ADMIN') return 'অ্যাডমিন';
-      return 'সদস্য';
-    };
-
-    formattedNotices = activeNotices.map(n => ({
-      id: n.id,
-      title: n.title,
-      content: n.content,
-      createdAt: n.createdAt.toISOString(),
-      creatorName: creatorsMap[n.createdBy]?.nameBn || creatorsMap[n.createdBy]?.name || "ইউজার",
-      creatorRole: getRoleName(creatorsMap[n.createdBy]?.role || "MEMBER")
-    }));
 
     const dueInvoicesCount = Math.max(0, totalMembersCount - paidInvoicesCount);
     collectionStats = { paid: paidInvoicesCount, due: dueInvoicesCount };
@@ -95,6 +87,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="layout-container">
+      <UserHeartbeat />
       {/* Sidebar - fixed width on desktop */}
       <Sidebar role={effectiveRole} user={{ ...session.user, role: effectiveRole }} totalMembersCount={totalMembersCount} />
 
