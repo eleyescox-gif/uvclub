@@ -290,6 +290,7 @@ export async function updateMember(userId: string, formData: FormData) {
   const nameBn = formData.get("nameBn") as string;
   const nameEn = formData.get("nameEn") as string;
   const mobile = formData.get("mobile") as string;
+  const password = formData.get("password") as string;
   const fatherName = formData.get("fatherName") as string;
   const motherName = formData.get("motherName") as string;
   const address = formData.get("address") as string;
@@ -326,6 +327,10 @@ export async function updateMember(userId: string, formData: FormData) {
       name, nameBn, nameEn, mobile, fatherName, motherName, address, nid, dob,
       nomineeName, nomineeRelation, nomineeNid, nomineeMobile, nomineeAge, activeStatus
     };
+
+    if (password && password.trim() !== "") {
+      dataToUpdate.password = password.trim();
+    }
     if (profilePicture) {
       dataToUpdate.profilePicture = profilePicture;
     }

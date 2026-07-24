@@ -14,13 +14,23 @@ export const authOptions = {
       async authorize(credentials) {
         if (!credentials?.mobile || !credentials?.password) return null;
 
-        const user = await prisma.user.findUnique({
-          where: { mobile: credentials.mobile }
+        const inputId = credentials.mobile.trim();
+        const inputPassword = credentials.password.trim();
+
+        const user = await prisma.user.findFirst({
+          where: {
+            OR: [
+              { mobile: inputId },
+              { name: inputId },
+              { nid: inputId }
+            ],
+            isDeleted: false
+          }
         });
 
         if (!user) return null;
 
-        const isPasswordValid = credentials.password === user.password;
+        const isPasswordValid = inputPassword === (user.password ? user.password.trim() : "");
 
         if (!isPasswordValid) return null;
 

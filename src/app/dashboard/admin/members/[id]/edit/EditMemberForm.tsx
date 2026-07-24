@@ -107,6 +107,10 @@ export default function EditMemberForm({ user, currentUserRole }: { user: any, c
               <input type="text" name="mobile" defaultValue={user.mobile} className={styles.input} required placeholder="01XXXXXXXXX" />
             </div>
             <div className={styles.formGroup}>
+              <label className={styles.label}>পাসওয়ার্ড / পিন (লগইন পাসওয়ার্ড)</label>
+              <input type="text" name="password" defaultValue={user.password || ""} className={styles.input} required placeholder="পাসওয়ার্ড লিখুন" style={{ fontWeight: 600, borderColor: '#0284c7' }} />
+            </div>
+            <div className={styles.formGroup}>
               <label className={styles.label}>জন্ম তারিখ</label>
               <input type="date" name="dob" defaultValue={formattedDob} className={styles.input} />
             </div>
