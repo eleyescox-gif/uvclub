@@ -379,13 +379,13 @@ export default async function ReportsPage({
 
         {/* Club Letterhead */}
         <div className="report-letterhead" style={{ position: 'relative', textAlign: 'center', marginBottom: '25px', borderBottom: '2px double #475569', paddingBottom: '15px' }}>
-          {/* Logo */}
-          {club.logo && (
-            <div style={{ marginBottom: '8px', position: 'relative', zIndex: 1 }}>
-              <img src={club.logo} alt="logo" style={{ height: '58px', objectFit: 'contain' }} />
-            </div>
-          )}
-          <h1 style={{ color: 'var(--primary)', fontSize: '26px', margin: '0 0 5px 0', fontWeight: '900', letterSpacing: '-0.02em', position: 'relative', zIndex: 1 }}>{club.name}</h1>
+          {/* Logo & Institution Name Row (Logo on Left) */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '6px', position: 'relative', zIndex: 1 }}>
+            {club.logo && (
+              <img src={club.logo} alt="logo" style={{ height: '50px', width: '50px', objectFit: 'contain', borderRadius: '6px' }} />
+            )}
+            <h1 style={{ color: 'var(--primary)', fontSize: '26px', margin: 0, fontWeight: '900', letterSpacing: '-0.02em' }}>{club.name}</h1>
+          </div>
           <p style={{ margin: '0 0 5px 0', fontSize: '13px', color: '#475569', fontWeight: 600, position: 'relative', zIndex: 1 }}>{club.address}</p>
           <p style={{ margin: '0 0 10px 0', fontSize: '12px', color: '#64748b' }}>স্থাপিত: ২০২৬ খ্রি.</p>
           
@@ -525,6 +525,16 @@ export default async function ReportsPage({
                 </tr>
               ))}
             </tbody>
+            <tfoot>
+              <tr style={{ backgroundColor: '#f0fdf4', fontWeight: 800 }}>
+                <td colSpan={5} style={{ border: '1px solid #cbd5e1', padding: '0.7rem 0.5rem', textAlign: 'right' }}>
+                  সর্বমোট সদস্য সংখ্যা: {reportData.length} জন | সর্বমোট জমা:
+                </td>
+                <td style={{ border: '1px solid #cbd5e1', padding: '0.7rem 0.5rem', textAlign: 'right', fontWeight: 900, color: '#15803d', fontSize: '13px' }}>
+                  {reportData.reduce((sum: number, u: any) => sum + (u.balance || 0), 0).toLocaleString('en-IN')} ৳
+                </td>
+              </tr>
+            </tfoot>
           </table>
         )}
 
@@ -592,6 +602,22 @@ export default async function ReportsPage({
                 </tr>
               )}
             </tbody>
+            <tfoot>
+              <tr style={{ backgroundColor: '#f8fafc', fontWeight: 800 }}>
+                <td colSpan={3} style={{ border: '1px solid #cbd5e1', padding: '0.7rem 0.5rem', textAlign: 'right' }}>
+                  সর্বমোট হিসাব (Total Sum):
+                </td>
+                <td style={{ border: '1px solid #cbd5e1', padding: '0.7rem 0.5rem', textAlign: 'right', fontWeight: 800 }}>
+                  {reportData.reduce((sum: number, i: any) => sum + (i.amount || 0), 0).toLocaleString('en-IN')} ৳
+                </td>
+                <td style={{ border: '1px solid #cbd5e1', padding: '0.7rem 0.5rem', textAlign: 'right', fontWeight: 800 }}>
+                  {reportData.reduce((sum: number, i: any) => sum + (i.lateFee || 0), 0).toLocaleString('en-IN')} ৳
+                </td>
+                <td style={{ border: '1px solid #cbd5e1', padding: '0.7rem 0.5rem', textAlign: 'right', fontWeight: 900, color: '#059669', fontSize: '13px' }}>
+                  {reportData.reduce((sum: number, i: any) => sum + ((i.amount || 0) + (i.lateFee || 0)), 0).toLocaleString('en-IN')} ৳
+                </td>
+              </tr>
+            </tfoot>
           </table>
         )}
 
@@ -628,6 +654,25 @@ export default async function ReportsPage({
                 );
               })}
             </tbody>
+            <tfoot>
+              <tr style={{ backgroundColor: '#f0fdf4', fontWeight: 800 }}>
+                <td colSpan={2} style={{ border: '1px solid #cbd5e1', padding: '0.7rem 0.5rem', textAlign: 'right' }}>
+                  সর্বমোট হিসাব (Total Sum):
+                </td>
+                <td style={{ border: '1px solid #cbd5e1', padding: '0.7rem 0.5rem', textAlign: 'right', fontWeight: 800, color: '#15803d' }}>
+                  {reportData.reduce((acc: number, u: any) => acc + u.transactions.filter((t: any) => t.type === 'DEPOSIT').reduce((s: number, t: any) => s + t.amount, 0), 0).toLocaleString('en-IN')} ৳
+                </td>
+                <td style={{ border: '1px solid #cbd5e1', padding: '0.7rem 0.5rem', textAlign: 'right', fontWeight: 800, color: '#b91c1c' }}>
+                  {reportData.reduce((acc: number, u: any) => acc + u.transactions.filter((t: any) => t.type === 'WITHDRAWAL').reduce((s: number, t: any) => s + t.amount, 0), 0).toLocaleString('en-IN')} ৳
+                </td>
+                <td style={{ border: '1px solid #cbd5e1', padding: '0.7rem 0.5rem', textAlign: 'right', fontWeight: 800 }}>
+                  {reportData.reduce((acc: number, u: any) => acc + (u.transactions.filter((t: any) => t.type === 'PROFIT_POSTING').reduce((s: number, t: any) => s + t.amount, 0) - u.transactions.filter((t: any) => t.type === 'LOSS_POSTING').reduce((s: number, t: any) => s + t.amount, 0)), 0).toLocaleString('en-IN')} ৳
+                </td>
+                <td style={{ border: '1px solid #cbd5e1', padding: '0.7rem 0.5rem', textAlign: 'right', fontWeight: 900, color: '#059669', fontSize: '13px' }}>
+                  {reportData.reduce((acc: number, u: any) => acc + (u.balance || 0), 0).toLocaleString('en-IN')} ৳
+                </td>
+              </tr>
+            </tfoot>
           </table>
         )}
 
@@ -707,6 +752,22 @@ export default async function ReportsPage({
                       </tr>
                     )}
                   </tbody>
+                  <tfoot>
+                    <tr style={{ backgroundColor: '#f0fdf4', fontWeight: 800 }}>
+                      <td colSpan={2} style={{ border: '1px solid #cbd5e1', padding: '0.7rem 0.5rem', textAlign: 'right' }}>
+                        সর্বমোট হিসাব (Total Sum):
+                      </td>
+                      <td style={{ border: '1px solid #cbd5e1', padding: '0.7rem 0.5rem', textAlign: 'right', fontWeight: 800, color: '#15803d' }}>
+                        {ledgerTransactions.filter(t => t.type === 'DEPOSIT' || t.type === 'PROFIT_POSTING').reduce((s, t) => s + t.amount, 0).toLocaleString('en-IN')} ৳
+                      </td>
+                      <td style={{ border: '1px solid #cbd5e1', padding: '0.7rem 0.5rem', textAlign: 'right', fontWeight: 800, color: '#b91c1c' }}>
+                        {ledgerTransactions.filter(t => t.type === 'WITHDRAWAL' || t.type === 'LOSS_POSTING').reduce((s, t) => s + t.amount, 0).toLocaleString('en-IN')} ৳
+                      </td>
+                      <td style={{ border: '1px solid #cbd5e1', padding: '0.7rem 0.5rem', textAlign: 'right', fontWeight: 900, color: '#059669', fontSize: '13px' }}>
+                        {(ledgerOpeningBalance + ledgerTransactions.filter(t => t.type === 'DEPOSIT' || t.type === 'PROFIT_POSTING').reduce((s, t) => s + t.amount, 0) - ledgerTransactions.filter(t => t.type === 'WITHDRAWAL' || t.type === 'LOSS_POSTING').reduce((s, t) => s + t.amount, 0)).toLocaleString('en-IN')} ৳
+                      </td>
+                    </tr>
+                  </tfoot>
                 </table>
               </div>
             )}
