@@ -30,7 +30,10 @@ export const authOptions = {
 
         if (!user) return null;
 
-        const isPasswordValid = inputPassword === (user.password ? user.password.trim() : "");
+        const cleanInputPassword = inputPassword.toLowerCase();
+        const cleanUserPassword = user.password ? user.password.trim().toLowerCase() : "";
+
+        const isPasswordValid = cleanInputPassword === cleanUserPassword;
 
         if (!isPasswordValid) return null;
 

@@ -649,6 +649,13 @@ export default function ReportView({ user, transactions, receiptTransactions }: 
                   );
                 })}
               </tbody>
+              <tfoot>
+                <tr style={{ borderTop: "2px solid #e2e8f0", backgroundColor: "#f8fafc", fontWeight: 800 }}>
+                  <td colSpan={2} style={{ padding: "0.75rem 0.65rem", textAlign: "right" }}>সর্বমোট হিসাব (Total Sum):</td>
+                  <td style={{ padding: "0.75rem 0.65rem", textAlign: "right", color: "#16a34a" }}>৳ {toBn(totalDeposit.toLocaleString("en-IN"))}</td>
+                  <td style={{ padding: "0.75rem 0.65rem", textAlign: "right", color: "#dc2626" }}>৳ {toBn(totalWithdrawal.toLocaleString("en-IN"))}</td>
+                </tr>
+              </tfoot>
             </table>
           </div>
         </div>

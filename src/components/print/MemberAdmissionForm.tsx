@@ -64,7 +64,10 @@ export default function MemberAdmissionForm({ memberData }: MemberAdmissionFormP
         </div>
         
         <div style={{ textAlign: 'center', flex: 1, padding: '0 20px' }}>
-          <h1 style={{ color: '#0369a1', fontSize: '28px', margin: '0 0 10px 0', fontWeight: 'bold' }}>ইউনাইটেড ভিশন ক্লাব</h1>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '8px' }}>
+            <img src={memberData?.clubSettings?.logo || "/logo.jpg"} alt="Logo" style={{ width: '45px', height: '45px', objectFit: 'contain', borderRadius: '6px' }} />
+            <h1 style={{ color: '#0369a1', fontSize: '28px', margin: 0, fontWeight: 'bold' }}>ইউনাইটেড ভিশন ক্লাব</h1>
+          </div>
           <p style={{ margin: '0 0 5px 0', fontSize: '16px' }}>একসাথে আগামীর পথে</p>
           <p style={{ margin: '0 0 5px 0', fontSize: '16px' }}>বরইতলী, চকরিয়া, কক্সবাজার।</p>
           <p style={{ margin: '0 0 15px 0', fontSize: '16px', fontWeight: 'bold' }}>স্থাপিত: ২০২৬ খ্রি.</p>

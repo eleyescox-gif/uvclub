@@ -447,6 +447,13 @@ export default function UnifiedFinanceView({
               </tr>
             ))}
           </tbody>
+          <tfoot>
+            <tr style={{ borderTop: "2px solid #000", borderBottom: "2px solid #000", fontWeight: "bold", backgroundColor: "#f8fafc" }}>
+              <td colSpan={3} style={{ padding: "8px 6px", textAlign: "right", fontWeight: 800 }}>সর্বমোট হিসাব (Total Sum):</td>
+              <td style={{ padding: "8px 6px", fontWeight: 800 }}>৳ {toBn(processedTransactions.reduce((acc, curr) => acc + (curr.isCredit ? curr.amount : -curr.amount), 0).toLocaleString("en-IN"))}</td>
+              <td style={{ padding: "8px 6px", fontWeight: 800, color: "#059669" }}>৳ {toBn((processedTransactions.length > 0 ? processedTransactions[0].runningTotal : 0).toLocaleString("en-IN"))}</td>
+            </tr>
+          </tfoot>
         </table>
       </div>
 
