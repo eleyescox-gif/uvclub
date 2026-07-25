@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
-import { ArrowUpRight, Clock, Plus, Download, Activity, CheckCircle, Briefcase, FileText, CheckCircle2, Award, Wallet, Landmark, Users, CheckSquare, RefreshCw, Vote, Megaphone, User, FileCheck, ChevronRight } from "lucide-react";
+import { ArrowUpRight, Clock, Plus, Download, Activity, CheckCircle, Briefcase, FileText, CheckCircle2, Award, Wallet, Landmark, Users, CheckSquare, RefreshCw, Vote, Megaphone, User, FileCheck, ChevronRight, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
 import styles from "./dashboard.module.css";
@@ -498,6 +498,26 @@ export default async function DashboardPage() {
 
         {/* Right Column */}
         <div className={styles.colRight}>
+          {/* Club Constitution Quick Card */}
+          <div className={styles.card} style={{ border: '1px solid rgba(2, 132, 199, 0.3)', backgroundColor: 'rgba(2, 132, 199, 0.03)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <h3 className={styles.cardTitle} style={{ margin: 0, color: '#0284c7', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <ShieldCheck size={18} /> ক্লাব সংবিধান ও বিধিমালা
+              </h3>
+              <Link href="/dashboard/rules" className={styles.badgeBtn} style={{ backgroundColor: '#0284c7', color: '#ffffff' }}>
+                পড়ুন &rarr;
+              </Link>
+            </div>
+            <p style={{ fontSize: '0.8rem', color: '#475569', margin: '0 0 10px 0' }}>
+              ক্লাবের সর্বমোট ১৯টি প্রাতিষ্ঠানিক ধারা, চাঁদা-জরিমানা নীতি ও সদস্য পরিচালন অঙ্গীকারপত্র।
+            </p>
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '0.7rem', backgroundColor: '#e0f2fe', color: '#0369a1', padding: '2px 8px', borderRadius: '4px', fontWeight: 600 }}>১৯টি পরিমার্জিত ধারা</span>
+              <span style={{ fontSize: '0.7rem', backgroundColor: '#dcfce7', color: '#15803d', padding: '2px 8px', borderRadius: '4px', fontWeight: 600 }}>চাঁদা ও জরিমানা নীতি</span>
+              <span style={{ fontSize: '0.7rem', backgroundColor: '#fef3c7', color: '#b45309', padding: '2px 8px', borderRadius: '4px', fontWeight: 600 }}>লক-ইন ও প্রস্থান নীতি</span>
+            </div>
+          </div>
+
           {/* Notice Board Card */}
           <div className={styles.card}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>

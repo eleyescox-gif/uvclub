@@ -72,6 +72,7 @@ export default function Sidebar({ role, user, totalMembersCount }: SidebarProps)
     { name: "Projects", href: "/dashboard/projects", icon: <Briefcase size={18} />, color: "#06b6d4", bg: "rgba(6, 182, 212, 0.12)" },
     { name: "Members", href: "/dashboard/members", icon: <Users size={18} />, color: "#3b82f6", bg: "rgba(59, 130, 246, 0.12)" },
     { name: "Notices", href: "/dashboard/notices", icon: <Megaphone size={18} />, color: "#f43f5e", bg: "rgba(244, 63, 94, 0.12)" },
+    { name: "Constitution & Rules", href: "/dashboard/rules", icon: <ShieldCheck size={18} />, color: "#0284c7", bg: "rgba(2, 132, 199, 0.12)" },
   ];
 
   const adminItems = [];
