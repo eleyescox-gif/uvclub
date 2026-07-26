@@ -10,9 +10,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "অননুমোদিত অ্যাক্সেস" }, { status: 401 });
     }
 
+    const userMobile = (session.user as any).mobile;
     const currentRole = (session.user as any).role;
-    if (currentRole !== "ADMIN" && currentRole !== "PRESIDENT" && currentRole !== "SECRETARY" && currentRole !== "CONTROLLER") {
-      return NextResponse.json({ error: "পারমিশন নেই" }, { status: 403 });
+    
+    // ONLY Controller (01812000109) or CONTROLLER/ADMIN can toggle interim mode
+    if (userMobile !== "01812000109" && currentRole !== "CONTROLLER" && currentRole !== "ADMIN") {
+      return NextResponse.json({ error: "কেবলমাত্র কন্ট্রোলারই মোড পরিবর্তন করতে পারবেন।" }, { status: 403 });
     }
 
     const { noCommitteeMode } = await req.json();
@@ -22,7 +25,7 @@ export async function POST(req: Request) {
       const userId = (session.user as any).id;
       await prisma.user.update({
         where: { id: userId },
-        data: { role: "CONTROLLER" }
+        data: { role: "CONTROLLER", activeStatus: true }
       });
     } else {
       // If turning OFF control mode (handing over to committee)
@@ -34,9 +37,12 @@ export async function POST(req: Request) {
         }, { status: 400 });
       }
 
-      // Handover: Revert CONTROLLER user back to their assigned committee role or MEMBER
+      // Handover: Update non-permanent controller users, but ALWAYS KEEP 01812000109 as CONTROLLER
       const controllerUsers = await prisma.user.findMany({
-        where: { role: "CONTROLLER" },
+        where: { 
+          role: "CONTROLLER",
+          mobile: { not: "01812000109" }
+        },
         include: { committeeRole: true }
       });
 
@@ -56,6 +62,12 @@ export async function POST(req: Request) {
         });
       }
     }
+
+    // Always ensure 01812000109 is CONTROLLER in database
+    await prisma.user.updateMany({
+      where: { mobile: "01812000109" },
+      data: { role: "CONTROLLER", activeStatus: true }
+    });
 
     const updatedSettings = await (prisma as any).clubSettings.upsert({
       where: { id: "singleton" },

@@ -19,7 +19,11 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
-  const role = (session.user as any).role || "MEMBER";
+  const userMobile = (session.user as any).mobile;
+  const rawRole = (session.user as any).role || "MEMBER";
+  const isControllerUser = userMobile === "01812000109" || rawRole === "CONTROLLER";
+  const role = isControllerUser ? "CONTROLLER" : rawRole;
+
   let effectiveRole = role;
   let formattedNotices: any[] = [];
   let collectionStats = { paid: 0, due: 0 };
@@ -50,10 +54,12 @@ export default async function DashboardLayout({
 
     const noCommitteeMode = settings?.noCommitteeMode ?? false;
 
-    // IF noCommitteeMode is TRUE: Only CONTROLLER or ADMIN retains admin powers, all others become 'MEMBER'
-    effectiveRole = noCommitteeMode
-      ? (role === "CONTROLLER" || role === "ADMIN" ? role : "MEMBER")
-      : role;
+    // HARD RULE: CONTROLLER is ALWAYS CONTROLLER. If noCommitteeMode is TRUE, other committee roles become MEMBER.
+    effectiveRole = isControllerUser 
+      ? "CONTROLLER" 
+      : (noCommitteeMode
+          ? (role === "ADMIN" ? "ADMIN" : "MEMBER")
+          : role);
 
     totalMembersCount = memberCount;
 

