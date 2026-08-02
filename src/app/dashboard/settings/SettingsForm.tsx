@@ -5,6 +5,8 @@ import { updateClubSettings } from "@/actions/settings";
 import { Save, Loader2, Building, MapPin, Image as ImageIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 
+import { compressImageToWebP } from "@/lib/imageCompressor";
+
 interface SettingsFormProps {
   initialData: {
     name: string;
@@ -23,6 +25,21 @@ export default function SettingsForm({ initialData }: SettingsFormProps) {
   const [paidLogoBase64, setPaidLogoBase64] = useState(initialData.paidLogo || "");
   const [watermarkLogoBase64, setWatermarkLogoBase64] = useState(initialData.watermarkLogo || "");
   const router = useRouter();
+
+  const handleLogoUpload = async (file: File | undefined, setter: (val: string) => void, defaultVal: string) => {
+    if (file) {
+      try {
+        const compressedWebP = await compressImageToWebP(file, 500, 500, 0.7);
+        setter(compressedWebP);
+      } catch (err) {
+        const reader = new FileReader();
+        reader.onloadend = () => setter(reader.result as string);
+        reader.readAsDataURL(file);
+      }
+    } else {
+      setter(defaultVal);
+    }
+  };
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -75,18 +92,7 @@ export default function SettingsForm({ initialData }: SettingsFormProps) {
           <input 
             type="file" 
             accept="image/*"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) {
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                  setLogoBase64(reader.result as string);
-                };
-                reader.readAsDataURL(file);
-              } else {
-                setLogoBase64(initialData.logo || "");
-              }
-            }}
+            onChange={(e) => handleLogoUpload(e.target.files?.[0], setLogoBase64, initialData.logo || "")}
             style={{ width: '100%', padding: '0.65rem 1rem 0.65rem 2.75rem', borderRadius: '0.5rem', border: '1px solid var(--border)', outline: 'none', background: '#fff' }} 
           />
           <input type="hidden" name="logo" value={logoBase64} />
@@ -109,18 +115,7 @@ export default function SettingsForm({ initialData }: SettingsFormProps) {
           <input 
             type="file" 
             accept="image/*"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) {
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                  setPaidLogoBase64(reader.result as string);
-                };
-                reader.readAsDataURL(file);
-              } else {
-                setPaidLogoBase64(initialData.paidLogo || "");
-              }
-            }}
+            onChange={(e) => handleLogoUpload(e.target.files?.[0], setPaidLogoBase64, initialData.paidLogo || "")}
             style={{ width: '100%', padding: '0.65rem 1rem 0.65rem 2.75rem', borderRadius: '0.5rem', border: '1px solid var(--border)', outline: 'none', background: '#fff' }} 
           />
           <input type="hidden" name="paidLogo" value={paidLogoBase64} />
@@ -143,18 +138,7 @@ export default function SettingsForm({ initialData }: SettingsFormProps) {
           <input 
             type="file" 
             accept="image/*"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) {
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                  setWatermarkLogoBase64(reader.result as string);
-                };
-                reader.readAsDataURL(file);
-              } else {
-                setWatermarkLogoBase64(initialData.watermarkLogo || "");
-              }
-            }}
+            onChange={(e) => handleLogoUpload(e.target.files?.[0], setWatermarkLogoBase64, initialData.watermarkLogo || "")}
             style={{ width: '100%', padding: '0.65rem 1rem 0.65rem 2.75rem', borderRadius: '0.5rem', border: '1px solid var(--border)', outline: 'none', background: '#fff' }} 
           />
           <input type="hidden" name="watermarkLogo" value={watermarkLogoBase64} />

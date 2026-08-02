@@ -6,6 +6,7 @@
     "dev": "next dev --webpack",
     "build": "prisma generate && next build --webpack",
     "start": "next start",
+    "clean": "npx rimraf .next",
     "lint": "eslint"
   },
   "dependencies": {

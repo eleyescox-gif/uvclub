@@ -6,20 +6,25 @@ import styles from "./add-member.module.css";
 import { UserPlus, Image as ImageIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 
+import { compressImageToWebP } from "@/lib/imageCompressor";
+
 export default function AddMemberForm({ currentUserRole }: { currentUserRole: string }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error", text: string } | null>(null);
   const [photoBase64, setPhotoBase64] = useState<string>("");
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPhotoBase64(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      try {
+        const compressedWebP = await compressImageToWebP(file, 400, 400, 0.7);
+        setPhotoBase64(compressedWebP);
+      } catch (err) {
+        const reader = new FileReader();
+        reader.onloadend = () => setPhotoBase64(reader.result as string);
+        reader.readAsDataURL(file);
+      }
     }
   };
 

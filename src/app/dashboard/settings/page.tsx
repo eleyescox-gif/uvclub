@@ -8,6 +8,7 @@ import prisma from "@/lib/prisma";
 import DataClearButton from "./DataClearButton";
 import PaymentGatewayToggle from "./PaymentGatewayToggle";
 import InterimModeSettingsSwitch from "./InterimModeSettingsSwitch";
+import DbCleanupButton from "./DbCleanupButton";
 
 export default async function SettingsPage() {
   const session = await getServerSession(authOptions);
@@ -91,13 +92,17 @@ export default async function SettingsPage() {
             </div>
 
             {/* Danger Zone */}
-            <div className="glass" style={{ padding: '2rem', borderRadius: '1rem', border: '1px solid #fee2e2', backgroundColor: '#ffffff' }}>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem', color: '#991b1b' }}>ড্যাশবোর্ড ট্রায়াল ডেটা রিসেট (Danger Zone)</h2>
-              <p style={{ color: '#6b7280', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
-                সকল ট্রায়াল ডেটা (লেনদেন, বিল, বকেয়া, প্রজেক্ট, ভোট) মুছে ফেলার জন্য অনুরোধ করুন। সদস্য অ্যাকাউন্ট, পদবী এবং সেটিংস মুছবে না।
-              </p>
-              
-              <DataClearButton pendingRequestExists={pendingRequestExists} />
+            <div className="glass" style={{ padding: '2rem', borderRadius: '1rem', border: '1px solid #fee2e2', backgroundColor: '#ffffff', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <div>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem', color: '#991b1b' }}>ড্যাশবোর্ড ট্রায়াল ডেটা রিসেট (Danger Zone)</h2>
+                <p style={{ color: '#6b7280', fontSize: '0.875rem', marginBottom: '1rem' }}>
+                  সকল ট্রায়াল ডেটা (লেনদেন, বিল, বকেয়া, প্রজেক্ট, ভোট) মুছে ফেলার জন্য অনুরোধ করুন। সদস্য অ্যাকাউন্ট, পদবী এবং সেটিংস মুছবে না।
+                </p>
+                <DataClearButton pendingRequestExists={pendingRequestExists} />
+              </div>
+
+              {/* Database Cleanup & Pruning */}
+              <DbCleanupButton />
             </div>
           </>
         )}
