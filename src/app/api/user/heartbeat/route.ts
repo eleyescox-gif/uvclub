@@ -12,10 +12,19 @@ export async function POST() {
 
     const userId = (session.user as any).id;
     if (userId) {
-      await prisma.user.update({
+      const user = await prisma.user.findUnique({
         where: { id: userId },
-        data: { lastActiveAt: new Date() }
+        select: { lastActiveAt: true }
       });
+
+      const now = new Date();
+      // Only execute DB write if lastActiveAt is missing or updated >3 mins ago
+      if (!user?.lastActiveAt || (now.getTime() - new Date(user.lastActiveAt).getTime() > 180000)) {
+        await prisma.user.update({
+          where: { id: userId },
+          data: { lastActiveAt: now }
+        });
+      }
     }
 
     return NextResponse.json({ active: true });
