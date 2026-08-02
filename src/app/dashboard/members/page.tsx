@@ -49,7 +49,6 @@ export default async function MembersGalleryPage() {
         profilePicture: true,
         role: true,
         joinDate: true,
-        lastActiveAt: true,
       },
     })
   ]);
@@ -65,8 +64,6 @@ export default async function MembersGalleryPage() {
     }
     return a.name.localeCompare(b.name, 'bn');
   });
-
-  const nowMs = new Date().getTime();
 
   return (
     <div style={{ padding: '1.5rem 0', maxWidth: '1200px', margin: '0 auto' }}>
@@ -93,11 +90,6 @@ export default async function MembersGalleryPage() {
         gap: '2rem' 
       }}>
         {sortedMembers.map((member) => {
-          // Calculate Online status (Logged in now or active in last 15 mins)
-          const isOnline = member.id === session.user.id || Boolean(
-            member.lastActiveAt && (nowMs - new Date(member.lastActiveAt).getTime() < 15 * 60 * 1000)
-          );
-
           // If noCommitteeMode is active: only CONTROLLER / ADMIN retain leadership title, all others show as 'সদস্য'
           const effectiveRole = noCommitteeMode 
             ? (member.role === 'CONTROLLER' || member.role === 'ADMIN' ? member.role : 'MEMBER')
@@ -184,25 +176,6 @@ export default async function MembersGalleryPage() {
                     </div>
                   )}
                 </div>
-
-                {/* Glowing Green Online Indicator Dot */}
-                {isOnline && (
-                  <div 
-                    title="অনলাইনে আছেন (Online Active)"
-                    style={{
-                      position: 'absolute',
-                      bottom: '2px',
-                      right: '2px',
-                      width: '18px',
-                      height: '18px',
-                      backgroundColor: '#22c55e',
-                      border: '3px solid white',
-                      borderRadius: '50%',
-                      boxShadow: '0 0 10px rgba(34, 197, 94, 0.9)',
-                      zIndex: 5
-                    }}
-                  />
-                )}
               </div>
 
               {/* Names */}
@@ -234,13 +207,6 @@ export default async function MembersGalleryPage() {
               }}>
                 {displayRoleTitle}
               </span>
-
-              {/* Online status text pill */}
-              {isOnline && (
-                <span style={{ fontSize: '0.725rem', color: '#15803d', backgroundColor: '#dcfce7', border: '1px solid #86efac', padding: '0.15rem 0.6rem', borderRadius: '9999px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '-0.5rem', marginBottom: '0.75rem' }}>
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#22c55e', boxShadow: '0 0 6px #22c55e' }}></span> অনলাইনে আছেন
-                </span>
-              )}
 
               {/* Contact Information */}
               <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.85rem', color: '#4b5563' }}>
