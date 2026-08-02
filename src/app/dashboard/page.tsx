@@ -35,14 +35,16 @@ export default async function DashboardPage() {
     }).catch(e => console.error("Auto penalty error:", e));
   }
 
+  const currentMonth = today.getMonth() + 1;
+  const currentYear = today.getFullYear();
+
   // Parallelized database queries
   const [
     user,
     runningProjects,
     pendingPolls,
-    totalMembers,
-    totalInvoicesAllTime,
-    paidInvoicesAllTime,
+    totalActiveMembers,
+    currentMonthPaidInvoicesCount,
     latestPoll,
     latestNotices,
     approvedTxs
@@ -62,9 +64,15 @@ export default async function DashboardPage() {
       take: 3
     }).catch(() => []),
     prisma.votingEvent.count({ where: { status: 'OPEN' } }).catch(() => 0),
-    prisma.user.count({ where: { activeStatus: true } }).catch(() => 0),
-    prisma.invoice.count().catch(() => 0),
-    prisma.invoice.count({ where: { status: 'PAID' } }).catch(() => 0),
+    prisma.user.count({ where: { activeStatus: true, isDeleted: false } }).catch(() => 0),
+    prisma.invoice.count({
+      where: {
+        month: currentMonth,
+        year: currentYear,
+        status: 'PAID',
+        user: { activeStatus: true, isDeleted: false }
+      }
+    }).catch(() => 0),
     prisma.votingEvent.findFirst({
       orderBy: { createdAt: 'desc' },
       include: {
@@ -87,8 +95,10 @@ export default async function DashboardPage() {
     }).catch(() => [])
   ]);
 
-  const collectionProgress = totalInvoicesAllTime > 0
-    ? Math.round((paidInvoicesAllTime / totalInvoicesAllTime) * 100)
+  const paidMembersCount = Math.min(totalActiveMembers, currentMonthPaidInvoicesCount);
+  const dueMembersCount = Math.max(0, totalActiveMembers - paidMembersCount);
+  const collectionProgress = totalActiveMembers > 0
+    ? Math.round((paidMembersCount / totalActiveMembers) * 100)
     : 0;
 
   let userHasVotedOnActive = false;
@@ -332,7 +342,7 @@ export default async function DashboardPage() {
                 </div>
                 
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: '12px', color: '#64748b', padding: '4px 8px', borderRadius: '6px', marginBottom: '12px', fontSize: '0.75rem', border: '1px solid #e2e8f0', background: '#f8fafc' }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Users size={14} color="#059669" /> <span>{latestPoll._count.votes}/{totalMembers} ভোট</span></span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Users size={14} color="#059669" /> <span>{latestPoll._count.votes}/{totalActiveMembers} ভোট</span></span>
                   <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Clock size={14} color="#d97706" /> <span>শেষ: {latestPoll.deadline ? new Date(latestPoll.deadline).toLocaleDateString('bn-BD', { month: 'short', day: 'numeric' }) : 'অনির্ধারিত'}</span></span>
                 </div>
 
@@ -430,7 +440,7 @@ export default async function DashboardPage() {
                     <span className={styles.dot} style={{ backgroundColor: '#059669' }}></span> আদায় হয়েছে
                   </span>
                   <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#15803d', backgroundColor: '#ffffff', padding: '2px 8px', borderRadius: '6px', border: '1px solid #86efac' }}>
-                    {paidInvoicesAllTime} জন
+                    {paidMembersCount} জন
                   </span>
                 </div>
 
@@ -439,7 +449,7 @@ export default async function DashboardPage() {
                     <span className={styles.dot} style={{ backgroundColor: '#dc2626' }}></span> বকেয়া
                   </span>
                   <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#b91c1c', backgroundColor: '#ffffff', padding: '2px 8px', borderRadius: '6px', border: '1px solid #fca5a5' }}>
-                    {Math.max(0, totalInvoicesAllTime - paidInvoicesAllTime)} জন
+                    {dueMembersCount} জন
                   </span>
                 </div>
               </div>
