@@ -84,15 +84,75 @@ export default async function ReportsPage({
   // 3. Due Subscriptions
   else if (type === "due-subscriptions") {
     reportTitle = "বকেয়া চাঁদার তালিকা";
-    const dueWhere: any = { status: "PENDING" };
-    if (month !== "all") dueWhere.month = parseInt(month);
-    if (year !== "all") dueWhere.year = parseInt(year);
+    
+    const targetMonth = month !== "all" ? parseInt(month) : new Date().getMonth() + 1;
+    const targetYear = year !== "all" ? parseInt(year) : new Date().getFullYear();
 
-    reportData = await prisma.invoice.findMany({ 
+    if (month !== "all" || year !== "all") {
+      filtersText = `ফিল্টার: ${month !== "all" ? getMonthName(targetMonth) : 'সকল মাস'}, ${year !== "all" ? targetYear : 'সকল বছর'}`;
+    } else {
+      filtersText = `মেয়াদ: ${getMonthName(targetMonth)}, ${targetYear} (চলতি মাস)`;
+    }
+
+    // 1. Existing PENDING invoices
+    const dueWhere: any = { 
+      status: "PENDING",
+      user: { isDeleted: false, activeStatus: true }
+    };
+    if (month !== "all") dueWhere.month = targetMonth;
+    if (year !== "all") dueWhere.year = targetYear;
+
+    const existingPendingInvoices = await prisma.invoice.findMany({ 
       where: dueWhere,
       include: { user: true },
       orderBy: [{ year: 'desc' }, { month: 'desc' }]
     });
+
+    // 2. Paid invoices for target period
+    const paidWhere: any = { status: "PAID" };
+    if (month !== "all") paidWhere.month = targetMonth;
+    if (year !== "all") paidWhere.year = targetYear;
+
+    const paidInvoices = await prisma.invoice.findMany({
+      where: paidWhere,
+      select: { userId: true }
+    });
+
+    const paidUserIds = new Set(paidInvoices.map(i => i.userId));
+
+    // Get active users who have not paid for this period
+    const activeUsers = await prisma.user.findMany({
+      where: {
+        isDeleted: false,
+        activeStatus: true,
+        id: { notIn: Array.from(paidUserIds) }
+      },
+      orderBy: { createdAt: 'asc' }
+    });
+
+    const pendingUserIds = new Set(existingPendingInvoices.map(i => i.userId));
+    const combinedDueList: any[] = [...existingPendingInvoices];
+
+    for (const u of activeUsers) {
+      if (!pendingUserIds.has(u.id)) {
+        const isLate = (new Date().getFullYear() > targetYear) ||
+                       (new Date().getFullYear() === targetYear && new Date().getMonth() + 1 > targetMonth) ||
+                       (new Date().getFullYear() === targetYear && new Date().getMonth() + 1 === targetMonth && new Date().getDate() > 10);
+
+        combinedDueList.push({
+          id: `due-${u.id}-${targetMonth}-${targetYear}`,
+          userId: u.id,
+          user: u,
+          amount: 1000,
+          month: targetMonth,
+          year: targetYear,
+          lateFee: isLate ? 50 : 0,
+          status: "PENDING"
+        });
+      }
+    }
+
+    reportData = combinedDueList;
   } 
   
   // 4. Paid Subscriptions
