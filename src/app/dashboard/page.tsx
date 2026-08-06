@@ -435,23 +435,77 @@ export default async function DashboardPage() {
               </div>
 
               <div className={styles.legendArea}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#f0fdf4', padding: '8px 12px', borderRadius: '8px', border: '1px solid #bbf7d0' }}>
-                  <span className={styles.legendItem} style={{ color: '#166534' }}>
+                <Link 
+                  href={`/dashboard/admin/reports?type=paid-subscriptions&month=${currentMonth}&year=${currentYear}`}
+                  style={{ 
+                    textDecoration: 'none', 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center', 
+                    backgroundColor: '#f0fdf4', 
+                    padding: '8px 12px', 
+                    borderRadius: '8px', 
+                    border: '1px solid #bbf7d0',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
+                  title="আদায়কৃত সদস্যদের তালিকা দেখতে ক্লিক করুন"
+                >
+                  <span className={styles.legendItem} style={{ color: '#166534', fontWeight: 600 }}>
                     <span className={styles.dot} style={{ backgroundColor: '#059669' }}></span> আদায় হয়েছে
                   </span>
-                  <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#15803d', backgroundColor: '#ffffff', padding: '2px 8px', borderRadius: '6px', border: '1px solid #86efac' }}>
-                    {paidMembersCount} জন
+                  <span style={{ 
+                    fontSize: '0.875rem', 
+                    fontWeight: 800, 
+                    color: '#15803d', 
+                    backgroundColor: '#ffffff', 
+                    padding: '2px 8px', 
+                    borderRadius: '6px', 
+                    border: '1px solid #86efac',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}>
+                    {paidMembersCount} জন <span style={{ fontSize: '10px' }}>➔</span>
                   </span>
-                </div>
+                </Link>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fef2f2', padding: '8px 12px', borderRadius: '8px', border: '1px solid #fecdd3' }}>
-                  <span className={styles.legendItem} style={{ color: '#991b1b' }}>
+                <Link 
+                  href={`/dashboard/admin/reports?type=due-subscriptions&month=${currentMonth}&year=${currentYear}`}
+                  style={{ 
+                    textDecoration: 'none', 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center', 
+                    backgroundColor: '#fef2f2', 
+                    padding: '8px 12px', 
+                    borderRadius: '8px', 
+                    border: '1px solid #fecdd3',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
+                  title="বকেয়া সদস্যদের তালিকা দেখতে ক্লিক করুন"
+                >
+                  <span className={styles.legendItem} style={{ color: '#991b1b', fontWeight: 600 }}>
                     <span className={styles.dot} style={{ backgroundColor: '#dc2626' }}></span> বকেয়া
                   </span>
-                  <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#b91c1c', backgroundColor: '#ffffff', padding: '2px 8px', borderRadius: '6px', border: '1px solid #fca5a5' }}>
-                    {dueMembersCount} জন
+                  <span style={{ 
+                    fontSize: '0.875rem', 
+                    fontWeight: 800, 
+                    color: '#b91c1c', 
+                    backgroundColor: '#ffffff', 
+                    padding: '2px 8px', 
+                    borderRadius: '6px', 
+                    border: '1px solid #fca5a5',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}>
+                    {dueMembersCount} জন <span style={{ fontSize: '10px' }}>➔</span>
                   </span>
-                </div>
+                </Link>
               </div>
             </div>
           </div>

@@ -22,9 +22,6 @@ export default async function ReportsPage({
   if (!session?.user) redirect("/login");
   
   const role = (session.user as any).role;
-  if (role !== "ADMIN" && role !== "PRESIDENT" && role !== "SECRETARY" && role !== "CASHIER" && role !== "CONTROLLER") {
-    redirect("/dashboard");
-  }
 
   const club = await getClubInfo();
 
