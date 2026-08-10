@@ -59,6 +59,7 @@ export async function POST(req: Request) {
             userId: member.id,
             type: txType,
             amount: perMemberShare,
+            note: description || (isCredit ? "প্রজেক্ট লভ্যাংশ" : "অফিস পরিচালন ব্যয়"),
             status: "APPROVED",
             approvedBy: (session.user as any).id,
             date: new Date()

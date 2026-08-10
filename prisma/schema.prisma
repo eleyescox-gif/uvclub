@@ -63,8 +63,9 @@ model Transaction {
   id          String   @id @default(uuid())
   user        User     @relation(fields: [userId], references: [id])
   userId      String
-  type        String   // DEPOSIT, WITHDRAWAL, PENALTY, PROFIT_POSTING, LOSS_POSTING
+  type        String   // DEPOSIT, WITHDRAWAL, PENALTY, PROFIT_POSTING, LOSS_POSTING, EXPENSE_POSTING
   amount      Float
+  note        String?
   date        DateTime @default(now())
   proofImage  String?
   status      String   @default("PENDING") // PENDING, APPROVED, REJECTED
