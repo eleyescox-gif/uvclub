@@ -133,6 +133,7 @@ export async function distributeProfit(formData: FormData) {
               userId: member.id,
               type: transactionType,
               amount: perMemberShare,
+              note: note || (type === "PROFIT" ? "প্রজেক্ট লভ্যাংশ" : "অফিস পরিচালন ব্যয়"),
               status: "APPROVED",
               approvedBy: (session.user as any).id
             }

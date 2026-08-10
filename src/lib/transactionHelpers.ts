@@ -28,7 +28,7 @@ export function getTransactionTitle(t: any): string {
     case "PROFIT_POSTING":
       return `প্রজেক্ট লভ্যাংশ - ${monthNameBn}`;
     case "LOSS_POSTING":
-      return `প্রজেক্ট লোকসান বন্টন - ${monthNameBn}`;
+      return `অফিস পরিচালন ব্যয় / খরচ - ${monthNameBn}`;
     case "PENALTY":
     case "LATE_FEE":
       return `বিলম্ব ফি (জরিমানা) - ${monthNameBn}`;
