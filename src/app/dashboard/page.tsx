@@ -8,6 +8,7 @@ import { authOptions } from "@/lib/auth";
 import { PollOptionList } from "@/app/dashboard/voting/VotingComponents";
 import AnimatedCounter from "@/components/dashboard/AnimatedCounter";
 import NoticePopupModal from "@/components/dashboard/NoticePopupModal";
+import { getTransactionTitle } from "@/lib/transactionHelpers";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -626,7 +627,7 @@ export default async function DashboardPage() {
             <div className={styles.recentList}>
               {user?.transactions && user.transactions.length > 0 ? (
                 user.transactions.map((tx: any) => {
-                  const txName = tx.type === 'DEPOSIT' ? 'চাঁদা জমা' : tx.type === 'WITHDRAWAL' ? 'উত্তোলন' : tx.type === 'PROFIT_POSTING' ? 'লভ্যাংশ' : 'জরিমানা';
+                  const txName = getTransactionTitle(tx);
                   const isInc = tx.type === 'DEPOSIT' || tx.type === 'PROFIT_POSTING';
                   return (
                     <div key={tx.id} className={styles.recentItem}>
@@ -634,7 +635,7 @@ export default async function DashboardPage() {
                         <Activity size={16} />
                       </div>
                       <div className={styles.recentInfo}>
-                        <h4>{tx.txName || txName}</h4>
+                        <h4>{txName}</h4>
                         <p>তারিখ: {new Date(tx.date).toLocaleDateString('bn-BD')}</p>
                       </div>
                       <span style={{ fontSize: '0.875rem', fontWeight: 700, color: isInc ? '#059669' : '#dc2626' }}>

@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import OnlinePaymentCard from "./OnlinePaymentCard";
 import MonthlyProfitLossSummary from "@/components/dashboard/MonthlyProfitLossSummary";
+import { getTransactionTitle } from "@/lib/transactionHelpers";
 
 interface Invoice {
   id: string;
@@ -110,11 +111,10 @@ export default function UnifiedFinanceView({
       const invMonthBn = matchedInv ? monthsBn[matchedInv.month - 1] : monthNameBn;
       const invYearShort = matchedInv ? String(matchedInv.year).slice(2) : String(txDate.getFullYear()).slice(2);
 
-      let desc = `চাঁদা - ${invMonthBn} '${invYearShort}`;
-      if (t.type === "PROFIT_POSTING") desc = `প্রজেক্ট লভ্যাংশ - ${monthNameBn}`;
-      else if (t.type === "WITHDRAWAL") desc = `উত্তোলন - ${monthNameBn}`;
-      else if (t.type === "LOSS_POSTING") desc = `লোকসান চার্জ - ${monthNameBn}`;
-      else if (t.note) desc = t.note;
+      let desc = getTransactionTitle(t);
+      if (t.type === "DEPOSIT" && matchedInv) {
+        desc = `চাঁদা - ${invMonthBn} '${invYearShort}`;
+      }
 
       const receiptNo = matchedInv 
         ? `#REC-${matchedInv.year}${String(matchedInv.month).padStart(2, '0')}-${t.id.slice(-4).toUpperCase()}`

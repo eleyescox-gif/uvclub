@@ -309,12 +309,13 @@ export default async function ReportsPage({
     return 'সদস্য';
   };
 
-  const getTxNameBn = (type: string) => {
+  const getTxNameBn = (type: string, note?: string) => {
+    if (note && note.trim()) return note.trim();
     if (type === 'DEPOSIT') return 'চাঁদা জমা';
     if (type === 'WITHDRAWAL') return 'উত্তোলন';
-    if (type === 'PROFIT_POSTING') return 'লভ্যাংশ পোস্টিং';
-    if (type === 'LOSS_POSTING') return 'লোকসান পোস্টিং';
-    if (type === 'PENALTY') return 'জরিমানা';
+    if (type === 'PROFIT_POSTING') return 'প্রজেক্ট লভ্যাংশ';
+    if (type === 'LOSS_POSTING') return 'প্রজেক্ট লোকসান বন্টন';
+    if (type === 'PENALTY' || type === 'LATE_FEE') return 'বিলম্ব ফি (জরিমানা)';
     return type;
   };
 

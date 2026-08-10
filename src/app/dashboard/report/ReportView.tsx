@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { Printer, Calendar, Receipt, MessageCircle, ArrowUpRight, ArrowDownLeft, FileText, Send, CheckCircle2, ChevronRight, Clock, Check, X } from "lucide-react";
 import Link from "next/link";
+import { getTransactionTitle } from "@/lib/transactionHelpers";
 
 interface ReceiptTx {
   id: string;
@@ -283,10 +284,7 @@ export default function ReportView({ user, transactions, receiptTransactions }: 
             <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
               {transactions.map((tx) => {
                 const isCredit = tx.type === "DEPOSIT" || tx.type === "PROFIT_POSTING";
-                const typeTitle = tx.type === "DEPOSIT" ? "চাঁদা জমা" :
-                                  tx.type === "WITHDRAWAL" ? "উত্তোলন" :
-                                  tx.type === "PROFIT_POSTING" ? "লভ্যাংশ প্রাপ্তি" :
-                                  tx.type === "LOSS_POSTING" ? "লোকসান সমন্বয়" : "জরিমানা";
+                const typeTitle = getTransactionTitle(tx);
 
                 return (
                   <div
