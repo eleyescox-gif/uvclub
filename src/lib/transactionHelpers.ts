@@ -26,7 +26,7 @@ export function getTransactionTitle(t: any): string {
     case "DEPOSIT":
       return `চাঁদা - ${monthNameBn} '${yearShort}`;
     case "PROFIT_POSTING":
-      return `প্রজেক্ট লভ্যাংশ - ${monthNameBn}`;
+      return `প্রজেক্ট লভ্যাংশ / অন্যান্য জমা - ${monthNameBn}`;
     case "LOSS_POSTING":
       return `অফিস পরিচালন ব্যয় / খরচ - ${monthNameBn}`;
     case "PENALTY":
