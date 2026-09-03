@@ -74,17 +74,15 @@ export default function BottomNav({ role, user }: BottomNavProps) {
           bottom: 0,
           left: 0,
           right: 0,
-          height: "66px",
-          backgroundColor: "rgba(255,255,255,0.92)",
-          borderTop: "1px solid rgba(0,0,0,0.07)",
-          boxShadow: "0 -6px 24px rgba(0,0,0,0.07)",
+          height: "64px",
+          backgroundColor: "#ffffff",
+          borderTop: "1px solid #e2e8f0",
+          boxShadow: "0 -4px 20px rgba(0,0,0,0.06)",
           zIndex: 9990,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-around",
           padding: "0 0.25rem calc(env(safe-area-inset-bottom))",
-          backdropFilter: "blur(16px)",
-          WebkitBackdropFilter: "blur(16px)",
         }}
       >
         {navItems.map((item) => {
@@ -93,6 +91,8 @@ export default function BottomNav({ role, user }: BottomNavProps) {
             <Link
               key={item.href}
               href={item.href}
+              prefetch={true}
+              className="bottom-nav-item"
               style={{
                 display: "flex",
                 flexDirection: "column",
@@ -103,6 +103,7 @@ export default function BottomNav({ role, user }: BottomNavProps) {
                 gap: "3px",
                 padding: "4px 2px",
                 position: "relative",
+                WebkitTapHighlightColor: "transparent",
               }}
             >
               {/* Icon pill */}
@@ -117,7 +118,7 @@ export default function BottomNav({ role, user }: BottomNavProps) {
                   justifyContent: "center",
                   color: active ? item.color : "#9ca3af",
                   transform: active ? "scale(1.08)" : "scale(1)",
-                  transition: "all 0.22s cubic-bezier(0.34,1.56,0.64,1)",
+                  transition: "all 0.18s ease-out",
                   boxShadow: active
                     ? `0 2px 10px ${item.color}28`
                     : "none",
@@ -134,7 +135,7 @@ export default function BottomNav({ role, user }: BottomNavProps) {
                   color: active ? item.color : "#9ca3af",
                   letterSpacing: "-0.01em",
                   lineHeight: 1,
-                  transition: "color 0.2s ease",
+                  transition: "color 0.18s ease",
                 }}
               >
                 {item.name}
@@ -163,6 +164,10 @@ export default function BottomNav({ role, user }: BottomNavProps) {
       <style>{`
         .mobile-bottom-nav {
           display: none;
+        }
+        .bottom-nav-item:active {
+          transform: scale(0.92);
+          transition: transform 0.1s ease;
         }
         @media (max-width: 768px) {
           .mobile-bottom-nav {

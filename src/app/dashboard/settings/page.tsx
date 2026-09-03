@@ -9,6 +9,7 @@ import DataClearButton from "./DataClearButton";
 import PaymentGatewayToggle from "./PaymentGatewayToggle";
 import InterimModeSettingsSwitch from "./InterimModeSettingsSwitch";
 import DbCleanupButton from "./DbCleanupButton";
+import JsonBackupCard from "./JsonBackupCard";
 
 export default async function SettingsPage() {
   const session = await getServerSession(authOptions);
@@ -73,6 +74,9 @@ export default async function SettingsPage() {
 
         {canControlSystem && (
           <>
+            {/* Database Full JSON Backup Card */}
+            <JsonBackupCard />
+
             {/* Online Payment Gateway control card */}
             <div className="glass" style={{ padding: '2rem', borderRadius: '1rem', backgroundColor: '#ffffff', border: '1px solid #e2e8f0' }}>
               <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--foreground)' }}>অনলাইন পেমেন্ট গেটওয়ে কন্ট্রোল (Online Payment Gateway)</h2>

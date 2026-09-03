@@ -166,7 +166,7 @@ export default function Sidebar({ role, user, totalMembersCount }: SidebarProps)
               {menuItems.map((item) => {
                 const isActive = pathname === item.href;
                 return (
-                  <Link key={item.href} href={item.href} className={styles.navLink} onClick={() => setIsOpen(false)} style={{
+                  <Link key={item.href} href={item.href} prefetch={true} className={styles.navLink} onClick={() => setIsOpen(false)} style={{
                     backgroundColor: isActive ? 'var(--primary-light)' : 'transparent',
                     color: isActive ? 'var(--primary)' : '#4b5563',
                     fontWeight: isActive ? 700 : 600,
@@ -202,7 +202,7 @@ export default function Sidebar({ role, user, totalMembersCount }: SidebarProps)
                 {adminItems.map((item) => {
                   const isActive = pathname.startsWith(item.href);
                   return (
-                    <Link key={item.href} href={item.href} className={styles.navLink} onClick={() => setIsOpen(false)} style={{
+                    <Link key={item.href} href={item.href} prefetch={true} className={styles.navLink} onClick={() => setIsOpen(false)} style={{
                       backgroundColor: isActive ? 'var(--primary-light)' : 'transparent',
                       color: isActive ? 'var(--primary)' : '#4b5563',
                       fontWeight: isActive ? 700 : 600,
@@ -238,7 +238,7 @@ export default function Sidebar({ role, user, totalMembersCount }: SidebarProps)
             {generalItems.map((item) => {
               const isActive = pathname === item.href;
               return (
-                <Link key={item.href} href={item.href} className={styles.navLink} onClick={() => setIsOpen(false)} style={{
+                <Link key={item.href} href={item.href} prefetch={true} className={styles.navLink} onClick={() => setIsOpen(false)} style={{
                   backgroundColor: isActive ? 'var(--primary-light)' : 'transparent',
                   color: isActive ? 'var(--primary)' : '#4b5563',
                   fontWeight: isActive ? 700 : 600,
