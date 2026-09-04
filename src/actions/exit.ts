@@ -12,9 +12,13 @@ export async function requestExit(formData: FormData) {
     return { error: "Unauthenticated" };
   }
 
-  const role = (session.user as any).role;
-  if (role !== "ADMIN" && role !== "SECRETARY") {
-    return { error: "Unauthorized. Only Secretary can request exit for a member." };
+  const userMobile = (session.user as any).mobile;
+  const rawRole = (session.user as any).role;
+  const isController = userMobile === "01812000109" || rawRole === "CONTROLLER";
+  const role = isController ? "CONTROLLER" : rawRole;
+
+  if (!isController && role !== "ADMIN" && role !== "SECRETARY" && role !== "PRESIDENT") {
+    return { error: "অনুমোদিত নয় (Unauthorized). শুধুমাত্র কন্ট্রোলার বা সম্পাদক সদস্য পদত্যাগের আবেদন করতে পারবেন।" };
   }
 
   const memberId = formData.get("memberId") as string;
@@ -57,9 +61,13 @@ export async function processExit(exitRequestId: string) {
     return { error: "Unauthenticated" };
   }
 
-  const role = (session.user as any).role;
-  if (role !== "ADMIN" && role !== "PRESIDENT") {
-    return { error: "Unauthorized. Only President can finalize an exit." };
+  const userMobile = (session.user as any).mobile;
+  const rawRole = (session.user as any).role;
+  const isController = userMobile === "01812000109" || rawRole === "CONTROLLER";
+  const role = isController ? "CONTROLLER" : rawRole;
+
+  if (!isController && role !== "ADMIN" && role !== "PRESIDENT") {
+    return { error: "অনুমোদিত নয় (Unauthorized). শুধুমাত্র কন্ট্রোলার বা সভাপতি পদত্যাগ চূড়ান্ত অনুমোদন করতে পারবেন।" };
   }
 
   try {

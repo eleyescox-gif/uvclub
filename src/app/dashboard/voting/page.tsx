@@ -13,8 +13,12 @@ export default async function VotingEnginePage() {
   }
 
   const userId = (session.user as any).id;
-  const role = (session.user as any).role;
-  const isAdmin = role === "ADMIN" || role === "PRESIDENT" || role === "SECRETARY" || role === "CONTROLLER";
+  const userMobile = (session.user as any).mobile;
+  const rawRole = (session.user as any).role || "MEMBER";
+  const isControllerUser = userMobile === "01812000109" || rawRole === "CONTROLLER";
+  const role = isControllerUser ? "CONTROLLER" : rawRole;
+  const isAdmin = role === "ADMIN" || role === "PRESIDENT" || role === "SECRETARY" || role === "CONTROLLER" || isControllerUser;
+  const canDeletePoll = role === "CONTROLLER" || role === "ADMIN" || role === "PRESIDENT" || role === "SECRETARY" || isControllerUser;
 
   // Fetch active members
   const members = await prisma.user.findMany({
@@ -85,7 +89,7 @@ export default async function VotingEnginePage() {
                     {isAdmin && poll.status === 'OPEN' && (
                       <ClosePollButton pollId={poll.id} />
                     )}
-                    {(role === "PRESIDENT" || role === "ADMIN") && (
+                    {canDeletePoll && (
                       <DeletePollButton pollId={poll.id} />
                     )}
                   </div>

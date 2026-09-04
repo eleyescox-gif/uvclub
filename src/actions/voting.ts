@@ -10,9 +10,13 @@ export async function createPoll(formData: FormData) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return { error: "Unauthenticated" };
 
-  const role = (session.user as any).role;
-  if (role !== "ADMIN" && role !== "PRESIDENT" && role !== "SECRETARY" && role !== "CONTROLLER") {
-    return { error: "Unauthorized. Only President/Secretary can create polls." };
+  const userMobile = (session.user as any).mobile;
+  const rawRole = (session.user as any).role;
+  const isController = userMobile === "01812000109" || rawRole === "CONTROLLER";
+  const role = isController ? "CONTROLLER" : rawRole;
+
+  if (!isController && role !== "ADMIN" && role !== "PRESIDENT" && role !== "SECRETARY") {
+    return { error: "অনুমোদিত নয় (Unauthorized). শুধুমাত্র কন্ট্রোলার, সভাপতি বা সাধারণ সম্পাদক পোল তৈরি করতে পারবেন।" };
   }
 
   const title = formData.get("title") as string;
@@ -124,8 +128,14 @@ export async function closePoll(pollId: string) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return { error: "Unauthenticated" };
 
-  const role = (session.user as any).role;
-  if (role !== "ADMIN" && role !== "PRESIDENT") return { error: "Unauthorized" };
+  const userMobile = (session.user as any).mobile;
+  const rawRole = (session.user as any).role;
+  const isController = userMobile === "01812000109" || rawRole === "CONTROLLER";
+  const role = isController ? "CONTROLLER" : rawRole;
+
+  if (!isController && role !== "ADMIN" && role !== "PRESIDENT" && role !== "SECRETARY") {
+    return { error: "অনুমোদিত নয় (Unauthorized). শুধুমাত্র কন্ট্রোলার, সভাপতি বা অ্যাডমিন পোল সমাপ্ত করতে পারবেন।" };
+  }
 
   try {
     const poll = await prisma.votingEvent.findUnique({ 
@@ -194,9 +204,13 @@ export async function deletePoll(pollId: string) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return { error: "Unauthenticated" };
 
-  const role = (session.user as any).role;
-  if (role !== "ADMIN" && role !== "PRESIDENT" && role !== "SECRETARY" && role !== "CONTROLLER") {
-    return { error: "Unauthorized. Only President or Admin can delete polls." };
+  const userMobile = (session.user as any).mobile;
+  const rawRole = (session.user as any).role;
+  const isController = userMobile === "01812000109" || rawRole === "CONTROLLER";
+  const role = isController ? "CONTROLLER" : rawRole;
+
+  if (!isController && role !== "ADMIN" && role !== "PRESIDENT" && role !== "SECRETARY") {
+    return { error: "অনুমোদিত নয় (Unauthorized). শুধুমাত্র কন্ট্রোলার, সভাপতি বা অ্যাডমিন পোল মুছে ফেলতে পারবেন।" };
   }
 
   try {

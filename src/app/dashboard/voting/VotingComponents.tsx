@@ -246,7 +246,7 @@ export function CreateGeneralPollForm({ members = [] }: { members?: Member[] }) 
   if (!isOpen) {
     return (
       <button onClick={() => setIsOpen(true)} className="btn btn-primary" style={{ marginBottom: '1.5rem', width: '100%' }}>
-        + নতুন পোল তৈরি করুন (অ্যাডমিন)
+        + নতুন পোল তৈরি করুন (কন্ট্রোলার / অ্যাডমিন)
       </button>
     );
   }
