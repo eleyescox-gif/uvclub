@@ -29,16 +29,14 @@ export default async function DashboardLayout({
   let collectionStats = { paid: 0, due: 0 };
   let totalMembersCount = 0;
 
-  // Use getClubInfo() for dynamic admin-uploaded logo across dashboard
-  const clubInfoData = await getClubInfo();
-  let clubSettings = { name: clubInfoData.name, logo: clubInfoData.logo, address: clubInfoData.address };
+  let clubSettings = { name: "ইউনাইটেড ভিশন ক্লাব", logo: "/logo.jpg", address: "" as string | null };
 
   try {
     const today = new Date();
     const currentMonth = today.getMonth() + 1;
     const currentYear = today.getFullYear();
 
-    // Fetch settings and parallelize DB queries
+    // Fetch settings and parallelize DB queries in ONE single round trip
     const [settings, activeNotices, memberCount, paidInvoicesCount] = await Promise.all([
       (prisma as any).clubSettings.findUnique({ where: { id: "singleton" } }).catch(() => null),
       prisma.notice.findMany({
@@ -51,6 +49,14 @@ export default async function DashboardLayout({
         where: { month: currentMonth, year: currentYear, status: 'PAID' }
       }).catch(() => 0)
     ]);
+
+    if (settings) {
+      clubSettings = {
+        name: settings.name || "ইউনাইটেড ভিশন ক্লাব",
+        logo: settings.logo || "/logo.jpg",
+        address: settings.address || ""
+      };
+    }
 
     const noCommitteeMode = settings?.noCommitteeMode ?? false;
 
