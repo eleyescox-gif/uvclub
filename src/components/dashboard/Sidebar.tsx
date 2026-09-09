@@ -16,7 +16,8 @@ import {
   ShieldCheck,
   Megaphone,
   Menu,
-  X
+  X,
+  MessageSquare
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import styles from "./sidebar.module.css";
@@ -102,6 +103,7 @@ export default function Sidebar({ role, user, totalMembersCount }: SidebarProps)
   
   if (role === "ADMIN" || role === "PRESIDENT" || role === "SECRETARY" || role === "CASHIER" || role === "CONTROLLER") {
     adminItems.push({ name: "Reports", href: "/dashboard/admin/reports", icon: <FileText size={18} />, color: "#e11d48", bg: "rgba(225, 29, 72, 0.12)" });
+    adminItems.push({ name: "SMS Gateway", href: "/dashboard/admin/sms", icon: <MessageSquare size={18} />, color: "#2563eb", bg: "rgba(37, 99, 235, 0.12)" });
   }
 
   if (role === "SECRETARY" || role === "ADMIN" || role === "CONTROLLER") {
