@@ -14,6 +14,11 @@ export default function AppDownloadPrompt() {
   const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
+    // Suppress modal on login page to keep authentication fast and unobstructed
+    if (pathname === "/login") {
+      return;
+    }
+
     // Check if already running in standalone PWA app mode
     if (window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone) {
       setIsStandalone(true);

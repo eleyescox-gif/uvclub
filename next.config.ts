@@ -9,10 +9,14 @@ const withPWA = withPWAInit({
 
 const nextConfig: NextConfig = {
   turbopack: {},
+  compress: true,
+  poweredByHeader: false,
+  reactStrictMode: true,
   experimental: {
     serverActions: {
       bodySizeLimit: "10mb",
     },
+    optimizePackageImports: ["lucide-react"],
   },
 };
 

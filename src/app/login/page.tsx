@@ -3,7 +3,7 @@ import styles from "./login.module.css";
 import LoginForm from "./LoginForm";
 import { getClubInfo } from "@/lib/clubInfo";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export default async function LoginPage() {
   const clubInfo = await getClubInfo();
@@ -20,6 +20,10 @@ export default async function LoginPage() {
             <img 
               src={clubSettings.logo || "/logo.jpg"} 
               alt="Logo" 
+              width={85}
+              height={85}
+              loading="eager"
+              fetchPriority="high"
               style={{ 
                 width: '85px', 
                 height: '85px', 

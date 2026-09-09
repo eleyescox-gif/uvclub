@@ -1,6 +1,15 @@
 import type { Metadata } from "next";
+import { Hind_Siliguri } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
+import AppDownloadPrompt from "@/components/dashboard/AppDownloadPrompt";
+
+const hindSiliguri = Hind_Siliguri({
+  weight: ["300", "400", "500", "600", "700"],
+  subsets: ["bengali", "latin"],
+  display: "swap",
+  variable: "--font-hind-siliguri",
+});
 
 export const viewport = {
   themeColor: "#0F673D",
@@ -21,8 +30,6 @@ export const metadata: Metadata = {
   }
 };
 
-import AppDownloadPrompt from "@/components/dashboard/AppDownloadPrompt";
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -31,15 +38,14 @@ export default function RootLayout({
   return (
     <html
       lang="bn"
-      className="h-full antialiased"
+      className={`h-full antialiased ${hindSiliguri.variable}`}
       suppressHydrationWarning
     >
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-      </head>
-      <body className="min-h-full flex flex-col" style={{ fontFamily: "'Hind Siliguri', 'Noto Sans Bengali', 'SolaimanLipi', sans-serif" }} suppressHydrationWarning>
+      <body
+        className={`min-h-full flex flex-col ${hindSiliguri.className}`}
+        style={{ fontFamily: "var(--font-hind-siliguri), 'Noto Sans Bengali', 'SolaimanLipi', sans-serif" }}
+        suppressHydrationWarning
+      >
         <Providers>
           {children}
           <AppDownloadPrompt />

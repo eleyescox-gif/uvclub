@@ -4,33 +4,21 @@ import prisma from "@/lib/prisma";
 import { StatsCounter } from "@/components/home/StatsCounter";
 import { getClubInfo } from "@/lib/clubInfo";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function Home() {
-  // Use getClubInfo() for consistent logo and club info across all pages
-  const clubInfo = await getClubInfo();
-  let totalMembers = 0;
-  let totalProjectsCount = 0;
+  const [clubInfo, totalMembers, totalProjectsCount] = await Promise.all([
+    getClubInfo(),
+    prisma.user.count({ 
+      where: { activeStatus: true, isDeleted: false } 
+    }).catch(() => 0),
+    prisma.project.count().catch(() => 0)
+  ]);
 
-  // Keep clubSettings alias for backward compat with template
   const clubSettings = {
     name: clubInfo.name,
     logo: clubInfo.logo,
   };
-
-  try {
-    totalMembers = await prisma.user.count({ 
-      where: { activeStatus: true, isDeleted: false } 
-    }).catch(() => 0);
-  } catch (err) {
-    console.error("Home: totalMembers error:", err);
-  }
-
-  try {
-    totalProjectsCount = await prisma.project.count().catch(() => 0);
-  } catch (err) {
-    console.error("Home: totalProjectsCount error:", err);
-  }
 
   // Calculate dynamic success years (founded in 2025)
   const foundingYear = 2025;
@@ -45,6 +33,10 @@ export default async function Home() {
           <img 
             src={clubSettings.logo || "/logo.jpg"} 
             alt="Logo" 
+            width={46}
+            height={46}
+            loading="eager"
+            fetchPriority="high"
             style={{ width: '46px', height: '46px', borderRadius: '4px', objectFit: 'contain', backgroundColor: '#fff', padding: '2px' }} 
           />
           <h1 className={styles.logoTitle}>{clubSettings.name || "United Vision Club"}</h1>
