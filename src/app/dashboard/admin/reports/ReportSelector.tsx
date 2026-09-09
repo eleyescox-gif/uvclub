@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useTransition } from "react";
+import { Loader2, Printer, Calendar, RefreshCw } from "lucide-react";
 
 interface Member {
   id: string;
@@ -13,12 +14,19 @@ interface Member {
 export default function ReportSelector({ members }: { members: Member[] }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
 
   const currentType = searchParams.get("type") || "member-list";
   const currentMonth = searchParams.get("month") || "all";
   const currentYear = searchParams.get("year") || "all";
   const currentUserId = searchParams.get("userId") || (members[0]?.id || "");
   
+  // Local state for immediate responsiveness
+  const [selectedType, setSelectedType] = useState(currentType);
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+  const [selectedYear, setSelectedYear] = useState(currentYear);
+  const [selectedUserId, setSelectedUserId] = useState(currentUserId);
+
   // Default date ranges: current year
   const today = new Date();
   const todayStr = today.toISOString().split("T")[0];
@@ -29,6 +37,12 @@ export default function ReportSelector({ members }: { members: Member[] }) {
 
   // Sync state with URL searchParams if they change
   useEffect(() => {
+    setSelectedType(searchParams.get("type") || "member-list");
+    setSelectedMonth(searchParams.get("month") || "all");
+    setSelectedYear(searchParams.get("year") || "all");
+    if (searchParams.get("userId")) {
+      setSelectedUserId(searchParams.get("userId")!);
+    }
     const urlFrom = searchParams.get("dateFrom");
     const urlTo = searchParams.get("dateTo");
     if (urlFrom) setDateFrom(urlFrom);
@@ -44,33 +58,38 @@ export default function ReportSelector({ members }: { members: Member[] }) {
         newParams.delete(key);
       }
     });
-    router.push(`/dashboard/admin/reports?${newParams.toString()}`);
+
+    startTransition(() => {
+      router.push(`/dashboard/admin/reports?${newParams.toString()}`, { scroll: false });
+    });
   };
 
   const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const type = e.target.value;
+    setSelectedType(type);
     const params: Record<string, string> = { type };
     
     if (type === "single-member-ledger") {
-      params.userId = currentUserId || members[0]?.id || "";
+      params.userId = selectedUserId || members[0]?.id || "";
       params.dateFrom = dateFrom;
       params.dateTo = dateTo;
-      params.month = currentMonth;
-      params.year = currentYear;
+      params.month = selectedMonth;
+      params.year = selectedYear;
     } else if (type === "due-subscriptions" || type === "paid-subscriptions") {
-      params.month = currentMonth;
-      params.year = currentYear;
+      params.month = selectedMonth;
+      params.year = selectedYear;
     }
     updateUrl(params);
   };
 
   const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const m = e.target.value;
+    setSelectedMonth(m);
     const params: Record<string, string> = { month: m };
     
     // If selecting a month in single member ledger, auto calculate dateFrom and dateTo
-    if (currentType === "single-member-ledger" && m !== "all") {
-      const y = currentYear !== "all" ? parseInt(currentYear) : today.getFullYear();
+    if (selectedType === "single-member-ledger" && m !== "all") {
+      const y = selectedYear !== "all" ? parseInt(selectedYear) : today.getFullYear();
       const mNum = parseInt(m);
       const start = new Date(y, mNum - 1, 1).toISOString().split("T")[0];
       const end = new Date(y, mNum, 0).toISOString().split("T")[0];
@@ -84,13 +103,14 @@ export default function ReportSelector({ members }: { members: Member[] }) {
 
   const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const y = e.target.value;
+    setSelectedYear(y);
     const params: Record<string, string> = { year: y };
 
-    if (currentType === "single-member-ledger" && y !== "all") {
+    if (selectedType === "single-member-ledger" && y !== "all") {
       const yNum = parseInt(y);
-      const mNum = currentMonth !== "all" ? parseInt(currentMonth) : 1;
+      const mNum = selectedMonth !== "all" ? parseInt(selectedMonth) : 1;
       const start = new Date(yNum, mNum - 1, 1).toISOString().split("T")[0];
-      const end = currentMonth !== "all" ? new Date(yNum, mNum, 0).toISOString().split("T")[0] : `${yNum}-12-31`;
+      const end = selectedMonth !== "all" ? new Date(yNum, mNum, 0).toISOString().split("T")[0] : `${yNum}-12-31`;
       setDateFrom(start);
       setDateTo(end);
       params.dateFrom = start;
@@ -100,13 +120,13 @@ export default function ReportSelector({ members }: { members: Member[] }) {
   };
 
   const handleMemberChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    updateUrl({ userId: e.target.value });
+    const uid = e.target.value;
+    setSelectedUserId(uid);
+    updateUrl({ userId: uid });
   };
 
-  const handleDateChange = (from: string, to: string) => {
-    setDateFrom(from);
-    setDateTo(to);
-    updateUrl({ dateFrom: from, dateTo: to });
+  const handleApplyDateRange = () => {
+    updateUrl({ dateFrom, dateTo });
   };
 
   const applyPreset = (preset: string) => {
@@ -130,15 +150,17 @@ export default function ReportSelector({ members }: { members: Member[] }) {
       fromStr = threeMonthsAgo.toISOString().split("T")[0];
     }
 
-    handleDateChange(fromStr, nowStr);
+    setDateFrom(fromStr);
+    setDateTo(nowStr);
+    updateUrl({ dateFrom: fromStr, dateTo: nowStr });
   };
 
   const handlePrint = () => {
     window.print();
   };
 
-  const showMonthYearFilter = currentType === "due-subscriptions" || currentType === "paid-subscriptions" || currentType === "single-member-ledger";
-  const showMemberFilter = currentType === "single-member-ledger";
+  const showMonthYearFilter = selectedType === "due-subscriptions" || selectedType === "paid-subscriptions" || selectedType === "single-member-ledger";
+  const showMemberFilter = selectedType === "single-member-ledger";
 
   return (
     <div className="no-print" style={{ 
@@ -149,17 +171,47 @@ export default function ReportSelector({ members }: { members: Member[] }) {
       marginBottom: '1.5rem',
       display: 'flex',
       flexDirection: 'column',
-      gap: '1.25rem',
-      boxShadow: 'var(--shadow-sm)'
+      gap: '1rem',
+      boxShadow: 'var(--shadow-sm)',
+      position: 'relative'
     }}>
-      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+      {/* Loading Banner when transition is pending */}
+      {isPending && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.6rem',
+          padding: '0.6rem 1rem',
+          borderRadius: '0.5rem',
+          backgroundColor: '#eff6ff',
+          border: '1px solid #bfdbfe',
+          color: '#1d4ed8',
+          fontSize: '0.85rem',
+          fontWeight: 700
+        }}>
+          <Loader2 size={18} className="animate-spin" />
+          <span>রিপোর্ট ডাটা প্রসেস ও লোড হচ্ছে... অনুগ্রহ করে একটু অপেক্ষা করুন।</span>
+        </div>
+      )}
+
+      <div style={{ 
+        display: 'flex', 
+        gap: '1rem', 
+        flexWrap: 'wrap', 
+        alignItems: 'flex-end', 
+        justifyContent: 'space-between',
+        opacity: isPending ? 0.65 : 1,
+        pointerEvents: isPending ? 'none' : 'auto',
+        transition: 'opacity 0.2s ease'
+      }}>
         
         {/* Report Type Select */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', flex: '1 1 240px', minWidth: '220px' }}>
           <label style={{ fontSize: '0.8rem', fontWeight: 700, color: '#374151' }}>রিপোর্টের ধরণ</label>
           <select 
-            value={currentType} 
+            value={selectedType} 
             onChange={handleTypeChange}
+            disabled={isPending}
             className="input"
             style={{ padding: '0.65rem 0.85rem', borderRadius: '0.6rem', border: '1px solid #cbd5e1', width: '100%', backgroundColor: 'var(--background)', color: 'var(--foreground)', fontWeight: 700, fontSize: '0.875rem' }}
           >
@@ -179,8 +231,9 @@ export default function ReportSelector({ members }: { members: Member[] }) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', flex: '1 1 240px', minWidth: '220px' }}>
             <label style={{ fontSize: '0.8rem', fontWeight: 700, color: '#374151' }}>সদস্য নির্বাচন করুন</label>
             <select 
-              value={currentUserId} 
+              value={selectedUserId} 
               onChange={handleMemberChange}
+              disabled={isPending}
               className="input"
               style={{ padding: '0.65rem 0.85rem', borderRadius: '0.6rem', border: '1px solid #cbd5e1', width: '100%', fontWeight: 600, fontSize: '0.875rem' }}
             >
@@ -199,8 +252,9 @@ export default function ReportSelector({ members }: { members: Member[] }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
               <label style={{ fontSize: '0.8rem', fontWeight: 700, color: '#374151' }}>মাস</label>
               <select 
-                value={currentMonth} 
+                value={selectedMonth} 
                 onChange={handleMonthChange}
+                disabled={isPending}
                 className="input"
                 style={{ padding: '0.65rem 0.75rem', borderRadius: '0.6rem', border: '1px solid #cbd5e1', minWidth: '110px', fontSize: '0.85rem' }}
               >
@@ -223,8 +277,9 @@ export default function ReportSelector({ members }: { members: Member[] }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
               <label style={{ fontSize: '0.8rem', fontWeight: 700, color: '#374151' }}>বছর</label>
               <select 
-                value={currentYear} 
+                value={selectedYear} 
                 onChange={handleYearChange}
+                disabled={isPending}
                 className="input"
                 style={{ padding: '0.65rem 0.75rem', borderRadius: '0.6rem', border: '1px solid #cbd5e1', minWidth: '100px', fontSize: '0.85rem' }}
               >
@@ -240,6 +295,7 @@ export default function ReportSelector({ members }: { members: Member[] }) {
         {/* Print Action Button */}
         <button 
           onClick={handlePrint} 
+          disabled={isPending}
           className="btn btn-primary" 
           style={{ 
             padding: '0.65rem 1.5rem', 
@@ -252,38 +308,56 @@ export default function ReportSelector({ members }: { members: Member[] }) {
             whiteSpace: 'nowrap'
           }}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+          <Printer size={16} />
           রিপোর্ট প্রিন্ট করুন
         </button>
       </div>
 
       {/* Custom Date Range selectors and presets for single member ledger */}
       {showMemberFilter && (
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', borderTop: '1px dashed var(--border)', paddingTop: '1rem', marginTop: '0.25rem' }}>
+        <div style={{ 
+          display: 'flex', 
+          gap: '1rem', 
+          flexWrap: 'wrap', 
+          alignItems: 'center', 
+          borderTop: '1px dashed var(--border)', 
+          paddingTop: '1rem', 
+          marginTop: '0.25rem',
+          opacity: isPending ? 0.65 : 1,
+          pointerEvents: isPending ? 'none' : 'auto'
+        }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
             <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#374151' }}>কাস্টম সময়কাল:</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
               <input 
                 type="date" 
                 value={dateFrom} 
-                onChange={(e) => handleDateChange(e.target.value, dateTo)}
+                onChange={(e) => setDateFrom(e.target.value)}
                 style={{ padding: '0.45rem 0.6rem', borderRadius: '0.5rem', border: '1px solid #cbd5e1', fontSize: '0.8rem' }}
               />
               <span style={{ fontSize: '0.8rem', color: '#6b7280' }}>থেকে</span>
               <input 
                 type="date" 
                 value={dateTo} 
-                onChange={(e) => handleDateChange(dateFrom, e.target.value)}
+                onChange={(e) => setDateTo(e.target.value)}
                 style={{ padding: '0.45rem 0.6rem', borderRadius: '0.5rem', border: '1px solid #cbd5e1', fontSize: '0.8rem' }}
               />
+              <button 
+                onClick={handleApplyDateRange} 
+                disabled={isPending}
+                className="btn btn-primary" 
+                style={{ padding: '0.45rem 0.85rem', fontSize: '0.8rem', borderRadius: '0.5rem', fontWeight: 700 }}
+              >
+                প্রয়োগ করুন
+              </button>
             </div>
           </div>
 
           {/* Quick Date Presets */}
           <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
-            <button onClick={() => applyPreset("this-year")} className="btn btn-secondary" style={{ padding: '0.35rem 0.65rem', fontSize: '0.75rem', borderRadius: '0.375rem' }}>চলতি বছর</button>
-            <button onClick={() => applyPreset("last-3-months")} className="btn btn-secondary" style={{ padding: '0.35rem 0.65rem', fontSize: '0.75rem', borderRadius: '0.375rem' }}>বিগত ৩ মাস</button>
-            <button onClick={() => applyPreset("last-1-year")} className="btn btn-secondary" style={{ padding: '0.35rem 0.65rem', fontSize: '0.75rem', borderRadius: '0.375rem' }}>বিগত ১ বছর</button>
+            <button onClick={() => applyPreset("this-year")} disabled={isPending} className="btn btn-secondary" style={{ padding: '0.35rem 0.65rem', fontSize: '0.75rem', borderRadius: '0.375rem' }}>চলতি বছর</button>
+            <button onClick={() => applyPreset("last-3-months")} disabled={isPending} className="btn btn-secondary" style={{ padding: '0.35rem 0.65rem', fontSize: '0.75rem', borderRadius: '0.375rem' }}>বিগত ৩ মাস</button>
+            <button onClick={() => applyPreset("last-1-year")} disabled={isPending} className="btn btn-secondary" style={{ padding: '0.35rem 0.65rem', fontSize: '0.75rem', borderRadius: '0.375rem' }}>বিগত ১ বছর</button>
           </div>
         </div>
       )}

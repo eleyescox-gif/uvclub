@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
-import { ArrowUpRight, Clock, Plus, Download, Activity, CheckCircle, Briefcase, FileText, CheckCircle2, Award, Wallet, Landmark, Users, CheckSquare, RefreshCw, Vote, Megaphone, User, FileCheck, ChevronRight, ShieldCheck } from "lucide-react";
+import { ArrowUpRight, Clock, Plus, Download, Activity, CheckCircle, Briefcase, FileText, CheckCircle2, Award, Wallet, Landmark, Users, CheckSquare, RefreshCw, Vote, Megaphone, User, FileCheck, ChevronRight, ShieldCheck, MessageSquare, FileSpreadsheet } from "lucide-react";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
 import styles from "./dashboard.module.css";
@@ -175,6 +175,10 @@ export default async function DashboardPage() {
   }
   if (role === "ADMIN" || role === "PRESIDENT" || role === "SECRETARY" || role === "CONTROLLER") {
     quickServices.push({ name: "অনুমোদন", href: "/dashboard/admin/members/pending", icon: <CheckCircle2 size={20} /> });
+  }
+  if (role === "ADMIN" || role === "PRESIDENT" || role === "SECRETARY" || role === "CASHIER" || role === "CONTROLLER") {
+    quickServices.push({ name: "রিপোর্ট", href: "/dashboard/admin/reports", icon: <FileSpreadsheet size={20} /> });
+    quickServices.push({ name: "SMS গেটওয়ে", href: "/dashboard/admin/sms", icon: <MessageSquare size={20} /> });
   }
 
   const popupNotices = latestNotices.map(n => ({

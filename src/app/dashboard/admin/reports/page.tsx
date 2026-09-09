@@ -23,14 +23,14 @@ export default async function ReportsPage({
   
   const role = (session.user as any).role;
 
-  const club = await getClubInfo();
-
-  // Fetch list of active members for selection in the selector component
-  const activeMembersList = await prisma.user.findMany({
-    where: { isDeleted: false, activeStatus: true },
-    select: { id: true, name: true, nameBn: true, mobile: true },
-    orderBy: { name: 'asc' }
-  });
+  const [club, activeMembersList] = await Promise.all([
+    getClubInfo(),
+    prisma.user.findMany({
+      where: { isDeleted: false, activeStatus: true },
+      select: { id: true, name: true, nameBn: true, mobile: true },
+      orderBy: { name: 'asc' }
+    })
+  ]);
 
   const resolvedSearchParams = await searchParams;
   const type = resolvedSearchParams.type || "member-list";
@@ -99,21 +99,22 @@ export default async function ReportsPage({
     if (month !== "all") dueWhere.month = targetMonth;
     if (year !== "all") dueWhere.year = targetYear;
 
-    const existingPendingInvoices = await prisma.invoice.findMany({ 
-      where: dueWhere,
-      include: { user: true },
-      orderBy: [{ year: 'desc' }, { month: 'desc' }]
-    });
-
     // 2. Paid invoices for target period
     const paidWhere: any = { status: "PAID" };
     if (month !== "all") paidWhere.month = targetMonth;
     if (year !== "all") paidWhere.year = targetYear;
 
-    const paidInvoices = await prisma.invoice.findMany({
-      where: paidWhere,
-      select: { userId: true }
-    });
+    const [existingPendingInvoices, paidInvoices] = await Promise.all([
+      prisma.invoice.findMany({ 
+        where: dueWhere,
+        include: { user: true },
+        orderBy: [{ year: 'desc' }, { month: 'desc' }]
+      }),
+      prisma.invoice.findMany({
+        where: paidWhere,
+        select: { userId: true }
+      })
+    ]);
 
     const paidUserIds = new Set(paidInvoices.map(i => i.userId));
 
@@ -171,9 +172,17 @@ export default async function ReportsPage({
     reportTitle = "সদস্যদের লেনদেন বিবরণী (সংক্ষিপ্ত)";
     reportData = await prisma.user.findMany({
       where: { isDeleted: false },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        nameBn: true,
+        role: true,
+        mobile: true,
+        balance: true,
+        createdAt: true,
         transactions: {
-          where: { status: "APPROVED" }
+          where: { status: "APPROVED" },
+          select: { type: true, amount: true }
         }
       },
       orderBy: { createdAt: 'asc' }
@@ -244,30 +253,19 @@ export default async function ReportsPage({
     reportTitle = "একক সদস্যের লেনদেন বিবরণী";
     
     if (userId) {
-      ledgerUser = await prisma.user.findUnique({
-        where: { id: userId }
-      });
-
-      if (ledgerUser) {
-        reportSubtitle = `সদস্যের নাম: ${ledgerUser.nameBn || ledgerUser.name} | মোবাইল: ${ledgerUser.mobile}`;
-        filtersText = `সময়কাল: ${new Date(dateFrom).toLocaleDateString('bn-BD')} হতে ${new Date(dateTo).toLocaleDateString('bn-BD')}`;
-
-        // Compute Opening Balance (prior transactions up to dateFrom)
-        const priorTransactions = await prisma.transaction.findMany({
+      const [fetchedUser, priorTransactions, rangedTransactions] = await Promise.all([
+        prisma.user.findUnique({
+          where: { id: userId }
+        }),
+        prisma.transaction.findMany({
           where: {
             userId,
             status: "APPROVED",
             date: { lt: new Date(dateFrom) }
-          }
-        });
-
-        priorTransactions.forEach(t => {
-          if (t.type === 'DEPOSIT' || t.type === 'PROFIT_POSTING') ledgerOpeningBalance += t.amount;
-          if (t.type === 'WITHDRAWAL' || t.type === 'LOSS_POSTING') ledgerOpeningBalance -= t.amount;
-        });
-
-        // Query transactions in range
-        ledgerTransactions = await prisma.transaction.findMany({
+          },
+          select: { type: true, amount: true }
+        }),
+        prisma.transaction.findMany({
           where: {
             userId,
             status: "APPROVED",
@@ -277,7 +275,20 @@ export default async function ReportsPage({
             }
           },
           orderBy: { date: 'asc' }
+        })
+      ]);
+
+      ledgerUser = fetchedUser;
+      if (ledgerUser) {
+        reportSubtitle = `সদস্যের নাম: ${ledgerUser.nameBn || ledgerUser.name} | মোবাইল: ${ledgerUser.mobile}`;
+        filtersText = `সময়কাল: ${new Date(dateFrom).toLocaleDateString('bn-BD')} হতে ${new Date(dateTo).toLocaleDateString('bn-BD')}`;
+
+        priorTransactions.forEach(t => {
+          if (t.type === 'DEPOSIT' || t.type === 'PROFIT_POSTING') ledgerOpeningBalance += t.amount;
+          if (t.type === 'WITHDRAWAL' || t.type === 'LOSS_POSTING') ledgerOpeningBalance -= t.amount;
         });
+
+        ledgerTransactions = rangedTransactions;
       }
     }
   }

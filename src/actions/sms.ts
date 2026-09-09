@@ -12,7 +12,7 @@ const BALANCE_API_URL = "http://bulksmsbd.net/api/getBalanceApi";
 /**
  * Helper to format Bangladeshi phone number to 8801XXXXXXXXX
  */
-export function formatBdMobile(mobile: string): string {
+function formatBdMobile(mobile: string): string {
   let clean = mobile.replace(/\D/g, "");
   if (clean.startsWith("880")) return clean;
   if (clean.startsWith("0")) return "88" + clean;
