@@ -7,13 +7,51 @@ import { getClubInfo } from "@/lib/clubInfo";
 export const revalidate = 60;
 
 export default async function Home() {
-  const [clubInfo, totalMembers, totalProjectsCount] = await Promise.all([
+  const [clubInfo, totalMembers, totalProjectsCount, latestTx, latestNotice, latestUser] = await Promise.all([
     getClubInfo(),
     prisma.user.count({ 
       where: { activeStatus: true, isDeleted: false } 
     }).catch(() => 0),
-    prisma.project.count().catch(() => 0)
+    prisma.project.count().catch(() => 0),
+    prisma.transaction.findFirst({
+      orderBy: { createdAt: 'desc' },
+      select: { createdAt: true }
+    }).catch(() => null),
+    prisma.notice.findFirst({
+      orderBy: { createdAt: 'desc' },
+      select: { createdAt: true }
+    }).catch(() => null),
+    prisma.user.findFirst({
+      orderBy: { updatedAt: 'desc' },
+      select: { updatedAt: true }
+    }).catch(() => null),
   ]);
+
+  const candidateDates = [
+    latestTx?.createdAt,
+    latestNotice?.createdAt,
+    latestUser?.updatedAt
+  ].filter(Boolean).map((d) => new Date(d as Date).getTime());
+
+  const lastUpdateDate = candidateDates.length > 0
+    ? new Date(Math.max(...candidateDates))
+    : new Date();
+
+  const formattedDate = lastUpdateDate.toLocaleDateString("bn-BD", {
+    timeZone: "Asia/Dhaka",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+  const formattedTime = lastUpdateDate.toLocaleTimeString("bn-BD", {
+    timeZone: "Asia/Dhaka",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  const lastUpdateText = `${formattedDate} | ${formattedTime}`;
 
   const clubSettings = {
     name: clubInfo.name,
@@ -82,11 +120,18 @@ export default async function Home() {
         </div>
       </main>
 
-      {/* Footer with border and club name */}
+      {/* Footer with Last Update & Club Info */}
       <footer className={styles.footer}>
-        <p className={styles.footerText}>
-          © ২০২৫ - {new Date().getFullYear() === 2025 ? "২০২৫" : `২০২৫ - ${String(new Date().getFullYear()).replace(/[0-9]/g, (d) => ['০','১','২','৩','৪','৫','৬','৭','৮','৯'][parseInt(d)])}`} | {clubSettings.name || "United Vision Club"} | সর্বস্বত্ব সংরক্ষিত।
-        </p>
+        <div className={styles.footerInner}>
+          <div className={styles.lastUpdateBadge}>
+            <span className={styles.updatePulseDot} />
+            <span className={styles.updateLabel}>সর্বশেষ আপডেট:</span>
+            <span className={styles.updateTime}>{lastUpdateText}</span>
+          </div>
+          <p className={styles.footerText}>
+            © ২০২৫ - {new Date().getFullYear() === 2025 ? "২০২৫" : `২০২৫ - ${String(new Date().getFullYear()).replace(/[0-9]/g, (d) => ['০','১','২','৩','৪','৫','৬','৭','৮','৯'][parseInt(d)])}`} | {clubSettings.name || "United Vision Club"} | সর্বস্বত্ব সংরক্ষিত।
+          </p>
+        </div>
       </footer>
     </div>
   );
