@@ -28,6 +28,22 @@ export async function postPayment(formData: FormData) {
     return { error: "Missing required fields" };
   }
 
+  // Prevent duplicate payment for same member in the same month and year
+  const existingPaidInvoice = await prisma.invoice.findFirst({
+    where: {
+      userId,
+      month,
+      year,
+      status: "PAID",
+    },
+  });
+
+  if (existingPaidInvoice) {
+    return {
+      error: `এই সদস্যের ${month}/${year} মাসের চাঁদা ইতোমধ্যে পরিশোধিত হয়েছে! ডুপ্লিকেট পেমেন্ট গ্রহণযোগ্য নয়।`,
+    };
+  }
+
   try {
     const result = await prisma.$transaction(async (tx) => {
       // 1. Create Transaction (DEPOSIT)

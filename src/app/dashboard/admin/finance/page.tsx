@@ -24,6 +24,12 @@ export default async function AdminFinancePage() {
 
   const members = await getAllMembersForSelect();
 
+  // Fetch paid invoices so PostPaymentForm can filter out members who already paid for current/selected month
+  const paidInvoices = await prisma.invoice.findMany({
+    where: { status: "PAID" },
+    select: { userId: true, month: true, year: true },
+  });
+
   // Fetch active projects for profit distribution dropdown
   const activeProjects = await prisma.project.findMany({
     where: { status: { in: ['ACTIVE', 'PROPOSED'] } },
@@ -62,7 +68,7 @@ export default async function AdminFinancePage() {
       <div className={styles.grid}>
         {/* Left Column: Post Payment & Profit Distribution Forms */}
         <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-          <PostPaymentForm members={members} />
+          <PostPaymentForm members={members} paidRecords={paidInvoices} />
           <ProfitDistributionForm activeProjects={activeProjects} />
         </div>
 
