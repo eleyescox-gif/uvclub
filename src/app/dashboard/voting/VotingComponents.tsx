@@ -21,7 +21,7 @@ export function PollOptionList({
     candidate?: {
       name: string;
       nameBn: string | null;
-      profilePicture: string | null;
+      profilePicture?: string | null;
     } | null
   }[], 
   totalVotes: number, 
@@ -198,7 +198,7 @@ interface Member {
   id: string;
   name: string;
   nameBn: string | null;
-  profilePicture: string | null;
+  profilePicture?: string | null;
 }
 
 export function CreateGeneralPollForm({ members = [] }: { members?: Member[] }) {

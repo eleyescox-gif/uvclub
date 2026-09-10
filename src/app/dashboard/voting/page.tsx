@@ -5,6 +5,8 @@ import prisma from "@/lib/prisma";
 import { PollOptionList, ClosePollButton, CreateGeneralPollForm, DeletePollButton } from "./VotingComponents";
 import { PieChart, Users, Award, Clock } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default async function VotingEnginePage() {
   const session = await getServerSession(authOptions);
 
@@ -20,25 +22,34 @@ export default async function VotingEnginePage() {
   const isAdmin = role === "ADMIN" || role === "PRESIDENT" || role === "SECRETARY" || role === "CONTROLLER" || isControllerUser;
   const canDeletePoll = role === "CONTROLLER" || role === "ADMIN" || role === "PRESIDENT" || role === "SECRETARY" || isControllerUser;
 
-  // Fetch active members
-  const members = await prisma.user.findMany({
-    where: { activeStatus: true, isDeleted: false },
-    select: { id: true, name: true, nameBn: true, profilePicture: true }
-  });
-
-  // Fetch all polls
-  const polls = await prisma.votingEvent.findMany({
-    include: {
-      options: {
-        include: {
-          votes: true,
-          candidate: true
+  // Blazing fast parallel fetch: NEVER fetch huge base64 profilePicture strings!
+  const [members, polls] = await Promise.all([
+    isAdmin
+      ? prisma.user.findMany({
+          where: { activeStatus: true, isDeleted: false },
+          select: { id: true, name: true, nameBn: true },
+          orderBy: { name: 'asc' }
+        })
+      : Promise.resolve([]),
+    prisma.votingEvent.findMany({
+      include: {
+        options: {
+          include: {
+            votes: {
+              select: { id: true, userId: true }
+            },
+            candidate: {
+              select: { id: true, name: true, nameBn: true }
+            }
+          }
+        },
+        votes: {
+          select: { id: true, userId: true, pollOptionId: true }
         }
       },
-      votes: true
-    },
-    orderBy: { createdAt: 'desc' }
-  });
+      orderBy: { createdAt: 'desc' }
+    })
+  ]);
 
   return (
     <div style={{ padding: '1.5rem', maxWidth: '48rem', margin: '0 auto' }}>
@@ -54,14 +65,20 @@ export default async function VotingEnginePage() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         {polls.length > 0 ? (
           polls.map(poll => {
-            const userHasVoted = poll.votes.some(v => v.userId === userId);
+            const userVote = poll.votes.find(v => v.userId === userId);
+            const userHasVoted = !!userVote;
+            const userVotedOptionId = userVote?.pollOptionId || null;
             const totalVotes = poll.votes.length;
             const isClosed = poll.status !== 'OPEN';
 
-            // Find Winner
+            // Find Winner safely
             let winner: any = null;
-            if (isClosed && poll.options.length > 0) {
-              winner = poll.options.reduce((prev, current) => (prev.votes.length > current.votes.length) ? prev : current);
+            if (isClosed && poll.options && poll.options.length > 0) {
+              winner = poll.options.reduce((prev, current) => {
+                const prevVotes = prev.votes ? prev.votes.length : 0;
+                const currVotes = current.votes ? current.votes.length : 0;
+                return prevVotes >= currVotes ? prev : current;
+              });
             }
 
             const formattedOptions = poll.options.map(opt => ({
@@ -100,7 +117,7 @@ export default async function VotingEnginePage() {
                 </p>
 
                 {/* Winner Banner */}
-                {isClosed && winner && winner.votes.length > 0 && (
+                {isClosed && winner && (winner.votes?.length || 0) > 0 && (
                   <div style={{ marginBottom: '1.5rem', padding: '1.5rem', background: 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)', border: '2px solid #fbbf24', borderRadius: '1rem', textAlign: 'center', boxShadow: '0 4px 6px -1px rgba(251, 191, 36, 0.2)' }}>
                     <h3 style={{ fontSize: '1.25rem', color: '#d97706', fontWeight: 800, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
                       <Award size={24} /> অভিনন্দন! 
@@ -119,6 +136,7 @@ export default async function VotingEnginePage() {
                   options={formattedOptions} 
                   totalVotes={totalVotes} 
                   userHasVoted={userHasVoted} 
+                  userVotedOptionId={userVotedOptionId}
                   isClosed={isClosed} 
                 />
 
